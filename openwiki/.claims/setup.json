@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:265da4971e09fda273acaf4f00ec0b0bbd00b7c17f46e1c85aa2342eaa86ef61",
+  "claims": [
+    {
+      "id": "claim_16fb0af7f9964dabafe6906db33eec28",
+      "statement": "OpenWiki 0.7.2 is declared as the npm dependency openwiki@^0.7.2 in package.json.",
+      "evidence": [
+        {
+          "resource": "repo://package.json",
+          "version": "repo-file-v1:sha256:34687452374d278a3f2f26afc2bf1d7bbefa32e39fe42391d28904c0be964cd5"
+        }
+      ]
+    },
+    {
+      "id": "claim_e3a8cd468b5c4323ac4b72c5dda45c44",
+      "statement": ".mcp.json registers an openwiki MCP server that runs `openwiki mcp --host claude`.",
+      "evidence": [
+        {
+          "resource": "repo://.mcp.json",
+          "version": "repo-file-v1:sha256:1217fe8aff83c5e31c83d562c6e21d66cc6745e870d49c737cf8a32df7c39ef3"
+        }
+      ]
+    },
+    {
+      "id": "claim_576cfdec428043fb938e8ead44e1570a",
+      "statement": "node_modules/ is git-ignored.",
+      "evidence": [
+        {
+          "resource": "repo://.gitignore",
+          "version": "repo-file-v1:sha256:4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-26T17:47:18.458Z"
+  }
+}

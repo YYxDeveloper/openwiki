@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:19e80b80ec73e886447b30c719ca12ffd30263e5159e6b1ee506dfad2bc6ab30",
+  "claims": [
+    {
+      "id": "claim_1fa4746278484441bf01200d9f30df33",
+      "statement": "The repository declares openwiki@^0.7.2 as its only dependency in package.json, so `npm install` installs it into node_modules.",
+      "evidence": [
+        {
+          "resource": "repo://package.json",
+          "version": "repo-file-v1:sha256:34687452374d278a3f2f26afc2bf1d7bbefa32e39fe42391d28904c0be964cd5"
+        }
+      ]
+    },
+    {
+      "id": "claim_5c706b9b5dcd4551b0f5af4190c02c6c",
+      "statement": ".mcp.json starts the server with `openwiki mcp --host claude`.",
+      "evidence": [
+        {
+          "resource": "repo://.mcp.json",
+          "version": "repo-file-v1:sha256:1217fe8aff83c5e31c83d562c6e21d66cc6745e870d49c737cf8a32df7c39ef3"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-10-26T17:47:18.458Z"
+  }
+}

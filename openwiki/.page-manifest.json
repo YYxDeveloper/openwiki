@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "pages": {
+    "/openwiki/overview.md": {
+      "pageVersion": "sha256:69334a067cd7b301945ba0cf504efc9fb2aa8f4f40f0aae1f3877dc0cf7b3d17",
+      "completedBy": "claude-code",
+      "completedRunId": "821e1bc3-f450-4de8-85ea-8096884d82e2",
+      "sourceFingerprint": "sha256:7d6deb8e2b08335ae1123df48174b1e97ae7179e36fe7cdff33cca818c7878e8"
+    },
+    "/openwiki/quickstart.md": {
+      "pageVersion": "sha256:19e80b80ec73e886447b30c719ca12ffd30263e5159e6b1ee506dfad2bc6ab30",
+      "completedBy": "claude-code",
+      "completedRunId": "821e1bc3-f450-4de8-85ea-8096884d82e2",
+      "sourceFingerprint": "sha256:7d6deb8e2b08335ae1123df48174b1e97ae7179e36fe7cdff33cca818c7878e8"
+    },
+    "/openwiki/setup.md": {
+      "pageVersion": "sha256:265da4971e09fda273acaf4f00ec0b0bbd00b7c17f46e1c85aa2342eaa86ef61",
+      "completedBy": "claude-code",
+      "completedRunId": "821e1bc3-f450-4de8-85ea-8096884d82e2",
+      "sourceFingerprint": "sha256:7d6deb8e2b08335ae1123df48174b1e97ae7179e36fe7cdff33cca818c7878e8"
+    }
+  }
+}
