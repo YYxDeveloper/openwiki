@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:265da4971e09fda273acaf4f00ec0b0bbd00b7c17f46e1c85aa2342eaa86ef61",
+  "pageVersion": "sha256:9897f1858da62a0ab5b91b4344248ea2f4c2d4be9f7768e8316b3213482e778f",
   "claims": [
     {
       "id": "claim_16fb0af7f9964dabafe6906db33eec28",
@@ -31,10 +31,20 @@
           "version": "repo-file-v1:sha256:4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97"
         }
       ]
+    },
+    {
+      "id": "claim_d6693e6fca1e462fbb3f4b6615bee88d",
+      "statement": "The OpenWiki Update workflow runs on manual dispatch and daily at cron 0 8 * * *, runs `openwiki code --update --print`, and opens a pull request on branch openwiki/update titled 'docs: update OpenWiki'.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/openwiki-update.yml",
+          "version": "repo-file-v1:sha256:c31005f16763845e6dcd826d671cf11890a4c8e12498fd2b59428be80e3b585a"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-26T17:47:18.458Z"
+    "at": "2026-11-11T13:06:53.166Z"
   }
 }

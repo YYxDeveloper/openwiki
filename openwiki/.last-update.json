@@ -1,8 +1,8 @@
 {
-  "updatedAt": "2026-10-26T17:48:30.051Z",
-  "command": "init",
-  "gitHead": "HEAD\nfatal: ambiguous argument 'HEAD': unknown revision or path not in the working tree.\nUse '--' to separate paths from revisions, like this:\n'git <command> [<revision>...] -- [<file>...]'",
+  "updatedAt": "2026-11-11T13:08:27.290Z",
+  "command": "update",
+  "gitHead": "54927707be43c25fcb9e0eb46e4b2d26b1ebe9ca",
   "model": "host-agent/claude",
   "status": "complete",
-  "language": "en"
+  "language": "zh-TW"
 }

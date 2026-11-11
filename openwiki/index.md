@@ -2,8 +2,9 @@
 okf_version: "0.2"
 ---
 
-# Files
+# 檔案
 
-- [OpenWiki Overview](overview.md)
-- [OpenWiki Quickstart](quickstart.md)
-- [OpenWiki Setup and MCP Integration](setup.md)
+- [參考文章收錄](articles.md)
+- [OpenWiki 概覽](overview.md)
+- [OpenWiki 快速開始](quickstart.md)
+- [OpenWiki 安裝與 MCP 整合](setup.md)

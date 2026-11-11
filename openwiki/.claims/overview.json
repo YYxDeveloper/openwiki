@@ -1,11 +1,15 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:69334a067cd7b301945ba0cf504efc9fb2aa8f4f40f0aae1f3877dc0cf7b3d17",
+  "pageVersion": "sha256:5c5dfac2df905fb87b75e5ba55e65206d16c29d537cae1244f8b61d3b69d87d7",
   "claims": [
     {
       "id": "claim_a0d1ef67466e41fca05df7e95f69f206",
-      "statement": "The repository contains no application source code; only OpenWiki install files, package manifests, and node_modules are present.",
+      "statement": "The repository contains no application source code; it holds OpenWiki install files, package manifests, a scheduled update workflow, and reference article notes under docs/articles/.",
       "evidence": [
+        {
+          "resource": "repo://docs/articles/README.md",
+          "version": "repo-file-v1:sha256:40dcb459d3ce5351f2631ea439560e69df87da7465ed6cf00f9c886fb0f87e5b"
+        },
         {
           "resource": "repo://package.json",
           "version": "repo-file-v1:sha256:34687452374d278a3f2f26afc2bf1d7bbefa32e39fe42391d28904c0be964cd5"
@@ -31,10 +35,20 @@
           "version": "repo-file-v1:sha256:1217fe8aff83c5e31c83d562c6e21d66cc6745e870d49c737cf8a32df7c39ef3"
         }
       ]
+    },
+    {
+      "id": "claim_1054bba7f8a34637811cceeb8abe484d",
+      "statement": ".github/workflows/openwiki-update.yml is configured to update the wiki on a daily schedule and on manual dispatch.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/openwiki-update.yml",
+          "version": "repo-file-v1:sha256:c31005f16763845e6dcd826d671cf11890a4c8e12498fd2b59428be80e3b585a"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-26T17:47:18.458Z"
+    "at": "2026-11-11T13:06:53.166Z"
   }
 }

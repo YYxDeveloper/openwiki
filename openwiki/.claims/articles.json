@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:b4e8e0113d6ec8b1baae334408bda2796460d7c1b31ddb7daf349572879be04c",
+  "claims": [
+    {
+      "id": "claim_c5837162534b4446ab753e4c76a40c4f",
+      "statement": "docs/articles/README.md requires each article file to record its source, the date it was added, and its relation to the project at the top.",
+      "evidence": [
+        {
+          "resource": "repo://docs/articles/README.md",
+          "version": "repo-file-v1:sha256:40dcb459d3ce5351f2631ea439560e69df87da7465ed6cf00f9c886fb0f87e5b"
+        }
+      ]
+    },
+    {
+      "id": "claim_4558647928a047328556d33d88973df2",
+      "statement": "docs/articles/twd-depreciation-grill.md is a personal learning note containing 16 grilling questions with recommended answers about a Taiwan dollar depreciation video, and its figures are unverified.",
+      "evidence": [
+        {
+          "resource": "repo://docs/articles/twd-depreciation-grill.md",
+          "version": "repo-file-v1:sha256:e4f767161162802c73fb73b408380a413aca08d396ba6d6f003fe19166e8dcff"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-11-11T13:06:53.166Z"
+  }
+}

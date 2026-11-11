@@ -29,6 +29,12 @@ OpenWiki 是從專案內的檔案建立 wiki，不會自行抓取網頁。你找
 
 - 把文章網址和你的問題交給 Claude，`anal-domain` 技能會在該網站內搜尋，並附上來源連結與原文引用。
 
+## 已收錄文章
+
+| 檔案 | 標題 | 來源 | 收錄日期 |
+|---|---|---|---|
+| [twd-depreciation-grill.md](./twd-depreciation-grill.md) | 【市場分析】台幣即將貶破33元？台幣貶值不是因為美元太強？ | https://youtu.be/iYWSvMrrX-k | 2026-11-11 |
+
 ## 注意事項
 
 - 請勿手動編輯 `openwiki/` 下的檔案，這些檔案由 OpenWiki 產生。

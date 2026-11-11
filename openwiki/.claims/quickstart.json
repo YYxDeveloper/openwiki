@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:19e80b80ec73e886447b30c719ca12ffd30263e5159e6b1ee506dfad2bc6ab30",
+  "pageVersion": "sha256:e9c0786cd50e940f80abbcb905753ef449a3a36334773fee68a4e1fcbf40ad19",
   "claims": [
     {
       "id": "claim_1fa4746278484441bf01200d9f30df33",
@@ -21,10 +21,20 @@
           "version": "repo-file-v1:sha256:1217fe8aff83c5e31c83d562c6e21d66cc6745e870d49c737cf8a32df7c39ef3"
         }
       ]
+    },
+    {
+      "id": "claim_9c791d93ce6a4477a0a02d74ba886f0c",
+      "statement": "docs/articles/README.md tells users to add article notes under docs/articles/ and ask Claude to update the wiki in update mode, then confirm with openwiki_search.",
+      "evidence": [
+        {
+          "resource": "repo://docs/articles/README.md",
+          "version": "repo-file-v1:sha256:40dcb459d3ce5351f2631ea439560e69df87da7465ed6cf00f9c886fb0f87e5b"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-10-26T17:47:18.458Z"
+    "at": "2026-11-11T13:06:53.166Z"
   }
 }
