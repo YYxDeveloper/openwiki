@@ -4,13 +4,13 @@ title: "參考文章收錄"
 openwiki_generated: true
 verified:
   - by: openwiki/0.7.2
-    at: 2026-11-11T13:06:53.166Z
+    at: 2026-11-11T13:30:35.722Z
 sources:
   - id: openwiki-source-9186e7d6c90c3a4612a8f747
     resource: repo://docs/articles/README.md
   - id: openwiki-source-c138082aa4812c73716ea69c
     resource: repo://docs/articles/twd-depreciation-grill.md
-generated: { by: "claude-code", at: "2026-11-11T13:06:53.166Z" }
+generated: { by: "claude-code", at: "2026-11-11T13:30:35.722Z" }
 ---
 
 # 參考文章收錄
@@ -43,7 +43,7 @@ generated: { by: "claude-code", at: "2026-11-11T13:06:53.166Z" }
 4. 財富重分配與應用（升貶值的受益者與受害者、低利率低匯率的代價、分批換匯）
 5. 反方檢驗（台幣升值時建議是否成立、影片因果鏈的弱點）
 
-檔案內的數字都出自影片摘要，**未經獨立查證**。其中的資產配置建議是影片作者的觀點，不是投資建議。
+檔頭另有「數據截止日」欄位，目前為 2026-10-21。匯率類內容很快過期，引用前請重新查證。檔案內的數字都出自影片摘要，**未經獨立查證**。其中的資產配置建議是影片作者的觀點，不是投資建議。
 
 ## 如何收錄新文章
 

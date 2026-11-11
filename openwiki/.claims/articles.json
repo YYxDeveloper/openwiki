@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:b4e8e0113d6ec8b1baae334408bda2796460d7c1b31ddb7daf349572879be04c",
+  "pageVersion": "sha256:a21dea2ea6c2ed271e0bd2103238f36f9b3db216cb6e9e9c44846a065d6b1017",
   "claims": [
     {
       "id": "claim_c5837162534b4446ab753e4c76a40c4f",
@@ -18,13 +18,23 @@
       "evidence": [
         {
           "resource": "repo://docs/articles/twd-depreciation-grill.md",
-          "version": "repo-file-v1:sha256:e4f767161162802c73fb73b408380a413aca08d396ba6d6f003fe19166e8dcff"
+          "version": "repo-file-v1:sha256:c43eb3ff863b0453a2579e3fe9b39f2ed86b7dc55fe59dd47d5fe115c40eb889"
+        }
+      ]
+    },
+    {
+      "id": "claim_8af87bee587d413baa71018f6fff17eb",
+      "statement": "docs/articles/twd-depreciation-grill.md records a data cutoff date of 2026-10-21 in its header and warns that exchange-rate content goes stale quickly.",
+      "evidence": [
+        {
+          "resource": "repo://docs/articles/twd-depreciation-grill.md",
+          "version": "repo-file-v1:sha256:c43eb3ff863b0453a2579e3fe9b39f2ed86b7dc55fe59dd47d5fe115c40eb889"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-11-11T13:06:53.166Z"
+    "at": "2026-11-11T13:30:35.722Z"
   }
 }
