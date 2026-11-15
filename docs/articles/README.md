@@ -33,7 +33,7 @@ OpenWiki 是從專案內的檔案建立 wiki，不會自行抓取網頁。你找
 
 | 檔案 | 標題 | 來源 | 收錄日期 |
 |---|---|---|---|
-| [twd-depreciation-grill.md](./twd-depreciation-grill.md) | 【市場分析】台幣即將貶破33元？台幣貶值不是因為美元太強？ | https://youtu.be/iYWSvMrrX-k | 2026-11-11 |
+| [herdr-shortcuts.md](./herdr-shortcuts.md) | herdr 快捷鍵與切換 agent | https://herdr.dev/zh-cn/tui/docs/keyboard/ | 2026-11-12 |
 
 ## 注意事項
 
