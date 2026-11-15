@@ -4,7 +4,7 @@ title: "參考文章收錄"
 openwiki_generated: true
 verified:
   - by: openwiki/0.7.2
-    at: 2026-11-11T13:30:35.722Z
+    at: 2026-11-11T13:43:58.664Z
 sources:
   - id: openwiki-source-9186e7d6c90c3a4612a8f747
     resource: repo://docs/articles/README.md

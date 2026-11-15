@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "pages": {
     "/openwiki/articles.md": {
-      "pageVersion": "sha256:a21dea2ea6c2ed271e0bd2103238f36f9b3db216cb6e9e9c44846a065d6b1017",
+      "pageVersion": "sha256:3505a54c5def4a089eef5861a9fa004dc6bde84a0de3bbada3a8adaebd468b8c",
       "completedBy": "claude-code",
-      "completedRunId": "cc9ed66c-56ef-450e-85ca-02078e86f197",
-      "gitHead": "47992c63ac3f20667861cc4ba12f2232e2998a4b",
-      "sourceFingerprint": "sha256:8e13ca4f6d9e6dfb4dada60f02675c5c248690360a262f7e98b70cde7df09f5c"
+      "completedRunId": "bfe134ee-c86a-48cc-96c4-a66e1ffbb829",
+      "gitHead": "9c10165dcb0a274d4f65c3e4d196464669580039",
+      "sourceFingerprint": "sha256:acb4a7f71ebeb610f5442a8921edbdaf49f3c3c8af4336af3fe217b1a1b25c46"
     },
     "/openwiki/overview.md": {
       "gitHead": "54927707be43c25fcb9e0eb46e4b2d26b1ebe9ca",
