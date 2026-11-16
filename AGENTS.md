@@ -27,4 +27,10 @@ Rules:
 - If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
-- A committed graphify-out/graph.json is rewritten whole on every build, so a large diff to it in a pull request is expected. Do not flag it as churn or suggest skipping the graph rebuild or its hooks.
+- graphify-out/ is local-only in this repo (gitignored) because the repository is public. Rebuild it with `GRAPHIFY_BACKEND=claude-cli graphify .` instead of force-adding it (see graphify security rules).
+
+## graphify security rules
+
+- This repository is public, so `graphify-out/`, `.claude/settings.json`, and `.opencode/plugins/` stay local-only and are gitignored. Never `git add -f` them.
+- graphify 0.9.111 auto-detects `OPENAI_API_KEY`/`GEMINI_API_KEY` and will send document contents to that provider. Always run it as `GRAPHIFY_BACKEND=claude-cli graphify ...` (or `GRAPHIFY_BACKEND=none` for AST-only work). Do not accept the auto-detected backend.
+- Full builds send every file the scanner picks up to an LLM. Before running `graphify .`, confirm `.env`, `*.pem`, and `*.key` files are absent or gitignored.

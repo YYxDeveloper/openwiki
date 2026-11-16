@@ -85,3 +85,24 @@ URL-only 輸入時會先嘗試以 `yt-dlp --dump-json` / `yt-dlp --write-auto-su
 ```text
 用 update 模式更新 openwiki
 ```
+
+## 資安設定（本機）
+
+這個 repo 是公開的，以下設定刻意只留在本機：
+
+- **graphify 後端固定**：`graphify` 0.9.111 會自動偵測 `OPENAI_API_KEY`／`GEMINI_API_KEY`，並把 repo 內文件送給該供應商，與 skill 文件宣稱「不讀 provider key」不符。一律這樣跑：
+
+  ```bash
+  GRAPHIFY_BACKEND=claude-cli graphify .
+  GRAPHIFY_BACKEND=claude-cli graphify update .
+  ```
+
+  只要 AST、不碰 LLM 時用 `GRAPHIFY_BACKEND=none`。
+
+- **索引與自動執行檔不進版控**：`graphify-out/`、`.claude/settings.json`、`.opencode/plugins/` 已列入 `.gitignore`。hook 與 plugin 會在你每個 shell／讀檔動作前執行本機 `graphify` 二進位，公開 repo 不該讓別人 clone 後自動執行；索引含路徑與文件摘要，重建即可，不需共用。要臨時強制加入：`git add -f graphify-out/graph.json`（自行承擔公開風險）。
+
+- **憑證檔**：`.env`、`.env.*`、`*.pem`、`*.key`、`*.p12` 已在 `.gitignore`；跑完整 graphify build 前先確認這些檔案不存在或已被忽略。
+
+- **相依套件**：`npm audit --omit=dev` 目前 0 漏洞（原本 `openwiki@0.7.2` 的 `@azure/*`、`hono` 共 4 個已由 `npm audit fix` 修掉）。升版後請重跑。
+
+- **MCP 版本一致**：`.mcp.json` 直接指向 `node_modules/openwiki/dist/cli/cli.js`，避免用到 Homebrew 的全域版本而與 `package.json` 不一致。
