@@ -1,1 +1,5 @@
 node_modules/
+
+# graphify：只保留共用的圖譜輸出，快取與歷史備份不進版控
+graphify-out/cache/
+graphify-out/20*/

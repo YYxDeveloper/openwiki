@@ -1,0 +1,242 @@
+{
+  "communities": {
+    "0": [
+      "package",
+      "package_author",
+      "package_dependencies",
+      "package_dependencies_openwiki",
+      "package_description",
+      "package_keywords",
+      "package_license",
+      "package_main",
+      "package_name",
+      "package_scripts",
+      "package_scripts_test",
+      "package_type",
+      "package_version",
+      "ref_openwiki"
+    ],
+    "1": [
+      "github_workflows_openwiki_update",
+      "github_workflows_openwiki_update_jobs",
+      "github_workflows_openwiki_update_jobs_update",
+      "github_workflows_openwiki_update_name",
+      "github_workflows_openwiki_update_on",
+      "github_workflows_openwiki_update_on_schedule",
+      "github_workflows_openwiki_update_on_workflow_dispatch",
+      "github_workflows_openwiki_update_permissions",
+      "github_workflows_openwiki_update_permissions_contents",
+      "github_workflows_openwiki_update_permissions_pull_requests",
+      "github_workflows_openwiki_update_schedule_cron",
+      "github_workflows_openwiki_update_update_runs_on"
+    ],
+    "2": [
+      "docs_articles_develop_herdr_shortcuts",
+      "docs_articles_develop_multimodal_stt_models_2026_11",
+      "docs_articles_readme",
+      "openwiki_articles",
+      "openwiki_index",
+      "openwiki_overview",
+      "openwiki_quickstart",
+      "openwiki_setup",
+      "readme",
+      "readme_article_ingest_three_steps",
+      "readme_yt_agent"
+    ],
+    "3": [
+      "github_workflows_openwiki_update_env_langchain_project",
+      "github_workflows_openwiki_update_env_langchain_tracing_v2",
+      "github_workflows_openwiki_update_env_langsmith_api_key",
+      "github_workflows_openwiki_update_env_openai_api_key",
+      "github_workflows_openwiki_update_env_openwiki_langsmith_api_key",
+      "github_workflows_openwiki_update_env_openwiki_model_id",
+      "github_workflows_openwiki_update_env_openwiki_provider",
+      "github_workflows_openwiki_update_steps_env"
+    ],
+    "4": [
+      "github_workflows_openwiki_update_steps_with",
+      "github_workflows_openwiki_update_with_add_paths",
+      "github_workflows_openwiki_update_with_body",
+      "github_workflows_openwiki_update_with_branch",
+      "github_workflows_openwiki_update_with_commit_message",
+      "github_workflows_openwiki_update_with_fetch_depth",
+      "github_workflows_openwiki_update_with_node_version",
+      "github_workflows_openwiki_update_with_title"
+    ],
+    "5": [
+      "agents",
+      "agents_openwiki_retrieval_policy",
+      "agents_openwiki_search_read_tools",
+      "agents_scheduled_workflow",
+      "claude_skills_openwiki_skill_openwiki",
+      "claude_skills_openwiki_skill_openwiki_claims_contract",
+      "claude_skills_openwiki_skill_openwiki_lifecycle"
+    ],
+    "6": [
+      "github_workflows_openwiki_update_steps_continue_on_error",
+      "github_workflows_openwiki_update_steps_id",
+      "github_workflows_openwiki_update_steps_if",
+      "github_workflows_openwiki_update_steps_name",
+      "github_workflows_openwiki_update_steps_run",
+      "github_workflows_openwiki_update_steps_uses",
+      "github_workflows_openwiki_update_update_steps"
+    ],
+    "7": [
+      "claude_skills_openwiki_agents_bob",
+      "claude_skills_openwiki_agents_bob_interface",
+      "claude_skills_openwiki_agents_bob_interface_default_prompt",
+      "claude_skills_openwiki_agents_bob_interface_display_name",
+      "claude_skills_openwiki_agents_bob_interface_short_description"
+    ],
+    "8": [
+      "claude_skills_openwiki_agents_openai",
+      "claude_skills_openwiki_agents_openai_interface",
+      "claude_skills_openwiki_agents_openai_interface_default_prompt",
+      "claude_skills_openwiki_agents_openai_interface_display_name",
+      "claude_skills_openwiki_agents_openai_interface_short_description"
+    ],
+    "9": [
+      "mcp",
+      "mcp_command_openwiki",
+      "mcp_mcp_server_openwiki"
+    ]
+  },
+  "cohesion": {
+    "0": 0.15384615384615385,
+    "1": 0.16666666666666666,
+    "2": 0.2545454545454545,
+    "3": 0.25,
+    "4": 0.25,
+    "5": 0.2857142857142857,
+    "6": 0.2857142857142857,
+    "7": 0.4,
+    "8": 0.4,
+    "9": 0.6666666666666666
+  },
+  "gods": [
+    {
+      "id": "github_workflows_openwiki_update_update_steps",
+      "label": "steps",
+      "degree": 9
+    },
+    {
+      "id": "github_workflows_openwiki_update_steps_env",
+      "label": "env",
+      "degree": 8
+    },
+    {
+      "id": "github_workflows_openwiki_update_steps_with",
+      "label": "with",
+      "degree": 8
+    },
+    {
+      "id": "claude_skills_openwiki_agents_bob_interface",
+      "label": "interface",
+      "degree": 4
+    },
+    {
+      "id": "claude_skills_openwiki_agents_openai_interface",
+      "label": "interface",
+      "degree": 4
+    },
+    {
+      "id": "openwiki_articles",
+      "label": "參考文章收錄 (wiki page)",
+      "degree": 4
+    },
+    {
+      "id": "github_workflows_openwiki_update_jobs_update",
+      "label": "update",
+      "degree": 3
+    },
+    {
+      "id": "github_workflows_openwiki_update_on",
+      "label": "on",
+      "degree": 3
+    },
+    {
+      "id": "github_workflows_openwiki_update_permissions",
+      "label": "permissions",
+      "degree": 3
+    },
+    {
+      "id": "openwiki_quickstart",
+      "label": "OpenWiki 快速開始",
+      "degree": 3
+    }
+  ],
+  "surprises": [
+    {
+      "source": "收錄新文章三步驟",
+      "target": "參考文章收錄 (wiki page)",
+      "source_files": [
+        "README.md",
+        "openwiki/articles.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; semantically similar concepts with no structural link"
+    },
+    {
+      "source": "openwiki_search / openwiki_read tools",
+      "target": "OpenWiki page-job lifecycle",
+      "source_files": [
+        "AGENTS.md",
+        ".claude/skills/openwiki/SKILL.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "conceptually_related_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories"
+    },
+    {
+      "source": "OpenWiki 安裝與 MCP 整合",
+      "target": "參考文章收錄 (wiki page)",
+      "source_files": [
+        "openwiki/setup.md",
+        "openwiki/articles.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "cross-file semantic connection"
+    },
+    {
+      "source": "OpenWiki 概覽",
+      "target": "OpenWiki 快速開始",
+      "source_files": [
+        "openwiki/overview.md",
+        "openwiki/quickstart.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "cross-file semantic connection"
+    },
+    {
+      "source": "OpenWiki 快速開始",
+      "target": "OpenWiki 安裝與 MCP 整合",
+      "source_files": [
+        "openwiki/quickstart.md",
+        "openwiki/setup.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "cross-file semantic connection"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `steps` connect `Workflow Step Fields` to `Scheduled Update Workflow`, `LLM Environment Variables`, `PR Action Inputs`?",
+      "why": "High betweenness centrality (0.142) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `openwiki`, `herdr 快捷鍵與切換 agent`, `2026-11 多模態與語音轉文字模型清單` to the rest of the system?",
+      "why": "6 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `update` connect `Scheduled Update Workflow` to `Workflow Step Fields`?",
+      "why": "High betweenness centrality (0.085) - this node is a cross-community bridge."
+    }
+  ]
+}

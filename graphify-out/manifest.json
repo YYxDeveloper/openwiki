@@ -1,0 +1,147 @@
+{
+  ".claude/skills/openwiki/.openwiki-install.json": {
+    "mtime": 1793036670.4152956,
+    "seen": 1794837880.567934,
+    "ast_hash": "f6aa40bca189b041bb478283cb711c91",
+    "semantic_hash": "f6aa40bca189b041bb478283cb711c91",
+    "ast_empty": true
+  },
+  ".claude/skills/openwiki/agents/bob.yaml": {
+    "mtime": 1793036670.4140193,
+    "seen": 1794837880.567939,
+    "ast_hash": "d33012c03a6f5e0d59f9dd6f35e83a64",
+    "semantic_hash": "d33012c03a6f5e0d59f9dd6f35e83a64"
+  },
+  ".claude/skills/openwiki/agents/openai.yaml": {
+    "mtime": 1793036670.4137332,
+    "seen": 1794837880.56798,
+    "ast_hash": "d33012c03a6f5e0d59f9dd6f35e83a64",
+    "semantic_hash": "d33012c03a6f5e0d59f9dd6f35e83a64"
+  },
+  ".github/workflows/openwiki-update.yml": {
+    "mtime": 1793036838.4210365,
+    "seen": 1794837880.5680058,
+    "ast_hash": "0e3725a5cf58f5f6d513899c6c33e3a4",
+    "semantic_hash": "0e3725a5cf58f5f6d513899c6c33e3a4"
+  },
+  ".mcp.json": {
+    "mtime": 1793036670.4160502,
+    "seen": 1794837880.5680268,
+    "ast_hash": "aadaa4ab4f43be7bfc6cd59c2098069c",
+    "semantic_hash": "aadaa4ab4f43be7bfc6cd59c2098069c"
+  },
+  "openwiki/.claims/articles.json": {
+    "mtime": 1794404664.8043916,
+    "seen": 1794837880.568043,
+    "ast_hash": "9136bc6700825110497be19d39db3be9",
+    "semantic_hash": "9136bc6700825110497be19d39db3be9",
+    "ast_empty": true
+  },
+  "openwiki/.claims/overview.json": {
+    "mtime": 1794404664.8051007,
+    "seen": 1794837880.5680451,
+    "ast_hash": "1f2be60042d136d11858f21e639d1d87",
+    "semantic_hash": "1f2be60042d136d11858f21e639d1d87",
+    "ast_empty": true
+  },
+  "openwiki/.claims/quickstart.json": {
+    "mtime": 1794404664.8057477,
+    "seen": 1794837880.568046,
+    "ast_hash": "16efffa0d2a2c0c9317b636387c5dc16",
+    "semantic_hash": "16efffa0d2a2c0c9317b636387c5dc16",
+    "ast_empty": true
+  },
+  "openwiki/.claims/setup.json": {
+    "mtime": 1794404664.8065333,
+    "seen": 1794837880.568047,
+    "ast_hash": "0ce219fcf52cfd153af1f85c5c361137",
+    "semantic_hash": "0ce219fcf52cfd153af1f85c5c361137",
+    "ast_empty": true
+  },
+  "openwiki/.last-update.json": {
+    "mtime": 1794404664.8424084,
+    "seen": 1794837880.5680482,
+    "ast_hash": "bbb9f5d24dbacee9406077828dbedc4c",
+    "semantic_hash": "bbb9f5d24dbacee9406077828dbedc4c",
+    "ast_empty": true
+  },
+  "openwiki/.page-manifest.json": {
+    "mtime": 1794404664.810421,
+    "seen": 1794837880.568049,
+    "ast_hash": "e2998fcc90225ab1c8735f3deba9a0bd",
+    "semantic_hash": "e2998fcc90225ab1c8735f3deba9a0bd",
+    "ast_empty": true
+  },
+  "package.json": {
+    "mtime": 1793035587.1745567,
+    "seen": 1794837880.56805,
+    "ast_hash": "121e8018f1d9054eca80cd65eb26ea41",
+    "semantic_hash": "121e8018f1d9054eca80cd65eb26ea41"
+  },
+  ".claude/skills/openwiki/SKILL.md": {
+    "mtime": 1793036670.4143734,
+    "seen": 1794837880.5680661,
+    "ast_hash": "9a129ee09b5f2b311bd02289b256a455",
+    "semantic_hash": "9a129ee09b5f2b311bd02289b256a455"
+  },
+  "AGENTS.md": {
+    "mtime": 1794404638.4675963,
+    "seen": 1794837880.568087,
+    "ast_hash": "385fafec9d3dc87636759bf922ad3251",
+    "semantic_hash": "385fafec9d3dc87636759bf922ad3251"
+  },
+  "README.md": {
+    "mtime": 1794748578.568021,
+    "seen": 1794837880.568108,
+    "ast_hash": "787639d666d6a76e2f0eaaddc47ef6ad",
+    "semantic_hash": "787639d666d6a76e2f0eaaddc47ef6ad"
+  },
+  "docs/articles/README.md": {
+    "mtime": 1794837493.5815444,
+    "seen": 1794837880.5681221,
+    "ast_hash": "19f206a8b98f302fe20e27bdd2b75aa0",
+    "semantic_hash": "19f206a8b98f302fe20e27bdd2b75aa0"
+  },
+  "docs/articles/develop/herdr-shortcuts.md": {
+    "mtime": 1794469713.6707885,
+    "seen": 1794837880.568147,
+    "ast_hash": "842f0280cba234b919491d75d8411057",
+    "semantic_hash": "842f0280cba234b919491d75d8411057"
+  },
+  "docs/articles/develop/multimodal-stt-models-2026-11.md": {
+    "mtime": 1794837377.1584253,
+    "seen": 1794837880.5681689,
+    "ast_hash": "9b0791a115e2eaf0aac57edc758ec195",
+    "semantic_hash": "9b0791a115e2eaf0aac57edc758ec195"
+  },
+  "openwiki/articles.md": {
+    "mtime": 1794404645.5727587,
+    "seen": 1794837880.5681899,
+    "ast_hash": "f7752b47fe1b5dcaf23f68289b616a35",
+    "semantic_hash": "f7752b47fe1b5dcaf23f68289b616a35"
+  },
+  "openwiki/index.md": {
+    "mtime": 1794402507.2375941,
+    "seen": 1794837880.568208,
+    "ast_hash": "521177b6d5bd433c6f3aa31c43b5733f",
+    "semantic_hash": "521177b6d5bd433c6f3aa31c43b5733f"
+  },
+  "openwiki/overview.md": {
+    "mtime": 1794402507.249784,
+    "seen": 1794837880.568224,
+    "ast_hash": "ac913d76fba759ada58b77adbad57eb7",
+    "semantic_hash": "ac913d76fba759ada58b77adbad57eb7"
+  },
+  "openwiki/quickstart.md": {
+    "mtime": 1794402507.2501934,
+    "seen": 1794837880.568241,
+    "ast_hash": "91114a06a69f5c190f2cfe7e81add14c",
+    "semantic_hash": "91114a06a69f5c190f2cfe7e81add14c"
+  },
+  "openwiki/setup.md": {
+    "mtime": 1794402507.250639,
+    "seen": 1794837880.5682619,
+    "ast_hash": "584f327e729413f8b7fdfb48c4487de8",
+    "semantic_hash": "584f327e729413f8b7fdfb48c4487de8"
+  }
+}
