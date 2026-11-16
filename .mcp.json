@@ -1,8 +1,9 @@
 {
   "mcpServers": {
     "openwiki": {
-      "command": "openwiki",
+      "command": "node",
       "args": [
+        "./node_modules/openwiki/dist/cli/cli.js",
         "mcp",
         "--host",
         "claude"
