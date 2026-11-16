@@ -33,7 +33,8 @@ OpenWiki 是從專案內的檔案建立 wiki，不會自行抓取網頁。你找
 
 | 檔案 | 標題 | 來源 | 收錄日期 |
 |---|---|---|---|
-| [herdr-shortcuts.md](./herdr-shortcuts.md) | herdr 快捷鍵與切換 agent | https://herdr.dev/zh-cn/tui/docs/keyboard/ | 2026-11-12 |
+| [herdr-shortcuts.md](./develop/herdr-shortcuts.md) | herdr 快捷鍵與切換 agent | https://herdr.dev/zh-cn/tui/docs/keyboard/ | 2026-11-12 |
+| [multimodal-stt-models-2026-11.md](./develop/multimodal-stt-models-2026-11.md) | 2026-11 可用的多模態與語音轉文字模型清單 | 使用者提供 | 2026-11-16 |
 
 ## 注意事項
 
