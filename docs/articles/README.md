@@ -41,6 +41,7 @@ OpenWiki 是從專案內的檔案建立 wiki，不會自行抓取網頁。你找
 | [pstack-video-deep-dive.md](./develop/pstack-video-deep-dive.md) | pstack 深度拆解！怎麼讓 AI 全自動完成你的工作？（影片筆記） | https://www.youtube.com/watch?v=l_xDqUm0MDQ | 2026-11-25 |
 | [pstack-sharpen-deep-dive.md](./develop/pstack-sharpen-deep-dive.md) | pstack `/sharpen` 原始碼深度拆解：把任務做深、不做大 | https://github.com/cursor/plugins/blob/main/pstack/skills/sharpen/SKILL.md | 2026-11-25 |
 | [pstack-core-skills-deep-dive.md](./develop/pstack-core-skills-deep-dive.md) | pstack 七大核心 Skill 原始碼拆解與總覽表（`/architect`、`/arena`、`/interrogate`、`/swarm`、`/correct`、`/show-me-your-work`） | https://github.com/cursor/plugins/tree/main/pstack/skills | 2026-11-25 |
+| [pstack-usage-guide.md](./develop/pstack-usage-guide.md) | pstack 基本使用方法、日常流程與實戰範例指南 | https://github.com/cursor/plugins/tree/main/pstack/docs/guide | 2026-11-26 |
 
 ## 注意事項
 
