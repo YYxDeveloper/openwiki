@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:5c5dfac2df905fb87b75e5ba55e65206d16c29d537cae1244f8b61d3b69d87d7",
+  "pageVersion": "sha256:ed2da911e96984e2f9d917a0c62add25f17a24a07bd0c07ecb86437bb9567ac2",
   "claims": [
     {
       "id": "claim_a0d1ef67466e41fca05df7e95f69f206",
@@ -8,7 +8,7 @@
       "evidence": [
         {
           "resource": "repo://docs/articles/README.md",
-          "version": "repo-file-v1:sha256:40dcb459d3ce5351f2631ea439560e69df87da7465ed6cf00f9c886fb0f87e5b"
+          "version": "repo-file-v1:sha256:f71d1dfa1d64a1ce633834576caaa89d249ae093552d542c19e99e788210e9ff"
         },
         {
           "resource": "repo://package.json",
@@ -27,16 +27,6 @@
       ]
     },
     {
-      "id": "claim_081d69e5f8a54ea5ab9f4069230e62fc",
-      "statement": ".mcp.json registers an openwiki MCP server that runs `openwiki mcp --host claude`.",
-      "evidence": [
-        {
-          "resource": "repo://.mcp.json",
-          "version": "repo-file-v1:sha256:1217fe8aff83c5e31c83d562c6e21d66cc6745e870d49c737cf8a32df7c39ef3"
-        }
-      ]
-    },
-    {
       "id": "claim_1054bba7f8a34637811cceeb8abe484d",
       "statement": ".github/workflows/openwiki-update.yml is configured to update the wiki on a daily schedule and on manual dispatch.",
       "evidence": [
@@ -45,10 +35,44 @@
           "version": "repo-file-v1:sha256:c31005f16763845e6dcd826d671cf11890a4c8e12498fd2b59428be80e3b585a"
         }
       ]
+    },
+    {
+      "id": "claim_c4b172d70ab94eb98cc7a59ef89fdac1",
+      "statement": ".mcp.json registers an openwiki MCP server that runs node ./node_modules/openwiki/dist/cli/cli.js with the mcp --host claude arguments.",
+      "evidence": [
+        {
+          "resource": "repo://.mcp.json",
+          "version": "repo-file-v1:sha256:e3e437699025f7638c79f597d6eed6371243d0b063d61fc11c99398ab4add5af"
+        }
+      ]
+    },
+    {
+      "id": "claim_8fd5602cd0bf4eb295a22631ef3a6ee1",
+      "statement": "The repository contains no application source code; it holds OpenWiki install files, agent skills under .claude/ and .opencode/, package manifests, a scheduled update workflow, and reference article notes under docs/articles/.",
+      "evidence": [
+        {
+          "resource": "repo://docs/articles/README.md",
+          "version": "repo-file-v1:sha256:f71d1dfa1d64a1ce633834576caaa89d249ae093552d542c19e99e788210e9ff"
+        },
+        {
+          "resource": "repo://package.json",
+          "version": "repo-file-v1:sha256:34687452374d278a3f2f26afc2bf1d7bbefa32e39fe42391d28904c0be964cd5"
+        }
+      ]
+    },
+    {
+      "id": "claim_747dbb9fb5884feeb0e8d589d50fd47a",
+      "statement": "The repository is public, so .gitignore excludes node_modules/, .env and credential files, graphify-out/, .claude/settings.json, .claude/settings.local.json, and .opencode/plugins/.",
+      "evidence": [
+        {
+          "resource": "repo://.gitignore",
+          "version": "repo-file-v1:sha256:64bd0c1867250a6d55329a49eee3c2d38af49c14800755b5f56cfcd1dcb292f0"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-11-11T13:06:53.166Z"
+    "at": "2026-11-16T14:22:10.483Z"
   }
 }

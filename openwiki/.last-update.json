@@ -1,8 +1,8 @@
 {
-  "updatedAt": "2026-11-11T13:44:24.842Z",
+  "updatedAt": "2026-11-16T14:25:41.225Z",
   "command": "update",
-  "gitHead": "9c10165dcb0a274d4f65c3e4d196464669580039",
-  "model": "host-agent/claude",
+  "gitHead": "fec0c8369949cc0be814b092c3a5843e4eb31276",
+  "model": "host-agent/opencode",
   "status": "complete",
   "language": "zh-TW"
 }

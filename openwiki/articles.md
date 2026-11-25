@@ -4,18 +4,18 @@ title: "參考文章收錄"
 openwiki_generated: true
 verified:
   - by: openwiki/0.7.2
-    at: 2026-11-11T13:43:58.664Z
+    at: 2026-11-16T14:22:10.483Z
 sources:
+  - id: openwiki-source-4b769cec6f285a1b25729b93
+    resource: repo://docs/articles/develop/opencode-shortcuts.md
   - id: openwiki-source-9186e7d6c90c3a4612a8f747
     resource: repo://docs/articles/README.md
-  - id: openwiki-source-c138082aa4812c73716ea69c
-    resource: repo://docs/articles/twd-depreciation-grill.md
-generated: { by: "claude-code", at: "2026-11-11T13:30:35.722Z" }
+generated: { by: "opencode", at: "2026-11-16T14:22:10.483Z" }
 ---
 
 # 參考文章收錄
 
-`docs/articles/` 存放使用者收集的參考文章筆記。OpenWiki 只會從專案內的檔案建立 wiki，不會自行抓取網頁，所以文章必須先寫成 Markdown 檔放進這個資料夾。
+`docs/articles/` 存放使用者收集的參考文章筆記。OpenWiki 只會從專案內的檔案建立 wiki，不會自行抓取網頁，所以文章必須先寫成 Markdown 檔放進這個資料夾。開發工具類筆記集中放在 `docs/articles/develop/`。
 
 ## 文章檔案格式
 
@@ -31,19 +31,21 @@ generated: { by: "claude-code", at: "2026-11-11T13:30:35.722Z" }
 
 | 檔案 | 標題 | 來源 | 收錄日期 |
 |---|---|---|---|
-| `docs/articles/twd-depreciation-grill.md` | 【市場分析】台幣即將貶破33元？台幣貶值不是因為美元太強？ | https://youtu.be/iYWSvMrrX-k | 2026-11-11 |
+| `docs/articles/develop/herdr-shortcuts.md` | herdr 快捷鍵與切換 agent | https://herdr.dev/zh-cn/tui/docs/keyboard/ | 2026-11-12 |
+| `docs/articles/develop/multimodal-stt-models-2026-11.md` | 2026-11 可用的多模態與語音轉文字模型清單 | 使用者提供 | 2026-11-16 |
+| `docs/articles/develop/opencode-shortcuts.md` | OpenCode 快捷鍵與斜線指令 | 使用者提供 | 2026-11-16 |
 
-### 台幣貶值影片拷問題庫
+### herdr 快捷鍵
 
-這份檔案是個人學習筆記，與 OpenWiki 程式碼沒有直接關聯。內容是 16 題「問題加建議答案」，分成五層：
+記錄 herdr（給 coding agent 用的終端機多工器）的前綴鍵 `ctrl+b` 用法、窗格／分頁／工作區切換，以及在多個 agent 之間移動的按鍵。來源頁面是中文機器翻譯版，按鍵可能隨版本改變。
 
-1. 概念釐清（出口創高為何台幣仍貶、游泳池模型、美元強弱）
-2. 成因拆解（外資撤出、外資持有規模、出口美元未結匯、經常帳順差與金融帳流出）
-3. 政策與壓力測試（柳樹理論、央行為何不升息、美國匯率觀察名單、與歷史貶值週期比較）
-4. 財富重分配與應用（升貶值的受益者與受害者、低利率低匯率的代價、分批換匯）
-5. 反方檢驗（台幣升值時建議是否成立、影片因果鏈的弱點）
+### 多模態與語音轉文字模型清單
 
-檔頭另有「數據截止日」欄位，目前為 2026-10-21。匯率類內容很快過期，引用前請重新查證。檔案內的數字都出自影片摘要，**未經獨立查證**。其中的資產配置建議是影片作者的觀點，不是投資建議。
+整理 2026-11 可用於音訊轉文字與多模態任務的模型端點與價格，分成 OpenCode Go 專案內建與免費（NVIDIA NIM）兩類。價格與可用性隨時變動，端點 ID 照原清單轉錄。
+
+### OpenCode 快捷鍵與斜線指令
+
+整理 opencode TUI 的按鍵操作：Leader Key（預設 `Ctrl + X`）的兩段式按法、介面控制、模型與 Agent 切換、工作階段管理、訊息導覽、輸入框編輯，以及 `/init`、`/models`、`/compact` 等常用斜線指令。內容詳見[OpenCode 快捷鍵與斜線指令](opencode-shortcuts.md)。
 
 ## 如何收錄新文章
 
@@ -55,5 +57,6 @@ generated: { by: "claude-code", at: "2026-11-11T13:30:35.722Z" }
 
 ## 相關頁面
 
+- [OpenCode 快捷鍵與斜線指令](opencode-shortcuts.md)
 - [概覽](overview.md)
 - [快速開始](quickstart.md)

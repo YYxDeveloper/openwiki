@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:9897f1858da62a0ab5b91b4344248ea2f4c2d4be9f7768e8316b3213482e778f",
+  "pageVersion": "sha256:a880f9a2e2dc61ae916ecc81df4b1ade7b0b5ba4cbc22c068d4df9b9cd6ed054",
   "claims": [
     {
       "id": "claim_16fb0af7f9964dabafe6906db33eec28",
@@ -13,22 +13,12 @@
       ]
     },
     {
-      "id": "claim_e3a8cd468b5c4323ac4b72c5dda45c44",
-      "statement": ".mcp.json registers an openwiki MCP server that runs `openwiki mcp --host claude`.",
-      "evidence": [
-        {
-          "resource": "repo://.mcp.json",
-          "version": "repo-file-v1:sha256:1217fe8aff83c5e31c83d562c6e21d66cc6745e870d49c737cf8a32df7c39ef3"
-        }
-      ]
-    },
-    {
       "id": "claim_576cfdec428043fb938e8ead44e1570a",
       "statement": "node_modules/ is git-ignored.",
       "evidence": [
         {
           "resource": "repo://.gitignore",
-          "version": "repo-file-v1:sha256:4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97"
+          "version": "repo-file-v1:sha256:64bd0c1867250a6d55329a49eee3c2d38af49c14800755b5f56cfcd1dcb292f0"
         }
       ]
     },
@@ -41,10 +31,40 @@
           "version": "repo-file-v1:sha256:c31005f16763845e6dcd826d671cf11890a4c8e12498fd2b59428be80e3b585a"
         }
       ]
+    },
+    {
+      "id": "claim_45960118f1f44e26bf40559f01c750ad",
+      "statement": ".mcp.json registers an openwiki MCP server that runs node ./node_modules/openwiki/dist/cli/cli.js with the mcp --host claude arguments, so it must be launched from the repository root after npm install.",
+      "evidence": [
+        {
+          "resource": "repo://.mcp.json",
+          "version": "repo-file-v1:sha256:e3e437699025f7638c79f597d6eed6371243d0b063d61fc11c99398ab4add5af"
+        }
+      ]
+    },
+    {
+      "id": "claim_169c8e77f3c64a808b8e058a58028f36",
+      "statement": ".gitignore also excludes credential files (.env, *.pem, *.key, *.p12), graphify-out/, .claude/settings.json, .claude/settings.local.json, and .opencode/plugins/.",
+      "evidence": [
+        {
+          "resource": "repo://.gitignore",
+          "version": "repo-file-v1:sha256:64bd0c1867250a6d55329a49eee3c2d38af49c14800755b5f56cfcd1dcb292f0"
+        }
+      ]
+    },
+    {
+      "id": "claim_ea8ffb1f612b490da1a195dd05229ef6",
+      "statement": "The scheduled OpenWiki Update workflow installs openwiki@0.7.2 with mermaid@11.16.0 and jsdom@29.1.1 globally, runs openwiki code --update --print, removes openwiki/.run.json, and opens a pull request on branch openwiki/update including CLAUDE.md when present.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/openwiki-update.yml",
+          "version": "repo-file-v1:sha256:c31005f16763845e6dcd826d671cf11890a4c8e12498fd2b59428be80e3b585a"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-11-11T13:06:53.166Z"
+    "at": "2026-11-16T14:22:10.483Z"
   }
 }

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:e5c3338ae5baf64dd73144bbabf6139899d33e7dd353faf7f192a737a290ab1a",
+  "claims": [
+    {
+      "id": "claim_aa3dc170d0ce441498f32c22168d279c",
+      "statement": "opencode's Leader Key defaults to Ctrl + X, and multi-key shortcuts require pressing and releasing Ctrl + X, then pressing the second key within 2 seconds rather than holding both keys.",
+      "evidence": [
+        {
+          "resource": "repo://docs/articles/develop/opencode-shortcuts.md",
+          "version": "repo-file-v1:sha256:ea58ebb8b1ca96ff26b1b2585a20726407af2d3b05d0145ee7eafd1fff984d3b"
+        }
+      ]
+    },
+    {
+      "id": "claim_94acd0d2384a425ebe80d5952cbeed61",
+      "statement": "Ctrl + P opens the command palette, and Ctrl + Alt + K shows the which-key shortcut hint panel.",
+      "evidence": [
+        {
+          "resource": "repo://docs/articles/develop/opencode-shortcuts.md",
+          "version": "repo-file-v1:sha256:ea58ebb8b1ca96ff26b1b2585a20726407af2d3b05d0145ee7eafd1fff984d3b"
+        }
+      ]
+    },
+    {
+      "id": "claim_b76343251eaa4c91a11ad923364d07b6",
+      "statement": "Tab and Shift + Tab cycle between agent modes, while Ctrl + X then A opens the agent selector and Ctrl + X then M opens the model selector.",
+      "evidence": [
+        {
+          "resource": "repo://docs/articles/develop/opencode-shortcuts.md",
+          "version": "repo-file-v1:sha256:ea58ebb8b1ca96ff26b1b2585a20726407af2d3b05d0145ee7eafd1fff984d3b"
+        }
+      ]
+    },
+    {
+      "id": "claim_7abc99b1533a48b685f379f2da244f23",
+      "statement": "Esc interrupts the current response, Ctrl + X then N starts a new session, Ctrl + X then L opens the session list, and Ctrl + X then C compacts the conversation context.",
+      "evidence": [
+        {
+          "resource": "repo://docs/articles/develop/opencode-shortcuts.md",
+          "version": "repo-file-v1:sha256:ea58ebb8b1ca96ff26b1b2585a20726407af2d3b05d0145ee7eafd1fff984d3b"
+        }
+      ]
+    },
+    {
+      "id": "claim_8739ed47ef4a4909ae2be787d8c93bc6",
+      "statement": "Common slash commands include /init, /models, /connect, /thinking, /details, /compact, /undo, and /redo.",
+      "evidence": [
+        {
+          "resource": "repo://docs/articles/develop/opencode-shortcuts.md",
+          "version": "repo-file-v1:sha256:ea58ebb8b1ca96ff26b1b2585a20726407af2d3b05d0145ee7eafd1fff984d3b"
+        }
+      ]
+    },
+    {
+      "id": "claim_58075eadf5294fbd8c8c5aff3c7d8734",
+      "statement": "Keybinds can be customized in the keybinds block of ~/.config/opencode/opencode.json or tui.json, and setting a shortcut to \"none\" disables it.",
+      "evidence": [
+        {
+          "resource": "repo://docs/articles/develop/opencode-shortcuts.md",
+          "version": "repo-file-v1:sha256:ea58ebb8b1ca96ff26b1b2585a20726407af2d3b05d0145ee7eafd1fff984d3b"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.2",
+    "at": "2026-11-16T14:22:10.483Z"
+  }
+}

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:3505a54c5def4a089eef5861a9fa004dc6bde84a0de3bbada3a8adaebd468b8c",
+  "pageVersion": "sha256:a79cfcdfefa9c16453867531a100e3f0044c7787b26492910591d9467c26d089",
   "claims": [
     {
       "id": "claim_c5837162534b4446ab753e4c76a40c4f",
@@ -8,33 +8,47 @@
       "evidence": [
         {
           "resource": "repo://docs/articles/README.md",
-          "version": "repo-file-v1:sha256:40dcb459d3ce5351f2631ea439560e69df87da7465ed6cf00f9c886fb0f87e5b"
+          "version": "repo-file-v1:sha256:f71d1dfa1d64a1ce633834576caaa89d249ae093552d542c19e99e788210e9ff"
         }
       ]
     },
     {
-      "id": "claim_4558647928a047328556d33d88973df2",
-      "statement": "docs/articles/twd-depreciation-grill.md is a personal learning note containing 16 grilling questions with recommended answers about a Taiwan dollar depreciation video, and its figures are unverified.",
+      "id": "claim_fda46571dc294d1a9a7993dd8be9c892",
+      "statement": "docs/articles/ stores the user's reference article notes, and developer tool notes live in docs/articles/develop/.",
       "evidence": [
         {
-          "resource": "repo://docs/articles/twd-depreciation-grill.md",
-          "version": "repo-file-v1:sha256:c43eb3ff863b0453a2579e3fe9b39f2ed86b7dc55fe59dd47d5fe115c40eb889"
+          "resource": "repo://docs/articles/README.md",
+          "version": "repo-file-v1:sha256:f71d1dfa1d64a1ce633834576caaa89d249ae093552d542c19e99e788210e9ff"
         }
       ]
     },
     {
-      "id": "claim_8af87bee587d413baa71018f6fff17eb",
-      "statement": "docs/articles/twd-depreciation-grill.md records a data cutoff date of 2026-10-21 in its header and warns that exchange-rate content goes stale quickly.",
+      "id": "claim_6e0899cd5bf346f788633b37fd41685b",
+      "statement": "The current article index lists herdr-shortcuts.md, multimodal-stt-models-2026-11.md, and opencode-shortcuts.md under docs/articles/develop/.",
       "evidence": [
         {
-          "resource": "repo://docs/articles/twd-depreciation-grill.md",
-          "version": "repo-file-v1:sha256:c43eb3ff863b0453a2579e3fe9b39f2ed86b7dc55fe59dd47d5fe115c40eb889"
+          "resource": "repo://docs/articles/README.md",
+          "version": "repo-file-v1:sha256:f71d1dfa1d64a1ce633834576caaa89d249ae093552d542c19e99e788210e9ff"
+        },
+        {
+          "resource": "repo://docs/articles/develop/opencode-shortcuts.md",
+          "version": "repo-file-v1:sha256:ea58ebb8b1ca96ff26b1b2585a20726407af2d3b05d0145ee7eafd1fff984d3b"
+        }
+      ]
+    },
+    {
+      "id": "claim_3c87a1f4dfb3459a8cbe6cf768ab60d1",
+      "statement": "docs/articles/develop/opencode-shortcuts.md documents opencode's default Leader Key Ctrl + X, its two-step press-release-then-key usage, keyboard shortcuts by category, and common slash commands.",
+      "evidence": [
+        {
+          "resource": "repo://docs/articles/develop/opencode-shortcuts.md",
+          "version": "repo-file-v1:sha256:ea58ebb8b1ca96ff26b1b2585a20726407af2d3b05d0145ee7eafd1fff984d3b"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-11-11T13:43:58.664Z"
+    "at": "2026-11-16T14:22:10.483Z"
   }
 }

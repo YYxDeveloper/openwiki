@@ -4,15 +4,17 @@ title: "OpenWiki 快速開始"
 openwiki_generated: true
 verified:
   - by: openwiki/0.7.2
-    at: 2026-11-11T13:06:53.166Z
+    at: 2026-11-16T14:22:10.483Z
 sources:
   - id: openwiki-source-f5a489e5822d87c0b8fc66ef
     resource: repo://.mcp.json
+  - id: openwiki-source-4b769cec6f285a1b25729b93
+    resource: repo://docs/articles/develop/opencode-shortcuts.md
   - id: openwiki-source-9186e7d6c90c3a4612a8f747
     resource: repo://docs/articles/README.md
   - id: openwiki-source-5b54a58d1b51cd490b0e7162
     resource: repo://package.json
-generated: { by: "claude-code", at: "2026-11-11T13:06:53.166Z" }
+generated: { by: "opencode", at: "2026-11-16T14:22:10.483Z" }
 ---
 
 # OpenWiki 快速開始
@@ -29,13 +31,13 @@ npm install
 
 ## 2. 確認 MCP 伺服器可以啟動
 
-Claude 依 `.mcp.json` 啟動 OpenWiki 伺服器：
+Claude 依 `.mcp.json` 啟動 OpenWiki 伺服器，指令是：
 
 ```bash
-openwiki mcp --host claude
+node ./node_modules/openwiki/dist/cli/cli.js mcp --host claude
 ```
 
-如果找不到指令，代表 `openwiki` 不在 `PATH`。重新執行 `npm install`，並確認 `node_modules/.bin/openwiki` 存在。
+設定使用相對路徑，所以要從倉庫根目錄啟動。若 `node_modules/openwiki/dist/cli/cli.js` 不存在，重新執行 `npm install`。
 
 ## 3. 產生或更新 wiki
 
@@ -50,17 +52,13 @@ openwiki mcp --host claude
 
 ## 4. 新增文章後更新
 
-1. 在 `docs/articles/` 新增文章筆記，格式見[參考文章收錄](articles.md)。
-2. 請 Claude 以 `update` 模式更新 wiki。
-3. 用 `openwiki_search` 確認文章已被收錄。
+1. 在 `docs/articles/` 新增文章筆記（工具類筆記放 `docs/articles/develop/`），格式見[參考文章收錄](articles.md)。
+2. 在 `docs/articles/README.md` 的「已收錄文章」表格新增一列。
+3. 請 Claude 以 `update` 模式更新 wiki。
+4. 用 `openwiki_search` 確認文章已被收錄。
 
 ## 注意事項
 
 - Claim 的證據必須使用 `repo://<path>` 格式，例如 `repo://package.json`。
 - 不要手動編輯 `openwiki/` 下的頁面，這些檔案由 OpenWiki 產生。
-
-## 相關頁面
-
-- [概覽](overview.md)
-- [安裝與 MCP 整合](setup.md)
-- [參考文章收錄](articles.md)
+- `openwiki/index.md` 是保留頁面，由工具自動產生，不能放進計畫。

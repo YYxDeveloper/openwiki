@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:e9c0786cd50e940f80abbcb905753ef449a3a36334773fee68a4e1fcbf40ad19",
+  "pageVersion": "sha256:1b5c450745c19a947d0131caad25f0143056d8b5985d1323fcb2ad732e846fa9",
   "claims": [
     {
       "id": "claim_1fa4746278484441bf01200d9f30df33",
@@ -13,28 +13,32 @@
       ]
     },
     {
-      "id": "claim_5c706b9b5dcd4551b0f5af4190c02c6c",
-      "statement": ".mcp.json starts the server with `openwiki mcp --host claude`.",
+      "id": "claim_d20aab27302d4855910454505cea39d5",
+      "statement": ".mcp.json starts the server with node ./node_modules/openwiki/dist/cli/cli.js mcp --host claude from the repository root.",
       "evidence": [
         {
           "resource": "repo://.mcp.json",
-          "version": "repo-file-v1:sha256:1217fe8aff83c5e31c83d562c6e21d66cc6745e870d49c737cf8a32df7c39ef3"
+          "version": "repo-file-v1:sha256:e3e437699025f7638c79f597d6eed6371243d0b063d61fc11c99398ab4add5af"
         }
       ]
     },
     {
-      "id": "claim_9c791d93ce6a4477a0a02d74ba886f0c",
-      "statement": "docs/articles/README.md tells users to add article notes under docs/articles/ and ask Claude to update the wiki in update mode, then confirm with openwiki_search.",
+      "id": "claim_a028926943a74e14bf20254de15ec9bf",
+      "statement": "docs/articles/README.md tells users to add article notes under docs/articles/ (tool notes in docs/articles/develop/), add a row to the article table, ask Claude to update the wiki in update mode, then confirm with openwiki_search.",
       "evidence": [
         {
           "resource": "repo://docs/articles/README.md",
-          "version": "repo-file-v1:sha256:40dcb459d3ce5351f2631ea439560e69df87da7465ed6cf00f9c886fb0f87e5b"
+          "version": "repo-file-v1:sha256:f71d1dfa1d64a1ce633834576caaa89d249ae093552d542c19e99e788210e9ff"
+        },
+        {
+          "resource": "repo://docs/articles/develop/opencode-shortcuts.md",
+          "version": "repo-file-v1:sha256:ea58ebb8b1ca96ff26b1b2585a20726407af2d3b05d0145ee7eafd1fff984d3b"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.7.2",
-    "at": "2026-11-11T13:06:53.166Z"
+    "at": "2026-11-16T14:22:10.483Z"
   }
 }
