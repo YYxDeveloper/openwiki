@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>pstack 使用指南 · 白話教學</title>
+<style>
+/* =========================================================
+   VIEWPORT FITTING: MANDATORY BASE
+   ========================================================= */
+html,body{width:100%;margin:0}
+html{height:100%;overflow-x:hidden;scroll-snap-type:y mandatory;scroll-behavior:smooth;scrollbar-width:none}
+html::-webkit-scrollbar{width:0;height:0}
+body{min-height:100%;overflow-x:clip}
+
+:root{
+  --bg:#04070a;
+  --bg2:#070d12;
+  --panel:#0a1218;
+  --line:#1b2a33;
+  --line2:#243a46;
+  --fg:#c9d8e2;
+  --dim:#6d8494;
+  --acc:#5fff87;   /* terminal green */
+  --acc2:#ffd75f;  /* amber */
+  --acc3:#5fd7ff;  /* cyan */
+  --bad:#ff6b6b;
+
+  --title-size:clamp(1.6rem,5vw,4.2rem);
+  --h2-size:clamp(1.2rem,3.3vw,2.4rem);
+  --h3-size:clamp(0.95rem,2vw,1.35rem);
+  --body-size:clamp(0.78rem,1.45vw,1.06rem);
+  --small-size:clamp(0.66rem,1.05vw,0.86rem);
+  --micro-size:clamp(0.58rem,0.9vw,0.75rem);
+
+  --slide-padding:clamp(1.1rem,4.2vw,4.4rem);
+  --content-gap:clamp(0.5rem,1.8vw,1.7rem);
+  --element-gap:clamp(0.25rem,1vw,0.9rem);
+
+  --mono:ui-monospace,"SF Mono","JetBrains Mono","Sarasa Mono TC","Noto Sans Mono CJK TC","PingFang TC",Menlo,Consolas,monospace;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:var(--mono);
+  font-size:var(--body-size);
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(60vw 45vh at 12% -8%, rgba(95,255,135,.10), transparent 62%),
+    radial-gradient(55vw 45vh at 92% 108%, rgba(95,215,255,.09), transparent 60%),
+    radial-gradient(65vw 55vh at 50% 50%, rgba(7,13,18,.0), rgba(4,7,10,.85) 78%);
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.30;
+  background-image:
+    linear-gradient(rgba(27,42,51,.45) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27,42,51,.45) 1px, transparent 1px);
+  background-size:64px 64px,64px 64px;
+  mask-image:radial-gradient(80% 80% at 50% 50%, #000 30%, transparent 100%);
+  -webkit-mask-image:radial-gradient(80% 80% at 50% 50%, #000 30%, transparent 100%);
+}
+
+/* ---------------- slide shell ---------------- */
+main{position:relative;z-index:1}
+.slide{
+  width:100vw;height:100vh;height:100dvh;overflow:hidden;
+  scroll-snap-align:start;
+  display:flex;flex-direction:column;position:relative;
+}
+.slide-content{
+  flex:1;display:flex;flex-direction:column;justify-content:center;
+  max-height:100%;overflow:hidden;
+  padding:var(--slide-padding);
+  padding-top:calc(var(--slide-padding) + 1.2rem);
+  padding-bottom:calc(var(--slide-padding) + 1.4rem);
+  width:100%;
+  max-width:1180px;margin:0 auto;
+}
+.slide.active .reveal{opacity:1;transform:none}
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.2,1)}
+.reveal:nth-child(2){transition-delay:.06s}
+.reveal:nth-child(3){transition-delay:.12s}
+.reveal:nth-child(4){transition-delay:.18s}
+.reveal:nth-child(5){transition-delay:.24s}
+.reveal:nth-child(6){transition-delay:.30s}
+.reveal:nth-child(7){transition-delay:.36s}
+.reveal:nth-child(8){transition-delay:.42s}
+
+/* ---------------- chrome ---------------- */
+.chrome{position:fixed;inset:0;z-index:20;pointer-events:none}
+.slide-no{
+  position:absolute;top:clamp(.7rem,2vw,1.6rem);right:clamp(.8rem,2.2vw,1.8rem);
+  font-size:var(--micro-size);letter-spacing:.14em;color:var(--dim);
+  display:flex;gap:.45em;align-items:baseline;
+}
+.slide-no b{color:var(--acc);font-weight:700;font-size:calc(var(--micro-size)*1.35)}
+.brandmark{
+  position:absolute;top:clamp(.7rem,2vw,1.6rem);left:clamp(.8rem,2.2vw,1.8rem);
+  font-size:var(--micro-size);letter-spacing:.2em;color:var(--dim);text-transform:uppercase;
+}
+.brandmark span{color:var(--acc)}
+.progress{
+  position:absolute;left:0;right:0;bottom:0;height:2px;background:#0d1a21;
+}
+.progress i{
+  display:block;height:100%;width:0;
+  background:linear-gradient(90deg,var(--acc),var(--acc3));
+  box-shadow:0 0 12px rgba(95,255,135,.55);
+  transition:width .45s cubic-bezier(.2,.7,.2,1);
+}
+.rail{
+  position:absolute;right:clamp(.8rem,2.2vw,1.8rem);top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:.42rem;pointer-events:auto;
+}
+.rail button{
+  width:7px;height:7px;padding:0;border:0;border-radius:50%;
+  background:#22363f;cursor:pointer;transition:all .25s;
+}
+.rail button:hover{background:var(--dim);transform:scale(1.25)}
+.rail button[aria-current="true"]{background:var(--acc);box-shadow:0 0 10px rgba(95,255,135,.8);height:18px;border-radius:4px}
+
+/* ---------------- typography ---------------- */
+.kicker{
+  font-size:var(--small-size);letter-spacing:.22em;text-transform:uppercase;
+  color:var(--acc);margin:0 0 .7em;
+}
+h1{font-size:var(--title-size);line-height:1.08;margin:0 0 .35em;color:#fff;font-weight:700;letter-spacing:-.02em}
+h1 .dim{color:var(--dim);font-weight:400}
+h2{font-size:var(--h2-size);line-height:1.2;margin:0 0 .55em;color:#fff;font-weight:700;letter-spacing:-.01em}
+h3{font-size:var(--h3-size);line-height:1.3;margin:0 0 .35em;color:var(--acc3);font-weight:600}
+p{margin:.4em 0}
+.lead{font-size:clamp(.9rem,1.9vw,1.4rem);color:#dfeaf1;line-height:1.55;max-width:52ch}
+.sub{color:var(--dim);font-size:clamp(.8rem,1.5vw,1.05rem)}
+strong{color:#fff;font-weight:700}
+em{font-style:normal;color:var(--acc2)}
+code{
+  background:#0d1a21;border:1px solid #20343e;color:var(--acc2);
+  padding:.06em .38em;border-radius:3px;font-size:.92em;
+}
+pre{
+  margin:.2em 0 0;background:#060d12;border:1px solid var(--line);
+  border-left:2px solid var(--acc);border-radius:4px;
+  padding:clamp(.55rem,1.4vw,1rem) clamp(.7rem,1.7vw,1.2rem);
+  font-size:var(--small-size);line-height:1.7;color:#d6e4ee;
+  overflow:hidden;white-space:pre-wrap;word-break:break-word;
+}
+pre b{color:var(--acc)}
+pre i{font-style:normal;color:var(--dim)}
+
+/* ---------------- components ---------------- */
+.grid{display:grid;gap:clamp(.45rem,1.4vw,1rem)}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{
+  border:1px solid var(--line);background:linear-gradient(180deg,rgba(12,22,29,.92),rgba(7,13,18,.92));
+  border-radius:5px;padding:clamp(.6rem,1.5vw,1.1rem);
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:"";position:absolute;left:0;top:0;width:100%;height:1px;
+  background:linear-gradient(90deg,var(--acc),transparent 65%);opacity:.55;
+}
+.card h3{font-size:clamp(.82rem,1.6vw,1.1rem);margin-bottom:.25em}
+.card p{font-size:var(--small-size);color:var(--dim);line-height:1.5;margin:0}
+.card .n{
+  font-size:clamp(1.1rem,2.6vw,1.9rem);color:var(--acc);opacity:.9;
+  line-height:1;font-weight:700;margin-bottom:.3em;letter-spacing:-.03em;
+}
+
+ul.clean{list-style:none;margin:.2em 0;padding:0;display:flex;flex-direction:column;gap:clamp(.3rem,1.1vh,.75rem)}
+ul.clean li{display:flex;gap:.7em;font-size:var(--body-size);line-height:1.45;color:#d4e2ec}
+ul.clean li::before{content:"▸";color:var(--acc);flex:0 0 auto}
+ul.clean li b{color:#fff}
+ul.clean li span{color:var(--dim)}
+
+.pipe{display:flex;align-items:center;gap:.35em;flex-wrap:nowrap;margin:.4em 0 .1em}
+.pip{
+  flex:1 1 0;min-width:0;border:1px solid var(--line2);background:#081118;
+  border-radius:4px;padding:clamp(.4rem,1.1vw,.85rem) .2em;text-align:center;
+  position:relative;
+}
+.pip b{display:block;font-size:var(--micro-size);color:var(--acc);letter-spacing:.1em}
+.pip span{display:block;font-size:var(--small-size);color:#dfeaf1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pipe i{color:var(--line2);font-style:normal;font-size:var(--small-size);flex:0 0 auto}
+
+.flow{
+  display:flex;flex-direction:column;gap:clamp(.25rem,.9vh,.55rem);
+}
+.node{
+  border:1px solid var(--line);border-left:2px solid var(--acc3);
+  background:#081118;border-radius:4px;
+  padding:clamp(.32rem,.9vw,.6rem) clamp(.55rem,1.3vw,.9rem);
+  font-size:var(--small-size);display:flex;justify-content:space-between;gap:.8em;align-items:baseline;
+}
+.node b{color:#fff;font-weight:600}
+.node span{color:var(--dim);font-size:var(--micro-size);text-align:right}
+
+.row{
+  display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+  gap:clamp(.6rem,2vw,1.6rem);align-items:center;
+}
+.two{columns:2;column-gap:clamp(1rem,3vw,2.6rem)}
+.two>*{break-inside:avoid}
+
+table{border-collapse:collapse;width:100%;font-size:var(--small-size)}
+th,td{border-bottom:1px solid var(--line);padding:clamp(.28rem,.9vw,.6rem) .5em;text-align:left;vertical-align:top}
+th{color:var(--acc2);font-weight:600;font-size:var(--micro-size);letter-spacing:.08em;text-transform:uppercase}
+td:first-child{color:#fff;white-space:nowrap}
+td.d{color:var(--dim)}
+tr:last-child td{border-bottom:0}
+
+.tag{
+  display:inline-block;border:1px solid var(--line2);color:var(--dim);
+  font-size:var(--micro-size);padding:.08em .55em;border-radius:2px;letter-spacing:.06em;
+  white-space:nowrap;
+}
+.tag.a{border-color:rgba(95,255,135,.5);color:var(--acc)}
+.tag.b{border-color:rgba(255,215,95,.45);color:var(--acc2)}
+
+.quote{
+  border-left:2px solid var(--acc);padding:.15em 0 .15em .9em;
+  color:#dfeaf1;font-size:clamp(.9rem,2vw,1.35rem);line-height:1.5;max-width:50ch;
+}
+.quote small{display:block;color:var(--dim);font-size:var(--small-size);margin-top:.5em;letter-spacing:.06em}
+
+.hint{
+  position:absolute;left:50%;bottom:calc(clamp(1rem,3vw,2.4rem));transform:translateX(-50%);
+  font-size:var(--micro-size);color:var(--dim);letter-spacing:.14em;
+  display:flex;gap:.7em;align-items:center;white-space:nowrap;
+}
+.hint kbd{
+  border:1px solid var(--line2);border-bottom-width:2px;border-radius:3px;
+  padding:.1em .45em;color:var(--fg);font-family:inherit;font-size:.95em;
+}
+
+.hl{color:var(--acc)}
+.hl2{color:var(--acc2)}
+.mut{color:var(--dim)}
+
+/* ---------------- vocabulary ---------------- */
+.vgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(.4rem,1.2vw,.85rem)}
+.vcard{
+  border:1px solid var(--line);border-left:2px solid var(--acc);
+  background:#081118;border-radius:4px;
+  padding:clamp(.38rem,1vw,.7rem) clamp(.55rem,1.3vw,.9rem);
+  min-width:0;
+}
+.vcard b{color:#fff;font-size:var(--small-size);display:block;line-height:1.3}
+.vcard b i{font-style:normal;color:var(--acc3);font-size:var(--micro-size);margin-left:.45em;letter-spacing:.04em}
+.vcard p{color:var(--dim);font-size:var(--micro-size);margin:.12em 0 .3em;line-height:1.45}
+.vcard code{
+  display:block;font-size:var(--micro-size);background:#04070a;
+  border:1px solid #243a46;color:var(--acc2);
+  padding:.1em .45em;border-radius:2px;
+  white-space:normal;word-break:break-word;
+}
+@media (max-width:640px){
+  .vgrid{grid-template-columns:1fr}
+  .vcard[style*="grid-column"]{grid-column:auto !important}
+}
+
+/* ---------------- responsive ---------------- */
+@media (max-width:900px){
+  .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .row{grid-template-columns:1fr}
+  .rail{display:none}
+}
+@media (max-width:640px){
+  .g3{grid-template-columns:1fr}
+  .two{columns:1}
+  .pipe{flex-wrap:wrap}
+  .pipe i{display:none}
+  .pip{flex:1 1 28%}
+}
+@media (max-height:700px){
+  :root{
+    --slide-padding:clamp(.7rem,3vw,2rem);
+    --content-gap:clamp(.35rem,1.4vw,.9rem);
+    --title-size:clamp(1.3rem,4.4vw,2.6rem);
+    --h2-size:clamp(1rem,2.9vw,1.75rem);
+  }
+}
+@media (max-height:600px){
+  :root{
+    --slide-padding:clamp(.5rem,2.4vw,1.4rem);
+    --body-size:clamp(.7rem,1.2vw,.95rem);
+    --small-size:clamp(.62rem,.98vw,.8rem);
+  }
+  .hint,.rail,.brandmark{display:none}
+}
+@media (max-height:500px){
+  /* landscape phones: keep two-column slides side by side instead of stacking */
+  .row{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:.7rem}
+  .node{padding:.22rem .5rem;font-size:clamp(.6rem,.95vw,.72rem)}
+  .flow{gap:.22rem}
+  pre{font-size:clamp(.54rem,.9vw,.68rem);line-height:1.55;padding:.5rem .6rem}
+  th,td{padding:.16rem .35rem}
+  .card{padding:.4rem .55rem}
+  .hint,.rail,.brandmark{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.15s !important}
+  html{scroll-behavior:auto}
+  .reveal{opacity:1;transform:none}
+}
+a{color:var(--acc3);text-decoration:none;border-bottom:1px dashed rgba(95,215,255,.5);pointer-events:auto}
+a:hover{color:var(--acc);border-bottom-color:var(--acc)}
+</style>
+</head>
+<body>
+
+<div class="chrome" aria-hidden="true">
+  <div class="brandmark">pstack<span> /</span> guide</div>
+  <div class="slide-no"><b id="cur">01</b><span>/ <span id="tot">14</span></span></div>
+  <nav class="rail" id="rail" aria-label="投影片導覽"></nav>
+  <div class="progress"><i id="bar"></i></div>
+</div>
+
+<main id="deck">
+
+  <!-- 01 COVER -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">cursor/plugins · pstack · docs/guide/README.md</p>
+      <h1 class="reveal">pstack 使用指南<br><span class="dim">十章學習地圖</span></h1>
+      <p class="lead reveal">別再盯著 agent 做每一步。你講<span class="hl">要什麼、怎麼驗收</span>，其餘交給它。</p>
+      <div class="reveal" style="margin-top:1.2em;display:flex;gap:.5em;flex-wrap:wrap">
+        <span class="tag a">教學版</span>
+        <span class="tag">10 章</span>
+        <span class="tag">每章附原文連結</span>
+      </div>
+    </div>
+    <div class="hint"><span><kbd>↑</kbd><kbd>↓</kbd> / 空白</span><span>切換</span></div>
+  </section>
+
+  <!-- 02 CORE IDEA -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">00 · 指南的核心</p>
+      <h2 class="reveal">一個習慣：<span class="hl">停止微管理</span></h2>
+      <p class="lead reveal">你描述想要什麼、以及怎麼知道完成了。<code>/poteto-mode</code> 會挑劇本（playbook）、在每個步驟叫用其他技能，最後把<strong>證據</strong>給你看。</p>
+      <div class="flow reveal" style="margin-top:1em">
+        <div class="node"><b>你給</b><span>目標 + 可檢查的完成條件</span></div>
+        <div class="node"><b>它做</b><span>配劇本 → 照步驟叫技能 → 執行</span></div>
+        <div class="node"><b>你收</b><span>證據（真實輸出、結果），不是「做好了」</span></div>
+      </div>
+      <p class="sub reveal" style="margin-top:.8em">原文：<a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/README.md" target="_blank" rel="noopener">docs/guide/README.md</a></p>
+    </div>
+  </section>
+
+  <!-- 03 ONE THING -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">01 · 只記一件事</p>
+      <h2 class="reveal">用自己的話：<span class="hl">目標 + 怎麼檢查</span></h2>
+<pre class="reveal" style="margin-top:.3em"><b>/poteto-mode</b> the export writes duplicate rows when a retry lands mid-run.
+repro first, then fix and verify.</pre>
+      <ul class="clean reveal" style="margin-top:.8em">
+        <li><b>不用指定劇本</b> <span>— 也不用列技能清單</span></li>
+        <li><b>「repro first」加上可檢查的結果</b> <span>— 就是 poteto-mode 需要的全部路由訊號</span></li>
+        <li>它會配到 <em>Bug fix</em> 劇本、把步驟抄進 todo，並在每一步叫對的技能</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 04 MAP -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">02 · 學習地圖</p>
+      <h2 class="reveal">十章，一條從頭到尾的路</h2>
+      <div class="pipe reveal">
+        <div class="pip"><b>1–2</b><span>起手</span></div><i>›</i>
+        <div class="pip"><b>3–4</b><span>看懂·設計</span></div><i>›</i>
+        <div class="pip"><b>5–6</b><span>建置·交付</span></div><i>›</i>
+        <div class="pip"><b>7–9</b><span>過夜·原則·客製</span></div><i>›</i>
+        <div class="pip"><b>10</b><span>速查</span></div>
+      </div>
+      <ul class="clean reveal" style="margin-top:1em">
+        <li><b>第一次請照順序讀</b></li>
+        <li><b>之後每一頁都可以單獨看</b></li>
+        <li>卡住或不知道該用哪個技能 → 問 <code>/poteto-help</code></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 05 CH 1-2 -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">03 · 第 1–2 章 · 起手</p>
+      <h2 class="reveal">先裝好，再把工作丟給 poteto-mode</h2>
+      <div class="grid g2 reveal" style="margin-top:.4em">
+        <div class="card"><div class="n">01</div><h3>Set up pstack</h3><p>安裝外掛、選模型。</p><p style="margin-top:.5em"><a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/01-setup.md" target="_blank" rel="noopener">→ 01-setup.md</a></p></div>
+        <div class="card"><div class="n">02</div><h3>Route work through /poteto-mode</h3><p>給它目標，看它挑劇本。</p><p style="margin-top:.5em"><a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/02-poteto-mode.md" target="_blank" rel="noopener">→ 02-poteto-mode.md</a></p></div>
+      </div>
+      <p class="sub reveal" style="margin-top:1em">對應我們之前的簡報：setup-pstack 教學、poteto-mode 教學。</p>
+    </div>
+  </section>
+
+  <!-- 06 CH 3-4 -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">04 · 第 3–4 章 · 看懂與設計</p>
+      <h2 class="reveal">改之前，先弄懂；鎖定形狀之前，先設計</h2>
+      <div class="grid g2 reveal" style="margin-top:.4em">
+        <div class="card"><div class="n">03</div><h3>Understand the code</h3><p>先做唯讀調查，再用 <code>/how</code>、<code>/why</code>、<code>/teach</code>、<code>/recall</code>，之後才動手。</p><p style="margin-top:.5em"><a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/03-understand.md" target="_blank" rel="noopener">→ 03-understand.md</a></p></div>
+        <div class="card"><div class="n">04</div><h3>Design the change</h3><p><code>/architect</code>、<code>/arena</code>、<code>/swarm</code>、<code>/interrogate</code>、原型與計畫，在程式碼定型之前。</p><p style="margin-top:.5em"><a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/04-design.md" target="_blank" rel="noopener">→ 04-design.md</a></p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 CH 5-6 -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">05 · 第 5–6 章 · 建置與交付</p>
+      <h2 class="reveal">做出來，然後<span class="hl">證明</span>它能用</h2>
+      <div class="grid g2 reveal" style="margin-top:.4em">
+        <div class="card"><div class="n">05</div><h3>Build and clean the change</h3><p>建置類劇本、<code>/tdd</code>、<code>/unslop</code>、<code>/no-comments</code>。</p><p style="margin-top:.5em"><a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/05-build-and-clean.md" target="_blank" rel="noopener">→ 05-build-and-clean.md</a></p></div>
+        <div class="card"><div class="n">06</div><h3>Verify and ship</h3><p>在真實 app 上證明行為；用形式驗證補測試碰不到的地方；用 <code>/benchmark-checklist</code> 檢查數字；開聚焦的 PR 並推到 merged。</p><p style="margin-top:.5em"><a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/06-verify-and-ship.md" target="_blank" rel="noopener">→ 06-verify-and-ship.md</a></p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 CH 7-9 -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">06 · 第 7–9 章 · 進階</p>
+      <h2 class="reveal">過夜、用原則名轉向、做成你自己的</h2>
+      <div class="grid g3 reveal" style="margin-top:.4em">
+        <div class="card"><div class="n">07</div><h3>Run work while you sleep</h3><p>先建立信任再跑迴圈、過夜合約、可稽核的決策日誌，以及超越單一 agent 的 Projects 與 automations。</p><p style="margin-top:.5em"><a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/07-overnight.md" target="_blank" rel="noopener">→ 07-overnight.md</a></p></div>
+        <div class="card"><div class="n">08</div><h3>Steer with principle names</h3><p>24 個名稱，可以在任務進行中改變 agent 的方向。</p><p style="margin-top:.5em"><a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/08-principles.md" target="_blank" rel="noopener">→ 08-principles.md</a></p></div>
+        <div class="card"><div class="n">09</div><h3>Make it yours</h3><p>自己的 mode、用 <code>/correct</code> 處理反覆犯的錯、如何測試技能的改動。</p><p style="margin-top:.5em"><a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/09-make-it-yours.md" target="_blank" rel="noopener">→ 09-make-it-yours.md</a></p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 CH 10 -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">07 · 第 10 章 · 速查</p>
+      <h2 class="reveal">Recipes and pitfalls：可以直接抄的 prompt</h2>
+      <div class="card reveal" style="margin-top:.4em">
+        <div class="n">10</div>
+        <h3>Recipes and pitfalls</h3>
+        <p>可以複製的 prompt，以及要避開的錯誤。</p>
+        <p style="margin-top:.5em"><a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/10-recipes-and-pitfalls.md" target="_blank" rel="noopener">→ 10-recipes-and-pitfalls.md</a></p>
+      </div>
+      <p class="sub reveal" style="margin-top:1em">建議：讀完前九章再看，會更有感覺；日常卡住時它是最快的查詢頁。</p>
+    </div>
+  </section>
+
+  <!-- 10 HELP -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">08 · 卡住時</p>
+      <h2 class="reveal">問 <span class="hl">/poteto-help</span></h2>
+<pre class="reveal" style="margin-top:.3em"><b>/poteto-help</b> which skill should i use to review this branch?</pre>
+      <ul class="clean reveal" style="margin-top:.8em">
+        <li><b>它會回答</b> <span>— 並給你一段可以送出的 prompt，附上答案來源的技能或指南頁連結</span></li>
+        <li><b>它不會開始做事</b> <span>— pstack 的一次執行會花真實 token，所以由你準備好時再送</span></li>
+        <li><b>只在你輸入時才執行</b></li>
+      </ul>
+      <p class="sub reveal" style="margin-top:.8em"><a href="https://github.com/cursor/plugins/blob/main/pstack/skills/poteto-help/SKILL.md" target="_blank" rel="noopener">→ skills/poteto-help/SKILL.md</a></p>
+    </div>
+  </section>
+
+  <!-- 11 EXERCISE -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">09 · 課堂練習</p>
+      <h2 class="reveal">把模糊的話，改成「目標 + 怎麼檢查」</h2>
+      <table class="reveal" style="margin-top:.3em">
+        <tr><th>模糊說法</th><th>你要補什麼</th></tr>
+        <tr><td>修一下匯出</td><td class="d">哪裡壞？怎樣算修好？要看到什麼輸出？</td></tr>
+        <tr><td>讓它快一點</td><td class="d">快到多少？用什麼指標量？量給我看。</td></tr>
+        <tr><td>重構這個模組</td><td class="d">行為要不變；用什麼檢查證明沒變？</td></tr>
+      </table>
+      <p class="sub reveal" style="margin-top:.8em">提示：指南範例是「重現 → 修 → 驗證」，記得寫上 repro first 與可檢查的結果。</p>
+    </div>
+  </section>
+
+  <!-- 12 LINKS -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">10 · 文章連結</p>
+      <h2 class="reveal">十章原文，一次列出</h2>
+      <div class="two reveal" style="margin-top:.3em">
+        <table>
+          <tr><th>章</th><th>連結</th></tr>
+          <tr><td>README</td><td><a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/README.md" target="_blank" rel="noopener">總覽</a></td></tr>
+          <tr><td>01</td><td><a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/01-setup.md" target="_blank" rel="noopener">setup</a></td></tr>
+          <tr><td>02</td><td><a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/02-poteto-mode.md" target="_blank" rel="noopener">poteto-mode</a></td></tr>
+          <tr><td>03</td><td><a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/03-understand.md" target="_blank" rel="noopener">understand</a></td></tr>
+          <tr><td>04</td><td><a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/04-design.md" target="_blank" rel="noopener">design</a></td></tr>
+          <tr><td>05</td><td><a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/05-build-and-clean.md" target="_blank" rel="noopener">build-and-clean</a></td></tr>
+        </table>
+        <table>
+          <tr><th>章</th><th>連結</th></tr>
+          <tr><td>06</td><td><a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/06-verify-and-ship.md" target="_blank" rel="noopener">verify-and-ship</a></td></tr>
+          <tr><td>07</td><td><a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/07-overnight.md" target="_blank" rel="noopener">overnight</a></td></tr>
+          <tr><td>08</td><td><a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/08-principles.md" target="_blank" rel="noopener">principles</a></td></tr>
+          <tr><td>09</td><td><a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/09-make-it-yours.md" target="_blank" rel="noopener">make-it-yours</a></td></tr>
+          <tr><td>10</td><td><a href="https://github.com/cursor/plugins/blob/main/pstack/docs/guide/10-recipes-and-pitfalls.md" target="_blank" rel="noopener">recipes-and-pitfalls</a></td></tr>
+          <tr><td>help</td><td><a href="https://github.com/cursor/plugins/blob/main/pstack/skills/poteto-help/SKILL.md" target="_blank" rel="noopener">poteto-help</a></td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 EXTERNAL -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">11 · 延伸閱讀（第三方）</p>
+      <h2 class="reveal">別人怎麼介紹 pstack</h2>
+      <ul class="clean reveal" style="margin-top:.3em">
+        <li><a href="https://flaviocopes.com/pstack" target="_blank" rel="noopener">A deep dive into pstack</a> <span>— Flavio Copes</span></li>
+        <li><a href="https://flaviocopes.com/poteto-mode/" target="_blank" rel="noopener">What is poteto-mode in pstack?</a> <span>— Flavio Copes</span></li>
+        <li><a href="https://github.com/cursor/plugins/tree/main/pstack" target="_blank" rel="noopener">pstack 官方 repo 子目錄</a> <span>— README、skills、docs</span></li>
+      </ul>
+      <p class="sub reveal" style="margin-top:.9em">第三方文章是別人的詮釋，細節請以官方 repo 為準。</p>
+    </div>
+  </section>
+
+  <!-- 14 RECAP -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">12 · 小結</p>
+      <h2 class="reveal">記住這三句就夠</h2>
+      <div class="grid g3 reveal" style="margin-top:.4em">
+        <div class="card"><div class="n">1</div><h3>怎麼開始</h3><p>先 setup，再用 /poteto-mode 丟目標與驗收。</p></div>
+        <div class="card"><div class="n">2</div><h3>怎麼學</h3><p>第一次照 1→10 順序，之後每章獨立查。</p></div>
+        <div class="card"><div class="n">3</div><h3>卡住怎麼辦</h3><p>問 /poteto-help，它只給你 prompt，不替你開跑。</p></div>
+      </div>
+      <p class="sub reveal" style="margin-top:1em">來源：cursor/plugins · pstack/docs/guide/README.md</p>
+    </div>
+  </section>
+
+</main>
+
+
+<script>
+(() => {
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const rail = document.getElementById('rail');
+  const bar = document.getElementById('bar');
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  const pad = n => String(n).padStart(2, '0');
+  tot.textContent = pad(slides.length);
+
+  let index = 0;
+  let lock = false;
+
+  // build rail
+  slides.forEach((_, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('aria-label', '第 ' + (i + 1) + ' 張');
+    b.addEventListener('click', () => go(i));
+    rail.appendChild(b);
+  });
+  const dots = Array.from(rail.children);
+
+  function setActive(i) {
+    if (i === index && slides[i].classList.contains('active')) return;
+    index = i;
+    slides.forEach((s, n) => s.classList.toggle('active', n === i));
+    dots.forEach((d, n) => d.setAttribute('aria-current', n === i ? 'true' : 'false'));
+    cur.textContent = pad(i + 1);
+    bar.style.width = ((i + 1) / slides.length * 100) + '%';
+    if (history.replaceState) history.replaceState(null, '', '#' + (i + 1));
+  }
+
+  function go(i) {
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    lock = true;
+    clearTimeout(go._t);
+    go._t = setTimeout(() => { lock = false; }, 450);
+    slides[i].scrollIntoView({ behavior: 'instant', block: 'start' });
+    setActive(i);
+  }
+
+  // active state via intersection (source of truth for wheel/scroll)
+  const io = new IntersectionObserver(entries => {
+    if (lock) return;
+    entries.forEach(e => {
+      if (e.isIntersecting && e.intersectionRatio > 0.55) {
+        const i = slides.indexOf(e.target);
+        if (i >= 0) setActive(i);
+      }
+    });
+  }, { threshold: [0.55, 0.9] });
+  slides.forEach(s => io.observe(s));
+
+  // keyboard
+  let locked = false;
+  function next() { go(index + 1); }
+  function prev() { go(index - 1); }
+  addEventListener('keydown', e => {
+    const k = e.key;
+    if (!k || e.repeat) return;
+    if (k === 'ArrowDown' || k === 'ArrowRight' || k === 'PageDown' || k === ' ' || k === 'Spacebar' || k === 'Space' || k === 'Enter') {
+      e.preventDefault(); next();
+    } else if (k === 'ArrowUp' || k === 'ArrowLeft' || k === 'PageUp') {
+      e.preventDefault(); prev();
+    } else if (k === 'Home') { e.preventDefault(); go(0); }
+    else if (k === 'End') { e.preventDefault(); go(slides.length - 1); }
+  });
+
+  // touch swipe
+  let ty = 0, tx = 0;
+  addEventListener('touchstart', e => {
+    ty = e.changedTouches[0].clientY; tx = e.changedTouches[0].clientX;
+  }, { passive: true });
+  addEventListener('touchend', e => {
+    const dy = ty - e.changedTouches[0].clientY;
+    const dx = tx - e.changedTouches[0].clientX;
+    if (Math.abs(dy) > 50 && Math.abs(dy) > Math.abs(dx)) {
+      dy > 0 ? next() : prev();
+    }
+  }, { passive: true });
+
+  // initial
+  const start = parseInt((location.hash || '').replace('#', ''), 10);
+  const s = Number.isFinite(start) && start >= 1 && start <= slides.length ? start - 1 : 0;
+  if (s > 0) go(s);
+  else setActive(0);
+
+  addEventListener('hashchange', () => {
+    const n = parseInt((location.hash || '').replace('#', ''), 10);
+    if (Number.isFinite(n) && n >= 1 && n <= slides.length && n - 1 !== index) go(n - 1);
+  });
+})();
+</script>
+</body>
+</html>

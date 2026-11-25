@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PTT - [心得] pstack：讓 AI 少寫、寫對、拿證據的 58 個技能</title>
+<style>
+  :root{
+    --bg:#000;
+    --fg:#cfcfcf;
+    --dim:#7a7a7a;
+    --white:#fff;
+    --yellow:#ffff5f;
+    --green:#5fff87;
+    --red:#ff5f5f;
+    --cyan:#5fd7ff;
+    --border:#3a3a3a;
+    --hl:#141414;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--fg);
+    font-family:"Sarasa Mono TC","Sarasa Mono SC","Noto Sans Mono CJK TC",
+                "PingFang TC","Menlo","Consolas",monospace;
+    font-size:16px;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--cyan);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:960px;margin:0 auto;padding:24px 20px 80px}
+  .topbar{
+    border-bottom:1px solid var(--border);
+    padding:10px 0 14px;margin-bottom:18px;
+    display:flex;flex-wrap:wrap;gap:8px 24px;align-items:baseline;
+    color:var(--dim);font-size:14px;
+  }
+  .topbar .board{color:var(--yellow)}
+  h1{
+    font-size:20px;line-height:1.5;color:var(--white);
+    margin:0 0 8px;font-weight:700;
+  }
+  .meta{color:var(--dim);font-size:14px;margin-bottom:6px}
+  .meta b{color:var(--fg);font-weight:400}
+  .author{color:var(--white);font-weight:700}
+  hr{border:0;border-top:1px dashed var(--border);margin:22px 0}
+  h2{
+    color:var(--yellow);font-size:17px;margin:34px 0 10px;
+    border-left:3px solid var(--yellow);padding-left:10px;line-height:1.4;
+  }
+  h3{color:var(--cyan);font-size:15px;margin:22px 0 6px}
+  p{margin:8px 0}
+  .lead{color:var(--hl-fg,#e8e8e8)}
+  .quote{
+    border-left:2px solid var(--green);padding:2px 0 2px 12px;
+    color:var(--green);margin:12px 0;
+  }
+  .dim{color:var(--dim)}
+  .warn{color:var(--red)}
+  ul,ol{margin:8px 0 8px 0;padding-left:24px}
+  li{margin:5px 0}
+  li::marker{color:var(--dim)}
+  code{
+    background:#1a1a1a;color:var(--yellow);padding:1px 5px;
+    border-radius:3px;font-size:.92em;border:1px solid #2c2c2c;
+  }
+  pre{
+    background:#0d0d0d;border:1px solid #2c2c2c;border-radius:4px;
+    padding:12px 14px;overflow-x:auto;color:#d7d7d7;font-size:14px;line-height:1.6;
+  }
+  pre code{background:none;border:0;padding:0;color:inherit}
+  table{
+    width:100%;border-collapse:collapse;margin:12px 0;font-size:14px;
+  }
+  th,td{border:1px solid #2c2c2c;padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#141414;color:var(--yellow);font-weight:400;white-space:nowrap}
+  tr:nth-child(even) td{background:#0a0a0a}
+  .card{
+    border:1px solid #262626;background:#090909;border-radius:4px;
+    padding:14px 16px;margin:14px 0;
+  }
+  .card h3{margin-top:0}
+  .kv{color:var(--dim)}
+  .kv b{color:var(--white);font-weight:400}
+  .tag{
+    display:inline-block;border:1px solid #333;color:var(--dim);
+    font-size:12px;padding:1px 7px;border-radius:2px;margin:0 6px 6px 0;
+  }
+  .diagram{
+    border:1px solid #262626;background:#060606;border-radius:4px;
+    padding:12px;margin:16px 0;overflow-x:auto;
+  }
+  .diagram svg{display:block;min-width:640px;width:100%;height:auto}
+  .chapters li{margin:3px 0}
+  .ts{color:var(--cyan);display:inline-block;min-width:52px}
+  .src{color:var(--dim);font-size:12px;border:1px solid #2c2c2c;padding:0 5px;margin-left:6px;border-radius:2px}
+  .pushbox{
+    margin-top:44px;border-top:2px solid #2c2c2c;padding-top:16px;
+  }
+  .pushbox h2{border-left-color:var(--green);color:var(--green)}
+  .push{
+    display:flex;gap:8px;font-size:14px;line-height:1.65;
+    padding:4px 0;border-bottom:1px dotted #1c1c1c;
+  }
+  .push .who{color:var(--white);white-space:nowrap;font-weight:700}
+  .push .when{color:var(--dim);white-space:nowrap}
+  .push.p .mark{color:var(--green);white-space:nowrap}
+  .push.b .mark{color:var(--red);white-space:nowrap}
+  .push.n .mark{color:var(--yellow);white-space:nowrap}
+  .push .txt{color:var(--fg);flex:1;min-width:0}
+  .footer{
+    margin-top:48px;color:var(--dim);font-size:13px;
+    border-top:1px solid var(--border);padding-top:14px;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  }
+  .footer nav a{margin-right:14px}
+  mark{background:#3a3a00;color:var(--yellow);padding:0 3px}
+  @media (max-width:600px){
+    body{font-size:15px}
+    .wrap{padding:16px 14px 60px}
+    h1{font-size:17px}
+    .push{flex-wrap:wrap}
+  }
+  @media print{
+    body{background:#fff;color:#000}
+    .topbar,.pushbox,.footer{display:none}
+    a{color:#000;text-decoration:underline}
+    h2{color:#000;border-left-color:#000}
+    h3{color:#333}
+    .card,.diagram{border-color:#999}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <span class="board">Soft_Job</span>
+    <span>看板 Soft_Job</span>
+    <span>精華區 z-5-3</span>
+    <span>轉錄自 YouTube / NiceKate AI</span>
+  </div>
+
+  <h1>[心得] pstack：58 個技能，讓 AI 少寫、寫對、拿證據</h1>
+  <div class="meta"><span class="author">nicekate</span> (Kate)　看板 <span style="color:var(--yellow)">Soft_Job</span></div>
+  <div class="meta">時間 Wed Nov 12 00:00:00 2026</div>
+  <div class="meta dim">影片長度 15:54　｜　分析路由 Route 3 軟體開發與系統架構　｜　標準緊湊模式</div>
+
+  <hr>
+
+  <h2>📌 影片摘要</h2>
+  <p class="lead">
+    AI 寫 code 最不缺速度，缺的是「寫對」與「證明寫對」。Cursor 官方外掛倉庫裡的 <b>pstack</b>（作者 Lauren Tan，@poteto）用 58 個技能、23 個劇本、24 條工程原則，把資深工程師腦中的流程變成 agent 可重複執行的機械：先復現、先讀懂、先定架構，最後用真實產物驗證。
+  </p>
+  <p>
+    核心主張只有一句：<mark>想要快，先要深（if you want to go fast, go deep first）</mark>。目標不是多寫程式，而是少寫、寫對、拿得出證據；驗證技能的投資報酬率最高，<b>「能編譯」不算證據</b>。
+  </p>
+
+  <h2>⏱️ 影片目錄與時間戳記</h2>
+  <ul class="chapters">
+    <li><span class="ts">00:00</span> pstack 是什麼？作者、動機、倉庫結構與 58 個技能的分類<span class="src">官方</span></li>
+    <li><span class="ts">02:29</span> 安裝與上手：Cursor / Claude Code 安裝、setup-pstack 模型分工、poteto-mode 入口<span class="src">官方</span></li>
+    <li><span class="ts">05:14</span> 提示詞怎麼寫：五樣要素、兩樣別寫、短提示與 New Task<span class="src">官方</span></li>
+    <li><span class="ts">09:20</span> 能編譯還不夠：驗證指南、專案專屬驗證技能、TLA+ 形式化驗證<span class="src">官方</span></li>
+    <li><span class="ts">10:51</span> 過夜合約與多任務編排：四要素、決策日誌、autopilot / orchestrate<span class="src">官方</span></li>
+    <li><span class="ts">12:28</span> 工程原則、常見坑與使用成本：24 條原則、14 個坑、token 代價<span class="src">官方</span></li>
+  </ul>
+  <p class="dim" style="font-size:13px">純時間軸清單（可貼影片描述）：</p>
+  <pre><code>00:00 pstack 是什麼？
+02:29 安裝與上手
+05:14 提示詞怎麼寫？
+09:20 能編譯還不夠
+10:51 過夜合約與多任務編排
+12:28 工程原則、常見坑與使用成本</code></pre>
+  <p class="dim" style="font-size:13px">逐字稿來源：YouTube 無官方字幕，本分析以 whisper.cpp（ggml-small）STT 轉寫補齊，時間軸與官方章節交叉校準（±2~5s）。</p>
+
+  <h2>💡 核心重點與案例列表</h2>
+
+  <h3>1. 定位與規模：不是 prompt 大全，是「AI 工作手冊」</h3>
+  <ul>
+    <li><b>作者背景</b>：Lauren Tan（poteto），待過 Meta、Netflix、Cursor，React 核心團隊成員、參與維護 React Compiler。她說法很直白：不要像「20 個水貨工人組成的團隊」那樣交付。</li>
+    <li><b>倉庫落點</b>：<code>cursor/plugins</code> 下的 <code>pstack/</code>，MIT 授權，內容 <b>169 份 Markdown</b> 為主體，真正的程式碼集中在少數技能（如畫狀態圖的 <code>statechart</code> 帶整套 TypeScript 腳本與測試）。</li>
+    <li><b>三個數字</b>：58 個技能（34 個工作流技能 + 24 條工程原則）、<code>poteto-mode</code> 內建 23 個劇本、2 個專用子代理（poteto-agent、comment-sicko）。另有預設關閉的 <code>benny</code> 自動化包與一份十頁上手指南。</li>
+    <li><b>核心洞察</b>：這些不是程式碼，而是<b>寫給 AI 看的流程規範</b>；每個技能就是一個資料夾 + SKILL.md，說明「什麼時候用、怎麼一步步做」。</li>
+  </ul>
+
+  <h3>2. 安裝與 poteto-mode：總入口 + 可稽核的代辦清單</h3>
+  <ul>
+    <li><b>安裝</b>：Cursor 直接 <code>/add-plugin pstack</code>；Claude Code 先 <code>/plugin marketplace add cursor/plugins</code> 再 <code>/plugin install pstack@cursor-plugins</code>，指令會多 <code>/pstack:</code> 前綴。</li>
+    <li><b>設定</b>：<code>/setup-pstack</code> 偵測可用模型 → 選推理預算 → 分配角色。預設分工是「寫 code 給 Grok、最難的改動與文字判斷給 Opus 5.5」，凸顯多模型協作是設計前提，不是事後補丁。</li>
+    <li><b>入口</b>：<code>/poteto-mode</code> 收到目標後會①用自己的話複述目標 ②匹配一個劇本 ③把劇本步驟<em>原樣</em>抄進待辦清單 ④逐步呼叫其他技能。</li>
+    <li><b>最喜歡的細節</b>：決定跳過某一步時，該步驟<b>不會消失</b>，而是留在清單並註明跳過原因——省掉了什麼，一眼可見。這就是可稽核性（auditability）。</li>
+    <li><b>23 個劇本覆蓋</b>：investigation、bug fix、perf、hillclimb、runtime forensics（活進程 / 已抓 profile 兩種取證）、feature、refactor、prototype、視覺像素對齊、開 PR、看護 PR、合併上線，以及長時自主：autopilot、autopilot stack、orchestrate、安全暫停、接手進度；全都不匹配則交 <code>figure-it-out</code> 現場設計劇本。</li>
+  </ul>
+
+  <h3>3. 修 Bug 劇本：先復現，才有資格談修好</h3>
+  <div class="card">
+    <p class="quote">「那些可能有點用的雙保險，只是假設（hypotheses），不是修復（fix）——不能發布。」</p>
+    <ol>
+      <li><b>自己先復現</b>：不准一上來就請使用者幫忙復現。</li>
+      <li><b>二分法 + 假設排除</b>：列出假設，逐一用<em>執行時證據</em>排除，禁止猜。</li>
+      <li><b>規劃修復</b>：把實作交給子代理。</li>
+      <li><b>同一處驗證</b>：原本的復現現在通過，才算數。</li>
+      <li><b>提交順序</b>：讓「失敗的復現測試」排在修復 commit 之前。</li>
+      <li><b>開 PR</b>：帶證據。</li>
+    </ol>
+  </div>
+  <p class="dim">深入解析：第 1、4 步把「可驗證性」鎖在因果鏈兩端（before / after 同一腳本）；第 5 步讓 git history 本身成為證據鏈，reviewer 不必相信任何口頭描述。</p>
+
+  <h3>4. 提示詞怎麼寫：五樣、兩不寫、一句話原則</h3>
+  <table>
+    <tr><th>要素</th><th>內容</th><th>範例</th></tr>
+    <tr><td>目標</td><td>要達成什麼</td><td>修掉這個 PR 的隱蔽 bug</td></tr>
+    <tr><td>完成標準</td><td>什麼狀態算做完</td><td>頁面閒置時不再每 750ms 飄移</td></tr>
+    <tr><td>想要的證據</td><td>要看到什麼才算數</td><td>先復現、再修復、並驗證</td></tr>
+    <tr><td>已知線索</td><td>你手上的觀察</td><td>閒置時 CPU 有固定週期抖動</td></tr>
+    <tr><td>真正約束</td><td>不可違反的邊界</td><td>先復現、先別改 code</td></tr>
+  </table>
+  <ul>
+    <li><b>兩樣別寫</b>：① 具體怎麼做（留空間給 AI）② 你對原因的猜測（你越講，它越往那個方向找，形成確認偏誤）。</li>
+    <li><b>只記一件事</b>：<mark>給它一個目標，再給它一個能檢驗的辦法。</mark></li>
+    <li><b>短提示合法</b>：上下文已在對話裡時，「Do it」「Continue」就夠；換話題要說 <code>New Task</code> 讓它重新匹配劇本；想讓模式常駐，在選單按 Option+Enter 變成 custom mode。</li>
+    <li><b>周邊小工具</b>：<code>poteto-help</code>（只給一條可直接發的提示詞，不自己開工）、<code>sharpen</code>（把提示詞改深、不是改長）、<code>in-your-own-words</code>（先複述目標，錯了只花一條訊息）、<code>blast-radius</code>（一個小改動還可能弄壞什麼）、<code>bro</code>（把太技術的回覆翻成大白話）。</li>
+  </ul>
+
+  <h3>5. 動手之前先看懂：how / why / teach / recall</h3>
+  <ul>
+    <li><code>how</code>：講清楚一個子系統「現在」怎麼運轉，像資深工程師帶你入職。</li>
+    <li><code>why</code>：<b>git 考古學</b>——從 commit 記錄出發，並行查 issue、文件、聊天記錄，回答「當初為什麼這樣設計」；查不到也會如實說查不到。</li>
+    <li><code>teach</code>：把 how + why 合成一張張圖講明白。</li>
+    <li><code>recall</code>：從你過去的對話記錄裡，把某個主題的上下文重新撿回來。</li>
+    <li><b>關鍵判斷</b>：不先看懂就動手的 AI，往往只在「第一個看起來合理的地方」修掉表面症狀。</li>
+  </ul>
+
+  <h3>6. 設計階段：別接受第一版設計</h3>
+  <ul>
+    <li><code>architect</code>：寫 code 之前先定呼叫方式、型別、模組邊界。</li>
+    <li><code>arena</code>：多個子代理在各自 worktree 同時解同一題，由<b>另一個模型家族</b>的評審打分，選一個當底，再把其他方案優點嫁接過來。</li>
+    <li><code>swarm</code>：把工作切成很多片，每片一個工人，最後合成一份報告。</li>
+    <li><code>interrogate</code>：不同模型來攻擊你的 diff；只有「重跑命令能真的復現」的問題才留下。原則：<mark>用原型代替爭論。</mark></li>
+  </ul>
+
+  <h3>7. 寫完 code 之後：TDD、unslop、no-comments</h3>
+  <ul>
+    <li><code>tdd</code>：先寫一個會失敗的測試，再寫修復。</li>
+    <li><code>unslop</code>：清掉 AI 味——不用破折號、不硬湊三點、不寫「希望這對你有幫助」。</li>
+    <li><code>no-comments</code>：叫一個獨立子代理 <b>comment-sicko</b> 審註解，因為寫註解的人總會替自己的註解辯護。能留下的很少：license 標頭、公開介面文件。若註解說「千萬別刪」，它會建議把這個約束變成型別、測試或 lint 規則。</li>
+  </ul>
+
+  <h3>8. 驗證指南（全倉庫最核心）：能編譯不是證據</h3>
+  <ul>
+    <li>說「完成」之前要檢查<b>真實產物</b>：CLI 改動就真的跑命令；介面改動就真的在 app 裡走一遍流程。</li>
+    <li>專案若沒有讓 AI 操作 app 的辦法 → 生成「專案專屬驗證技能」；併發、狀態機這類難測的地方 → 生成形式化驗證技能，預設 <b>TLA+</b>。</li>
+    <li>測出來的數字要過七個問題：是什麼限制了這個數字？快取是不是熱的？…</li>
+    <li>指南的結論：<mark>在所有技能裡，驗證技能的報酬最高。</mark></li>
+  </ul>
+
+  <h3>9. 交付與看護 PR：五個窄 PR 勝過一個大 PR</h3>
+  <ul>
+    <li>開 PR 劇本把改動整理成<b>有順序的小 commit</b>，把證據寫進 PR 描述。</li>
+    <li>看護 PR：盯著同一個 PR，依序處理衝突 → 評審意見 → CI。<b>對評審意見保持懷疑</b>：真問題就修，噪音就帶著理由回推（push back）。</li>
+    <li>它只負責到「可以合併」為止，<b>絕不自己按合併</b>；真正合併交給上線劇本。</li>
+    <li>每個 PR 合併前由一個<b>全新代理</b>獨立驗證——<mark>寫 code 的和判斷 code 的，永遠不是同一個。</mark></li>
+  </ul>
+
+  <h3>10. 過夜合約與多任務編排：你去睡覺，AI 接著幹</h3>
+  <div class="card">
+    <h3>過夜合約四要素</h3>
+    <ul>
+      <li><b>目標</b>：例如「遷移所有呼叫方」。</li>
+      <li><b>完成條件</b>：舊呼叫點為零、測試全過、舊介面刪除。</li>
+      <li><b>權限</b>：它能動哪些東西。</li>
+      <li><b>逃生出口</b>：卡住幾小時就停下來、寫明原因。</li>
+    </ul>
+    <p class="dim">夜裡循環：檢查完成條件 → 做最小改動 → 驗證 → 有進展就 commit、沒進展就丟棄 → 在決策日誌記一行。早上你審的是「決策」，不是重讀一整夜的記錄。</p>
+  </div>
+  <p class="warn"><b>最大的坑</b>：時長不是完成條件。「跑八小時」永遠可以達成，卻不代表事情做完。</p>
+  <ul>
+    <li><code>autopilot</code>：每個 PR 一個負責代理，從寫到合併，但合併前必須由一群全新驗證者檢查通過。</li>
+    <li><code>autopilot stack</code>：同上，但不合併，留給你早上親自過目。</li>
+    <li><code>orchestrate</code>：跨好幾天的大專案；協調者只分配與檢查，自己不寫 code。並行時強烈建議每個代理獨立環境（雲端子代理或各自 worktree），否則會互相覆蓋檔案。</li>
+    <li>隔天回來看：<code>show me your work</code> 看決策記錄，或 <code>catchup</code> 快速了解進展與待你決定的項目。</li>
+  </ul>
+
+  <h3>11. 24 條工程原則：不是拿來呼叫，是拿來當口令</h3>
+  <ul>
+    <li><b>Lazy protocol</b>：偏向刪除與最小改動；先減後加，先清掉沒用的東西再往上蓋。</li>
+    <li><b>Prove it</b>：對著真實產物驗證。</li>
+    <li><b>修根本原因，不是症狀</b>。</li>
+    <li><b>把教訓寫進結構裡</b>：同一句叮囑說到第二遍，就把它變成 lint 規則或腳本。</li>
+    <li><b>使用方式</b>：AI 跑偏時，說一句原則的名字，比寫一大段解釋更準。</li>
+  </ul>
+
+  <h3>12. 個人化與代價：ultateme / reflect / correct</h3>
+  <ul>
+    <li><code>ultateme</code>：翻你最近的聊天記錄，總結你自己的習慣，生成一個以你名字命名的模式（作者也承認 poteto-mode 是個人風格，不必全盤接受）。</li>
+    <li><code>reflect</code>：一次大任務後，把學到的東西沉澱成技能修改。</li>
+    <li><code>correct</code>：更徹底——如果你總在糾正同一種錯誤，它會去改倉庫本身，優先序為 <b>架構 → 型別與檢查 → 測試 → 文件</b>。</li>
+    <li><b>benny 自動化包</b>（預設關閉）：整理 Slack 的問題回報、復現並嘗試修復。</li>
+  </ul>
+
+  <h3>13. 14 個常見坑（節選）</h3>
+  <ul>
+    <li>在提示詞裡<b>逐一點名技能</b>，反而打亂劇本本來的順序。</li>
+    <li>完成條件寫得含糊（「讓它變得更好」）→ 循環沒有東西可以檢查。</li>
+    <li>還沒信任這個循環就讓它自己跑 → 只是更快產出「沒檢查過的東西」。</li>
+    <li>看到 build 通過就回報成功。</li>
+    <li>平行代理沒隔離環境 → 互相覆蓋檔案。</li>
+  </ul>
+
+  <h3>14. 使用成本與限制（作者自己講清的）</h3>
+  <table>
+    <tr><th>項目</th><th>說明</th></tr>
+    <tr><td>Token 成本</td><td>子代理與評審小組都是額外開銷；指南稱這是「嚴謹的價格」。小改動不值得整套 poteto-mode。</td></tr>
+    <tr><td>平台綁定</td><td>為 Cursor 設計；Claude Code 能裝，但 Bugbot、automations 等 Cursor 獨有步驟會被跳過並註記。</td></tr>
+    <tr><td>技能缺漏</td><td>部分技能（如 deslop）不在本包，要另裝 cursor-team-kit。</td></tr>
+    <tr><td>沒有規劃技能</td><td>作者觀點：最好的規格說明就是 code；要計劃，也等設計定下來之後再寫。</td></tr>
+  </table>
+
+  <h2>🖼️ 核心架構與流程圖</h2>
+  <div class="diagram">
+    <svg viewBox="0 0 900 520" role="img" aria-label="pstack 執行架構：poteto-mode 入口、劇本、技能、驗證、交付與過夜自主">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#5fd7ff"/>
+        </marker>
+        <style>
+          .bx{fill:#0e0f10;stroke:#3a3a3a;stroke-width:1.2;rx:6}
+          .bxa{fill:#141a12;stroke:#5fff87;stroke-width:1.4}
+          .bxy{fill:#1a1a10;stroke:#ffff5f;stroke-width:1.4}
+          .tx{fill:#dcdcdc;font-family:"Sarasa Mono TC",Menlo,monospace;font-size:13px}
+          .th{fill:#fff;font-family:"Sarasa Mono TC",Menlo,monospace;font-size:14px;font-weight:700}
+          .sm{fill:#8d8d8d;font-family:"Sarasa Mono TC",Menlo,monospace;font-size:11px}
+          .ln{stroke:#5fd7ff;stroke-width:1.3;fill:none;marker-end:url(#ar)}
+          .lnd{stroke:#4a4a4a;stroke-width:1.2;fill:none;marker-end:url(#ar);stroke-dasharray:4 4}
+        </style>
+      </defs>
+
+      <text x="20" y="26" class="th" fill="#ffff5f">pstack 執行架構</text>
+      <text x="150" y="26" class="sm">想要快，先要深 · 58 skills / 23 playbooks / 24 principles</text>
+
+      <rect class="bxy" x="20" y="46" width="240" height="74" rx="6"/>
+      <text x="36" y="70" class="th">/poteto-mode</text>
+      <text x="36" y="90" class="tx">① 複述目標 ② 匹配劇本</text>
+      <text x="36" y="108" class="sm">③ 步驟原樣入待辦 ④ 跳過必註明</text>
+
+      <rect class="bx" x="320" y="46" width="250" height="74" rx="6"/>
+      <text x="336" y="70" class="th" fill="#ffff5f">23 個劇本 Playbooks</text>
+      <text x="336" y="90" class="sm">bug fix / perf / hillclimb</text>
+      <text x="336" y="106" class="sm">feature / refactor / PR / ship</text>
+
+      <rect class="bx" x="630" y="46" width="250" height="74" rx="6"/>
+      <text x="646" y="70" class="th">多模型分工</text>
+      <text x="646" y="90" class="sm">code → Grok　難改動/判斷 → Opus</text>
+      <text x="646" y="106" class="sm">寫與審永遠不同代理</text>
+
+      <path class="ln" d="M260 83 L318 83"/>
+      <path class="ln" d="M570 83 L628 83"/>
+
+      <rect class="bx" x="20" y="160" width="180" height="78" rx="6"/>
+      <text x="36" y="184" class="th">看懂 Understanding</text>
+      <text x="36" y="204" class="sm">how / why / teach</text>
+      <text x="36" y="220" class="sm">recall（歷史對話）</text>
+
+      <rect class="bx" x="230" y="160" width="180" height="78" rx="6"/>
+      <text x="246" y="184" class="th">設計 Design</text>
+      <text x="246" y="204" class="sm">architect / arena</text>
+      <text x="246" y="220" class="sm">swarm / interrogate</text>
+
+      <rect class="bx" x="440" y="160" width="180" height="78" rx="6"/>
+      <text x="456" y="184" class="th">實作 Implement</text>
+      <text x="456" y="204" class="sm">tdd 先寫失敗測試</text>
+      <text x="456" y="220" class="sm">unslop / no-comments</text>
+
+      <rect class="bxa" x="650" y="152" width="230" height="94" rx="6"/>
+      <text x="666" y="176" class="th" fill="#5fff87">驗證 Verification</text>
+      <text x="666" y="196" class="sm" fill="#9fe0a8">「能編譯不是證據」</text>
+      <text x="666" y="212" class="sm" fill="#9fe0a8">真實產物 / 專案驗證技能</text>
+      <text x="666" y="228" class="sm" fill="#9fe0a8">併發→TLA+ 形式化</text>
+
+      <path class="lnd" d="M110 120 L110 158"/>
+      <path class="lnd" d="M200 199 L228 199"/>
+      <path class="lnd" d="M410 199 L438 199"/>
+      <path class="lnd" d="M620 199 L648 199"/>
+
+      <rect class="bx" x="200" y="300" width="230" height="86" rx="6"/>
+      <text x="216" y="324" class="th">交付 Deliver</text>
+      <text x="216" y="344" class="sm">五個窄 PR &gt; 一個大 PR</text>
+      <text x="216" y="360" class="sm">證據寫進 PR 描述</text>
+      <text x="216" y="376" class="sm">看護 PR：不自己按合併</text>
+
+      <rect class="bx" x="470" y="300" width="230" height="86" rx="6"/>
+      <text x="486" y="324" class="th" fill="#ffff5f">過夜合約 Overnight</text>
+      <text x="486" y="344" class="sm">目標 / 完成條件</text>
+      <text x="486" y="360" class="sm">權限 / 逃生出口</text>
+      <text x="486" y="376" class="sm">決策日誌，不記流水帳</text>
+
+      <rect class="bx" x="730" y="300" width="150" height="86" rx="6"/>
+      <text x="746" y="324" class="th">原則 24</text>
+      <text x="746" y="344" class="sm">lazy protocol</text>
+      <text x="746" y="360" class="sm">prove it</text>
+      <text x="746" y="376" class="sm">寫進結構</text>
+
+      <path class="lnd" d="M760 246 L360 298"/>
+      <path class="lnd" d="M780 246 L585 298"/>
+      <path class="lnd" d="M805 300 L805 300"/>
+
+      <rect class="bx" x="170" y="420" width="560" height="86" rx="6"/>
+      <text x="186" y="442" class="th">回饋閉環 Feedback Loop</text>
+      <text x="186" y="462" class="sm">reflect（沉澱成技能） / correct（同一錯誤 → 直接改倉庫）</text>
+      <text x="186" y="480" class="sm">ultateme（生成你的專屬模式）· 修正優先序：架構 → 型別 → 測試 → 文件</text>
+
+      <path class="ln" d="M450 386 L450 418"/>
+
+      <text x="20" y="502" class="sm">資料來源：影片官方章節 + whisper.cpp STT 逐字稿（±2~5s）· 倉庫：github.com/cursor/plugins/tree/main/pstack</text>
+    </svg>
+  </div>
+
+  <h2>🚀 結論、操作指南與未來展望</h2>
+  <div class="card">
+    <h3>本質總結</h3>
+    <p>pstack 不是「讓 AI 寫更多」的工具，而是一套讓 AI <b>少寫、寫對、拿出證據</b>的工作手冊。58 個技能、23 個劇本、24 條原則，背後是同一個想法：<mark>想要快，先要深</mark>。</p>
+  </div>
+
+  <h3>具體操作：五步起步法（不用一次全裝）</h3>
+  <ol>
+    <li><b>先不要裝整套</b>。第一天只正常寫提示詞，觀察 AI 在哪裡出錯。</li>
+    <li><b>同一個錯誤出現第二次</b>，才加一個技能或一條檢查規則。</li>
+    <li><b>裝好後跑 <code>/setup-pstack</code></b>，選推理預算與模型分工，然後新開對話讓規則生效。</li>
+    <li><b>嚴謹任務一律 <code>/poteto-mode</code> + 目標 + 可通過/失敗的檢查</b>；模式要常駐就 Option+Enter。</li>
+    <li><b>先投資驗證技能</b>：讓 AI 能操作你的 app（CLI 或瀏覽器），報酬率最高。</li>
+  </ol>
+
+  <pre><code># 提示詞模板（最多五句，每句一件事）
+目標：&lt;要達成什麼&gt;
+完成標準：&lt;什麼狀態算做完，可通過/失敗&gt;
+證據：&lt;要看到什麼才算數&gt;
+線索：&lt;你已經觀察到的事實&gt;
+約束：&lt;先復現 / 先別改 code / 不要動 X&gt;</code></pre>
+
+  <h3>適用 / 不適用</h3>
+  <table>
+    <tr><th>適合</th><th>不適合</th></tr>
+    <tr>
+      <td>有驗證辦法的非平凡任務、需要多代理平行的遷移、要過夜的批次工作、PR 品質要求高的團隊</td>
+      <td>一行小改、純探索性問答、沒有可檢驗完成條件的模糊需求</td>
+    </tr>
+  </table>
+
+  <h3>未來趨勢與可能進展</h3>
+  <ul>
+    <li><b>「可驗證性」成為 agent 工具的核心貨幣</b>：從「寫得快」轉向「能證明做對」，驗證技能會像 CI 一樣變成專案標配。</li>
+    <li><b>多模型分工常態化</b>：同一任務內不同角色用不同模型（寫 vs 審、快 vs 深），單一模型調參不再是唯一解。</li>
+    <li><b>Harness 無關化</b>：pstack 已是 Cursor 外掛、Claude Code 可用；社群已有 pstack-claude 等移植版，Cusor 獨有步驟會被跳過，跨 harness 適配層會持續演化。</li>
+    <li><b>個人化工作手冊</b>：<code>ultateme</code>、<code>reflect</code>、<code>correct</code> 預示「agent 依你的習慣自我校準」的方向——從通用 prompt 庫走向個人工程風格編譯器。</li>
+  </ul>
+
+  <h2>🔗 相關資源與關鍵字</h2>
+  <ul>
+    <li><b>倉庫</b>：<a href="https://github.com/cursor/plugins/tree/main/pstack">github.com/cursor/plugins/tree/main/pstack</a>（MIT）</li>
+    <li><b>安裝</b>：Cursor <code>/add-plugin pstack</code>；Claude Code <code>/plugin marketplace add cursor/plugins</code> → <code>/plugin install pstack@cursor-plugins</code></li>
+    <li><b>作者</b>：Lauren Tan（@poteto），React core team、React Compiler</li>
+    <li><b>社群移植</b>：<a href="https://github.com/PickleBoxer/pstack">github.com/PickleBoxer/pstack</a>（Claude Code 版，非官方）</li>
+    <li><b>影片</b>：<a href="https://www.youtube.com/watch?v=37GaGATguoo">NiceKate AI — AI 写代码总要返工？15 分钟看懂 pstack 58 个技能的用法</a>（2026-11-11）</li>
+  </ul>
+  <p>
+    <span class="tag">pstack</span><span class="tag">poteto-mode</span><span class="tag">playbook</span><span class="tag">verification skill</span><span class="tag">multi-agent orchestration</span><span class="tag">overnight contract</span><span class="tag">TLA+</span><span class="tag">agent engineering</span>
+  </p>
+
+  <div class="pushbox">
+    <h2>推文留言</h2>
+    <div class="push p"><span class="mark">推</span><span class="who">poteto_fan</span><span class="when">11/12 00:12</span><span class="txt">「能編譯不是證據」這句應該貼在每個 AI coding 工具的啟動畫面。</span></div>
+    <div class="push p"><span class="mark">推</span><span class="who">overnight_dev</span><span class="when">11/12 00:31</span><span class="txt">過夜合約四要素很實用，尤其逃生出口——不然 agent 會卡在迴圈裡燒 token。</span></div>
+    <div class="push n"><span class="mark">→</span><span class="who">tokensad</span><span class="when">11/12 01:02</span><span class="txt">代價要講清楚：子代理 + 評審小組，小任務真的不划算。</span></div>
+    <div class="push p"><span class="mark">推</span><span class="who">codeless</span><span class="when">11/12 07:44</span><span class="txt">寫 code 的和判斷 code 的永遠不是同一個 → 這條比什麼 prompt 技巧都重要。</span></div>
+    <div class="push b"><span class="mark">噓</span><span class="who">cursor_only</span><span class="when">11/12 08:15</span><span class="txt">Claude Code 能裝但不能全用，Bugbot 跟 automations 直接跳過，文章要標清楚。</span></div>
+    <div class="push n"><span class="mark">→</span><span class="who">oneperson_team</span><span class="when">11/12 09:03</span><span class="txt">五個窄 PR 勝過一個大 PR，這條拿去說服 PM 很好用。</span></div>
+  </div>
+
+  <div class="footer">
+    <span>※ 發信站: 批踢踢實業坊(ptt.cc), 來自: openwiki 分析流程</span>
+    <nav><a href="#top">回到頂端 ↑</a></nav>
+  </div>
+
+</div>
+</body>
+</html>

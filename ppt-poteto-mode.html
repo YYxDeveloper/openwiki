@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>poteto-mode · 白話教學</title>
+<style>
+/* =========================================================
+   VIEWPORT FITTING: MANDATORY BASE
+   ========================================================= */
+html,body{width:100%;margin:0}
+html{height:100%;overflow-x:hidden;scroll-snap-type:y mandatory;scroll-behavior:smooth;scrollbar-width:none}
+html::-webkit-scrollbar{width:0;height:0}
+body{min-height:100%;overflow-x:clip}
+
+:root{
+  --bg:#04070a;
+  --bg2:#070d12;
+  --panel:#0a1218;
+  --line:#1b2a33;
+  --line2:#243a46;
+  --fg:#c9d8e2;
+  --dim:#6d8494;
+  --acc:#5fff87;   /* terminal green */
+  --acc2:#ffd75f;  /* amber */
+  --acc3:#5fd7ff;  /* cyan */
+  --bad:#ff6b6b;
+
+  --title-size:clamp(1.6rem,5vw,4.2rem);
+  --h2-size:clamp(1.2rem,3.3vw,2.4rem);
+  --h3-size:clamp(0.95rem,2vw,1.35rem);
+  --body-size:clamp(0.78rem,1.45vw,1.06rem);
+  --small-size:clamp(0.66rem,1.05vw,0.86rem);
+  --micro-size:clamp(0.58rem,0.9vw,0.75rem);
+
+  --slide-padding:clamp(1.1rem,4.2vw,4.4rem);
+  --content-gap:clamp(0.5rem,1.8vw,1.7rem);
+  --element-gap:clamp(0.25rem,1vw,0.9rem);
+
+  --mono:ui-monospace,"SF Mono","JetBrains Mono","Sarasa Mono TC","Noto Sans Mono CJK TC","PingFang TC",Menlo,Consolas,monospace;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:var(--mono);
+  font-size:var(--body-size);
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(60vw 45vh at 12% -8%, rgba(95,255,135,.10), transparent 62%),
+    radial-gradient(55vw 45vh at 92% 108%, rgba(95,215,255,.09), transparent 60%),
+    radial-gradient(65vw 55vh at 50% 50%, rgba(7,13,18,.0), rgba(4,7,10,.85) 78%);
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.30;
+  background-image:
+    linear-gradient(rgba(27,42,51,.45) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27,42,51,.45) 1px, transparent 1px);
+  background-size:64px 64px,64px 64px;
+  mask-image:radial-gradient(80% 80% at 50% 50%, #000 30%, transparent 100%);
+  -webkit-mask-image:radial-gradient(80% 80% at 50% 50%, #000 30%, transparent 100%);
+}
+
+/* ---------------- slide shell ---------------- */
+main{position:relative;z-index:1}
+.slide{
+  width:100vw;height:100vh;height:100dvh;overflow:hidden;
+  scroll-snap-align:start;
+  display:flex;flex-direction:column;position:relative;
+}
+.slide-content{
+  flex:1;display:flex;flex-direction:column;justify-content:center;
+  max-height:100%;overflow:hidden;
+  padding:var(--slide-padding);
+  padding-top:calc(var(--slide-padding) + 1.2rem);
+  padding-bottom:calc(var(--slide-padding) + 1.4rem);
+  width:100%;
+  max-width:1180px;margin:0 auto;
+}
+.slide.active .reveal{opacity:1;transform:none}
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.2,1)}
+.reveal:nth-child(2){transition-delay:.06s}
+.reveal:nth-child(3){transition-delay:.12s}
+.reveal:nth-child(4){transition-delay:.18s}
+.reveal:nth-child(5){transition-delay:.24s}
+.reveal:nth-child(6){transition-delay:.30s}
+.reveal:nth-child(7){transition-delay:.36s}
+.reveal:nth-child(8){transition-delay:.42s}
+
+/* ---------------- chrome ---------------- */
+.chrome{position:fixed;inset:0;z-index:20;pointer-events:none}
+.slide-no{
+  position:absolute;top:clamp(.7rem,2vw,1.6rem);right:clamp(.8rem,2.2vw,1.8rem);
+  font-size:var(--micro-size);letter-spacing:.14em;color:var(--dim);
+  display:flex;gap:.45em;align-items:baseline;
+}
+.slide-no b{color:var(--acc);font-weight:700;font-size:calc(var(--micro-size)*1.35)}
+.brandmark{
+  position:absolute;top:clamp(.7rem,2vw,1.6rem);left:clamp(.8rem,2.2vw,1.8rem);
+  font-size:var(--micro-size);letter-spacing:.2em;color:var(--dim);text-transform:uppercase;
+}
+.brandmark span{color:var(--acc)}
+.progress{
+  position:absolute;left:0;right:0;bottom:0;height:2px;background:#0d1a21;
+}
+.progress i{
+  display:block;height:100%;width:0;
+  background:linear-gradient(90deg,var(--acc),var(--acc3));
+  box-shadow:0 0 12px rgba(95,255,135,.55);
+  transition:width .45s cubic-bezier(.2,.7,.2,1);
+}
+.rail{
+  position:absolute;right:clamp(.8rem,2.2vw,1.8rem);top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:.42rem;pointer-events:auto;
+}
+.rail button{
+  width:7px;height:7px;padding:0;border:0;border-radius:50%;
+  background:#22363f;cursor:pointer;transition:all .25s;
+}
+.rail button:hover{background:var(--dim);transform:scale(1.25)}
+.rail button[aria-current="true"]{background:var(--acc);box-shadow:0 0 10px rgba(95,255,135,.8);height:18px;border-radius:4px}
+
+/* ---------------- typography ---------------- */
+.kicker{
+  font-size:var(--small-size);letter-spacing:.22em;text-transform:uppercase;
+  color:var(--acc);margin:0 0 .7em;
+}
+h1{font-size:var(--title-size);line-height:1.08;margin:0 0 .35em;color:#fff;font-weight:700;letter-spacing:-.02em}
+h1 .dim{color:var(--dim);font-weight:400}
+h2{font-size:var(--h2-size);line-height:1.2;margin:0 0 .55em;color:#fff;font-weight:700;letter-spacing:-.01em}
+h3{font-size:var(--h3-size);line-height:1.3;margin:0 0 .35em;color:var(--acc3);font-weight:600}
+p{margin:.4em 0}
+.lead{font-size:clamp(.9rem,1.9vw,1.4rem);color:#dfeaf1;line-height:1.55;max-width:52ch}
+.sub{color:var(--dim);font-size:clamp(.8rem,1.5vw,1.05rem)}
+strong{color:#fff;font-weight:700}
+em{font-style:normal;color:var(--acc2)}
+code{
+  background:#0d1a21;border:1px solid #20343e;color:var(--acc2);
+  padding:.06em .38em;border-radius:3px;font-size:.92em;
+}
+pre{
+  margin:.2em 0 0;background:#060d12;border:1px solid var(--line);
+  border-left:2px solid var(--acc);border-radius:4px;
+  padding:clamp(.55rem,1.4vw,1rem) clamp(.7rem,1.7vw,1.2rem);
+  font-size:var(--small-size);line-height:1.7;color:#d6e4ee;
+  overflow:hidden;white-space:pre-wrap;word-break:break-word;
+}
+pre b{color:var(--acc)}
+pre i{font-style:normal;color:var(--dim)}
+
+/* ---------------- components ---------------- */
+.grid{display:grid;gap:clamp(.45rem,1.4vw,1rem)}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{
+  border:1px solid var(--line);background:linear-gradient(180deg,rgba(12,22,29,.92),rgba(7,13,18,.92));
+  border-radius:5px;padding:clamp(.6rem,1.5vw,1.1rem);
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:"";position:absolute;left:0;top:0;width:100%;height:1px;
+  background:linear-gradient(90deg,var(--acc),transparent 65%);opacity:.55;
+}
+.card h3{font-size:clamp(.82rem,1.6vw,1.1rem);margin-bottom:.25em}
+.card p{font-size:var(--small-size);color:var(--dim);line-height:1.5;margin:0}
+.card .n{
+  font-size:clamp(1.1rem,2.6vw,1.9rem);color:var(--acc);opacity:.9;
+  line-height:1;font-weight:700;margin-bottom:.3em;letter-spacing:-.03em;
+}
+
+ul.clean{list-style:none;margin:.2em 0;padding:0;display:flex;flex-direction:column;gap:clamp(.3rem,1.1vh,.75rem)}
+ul.clean li{display:flex;gap:.7em;font-size:var(--body-size);line-height:1.45;color:#d4e2ec}
+ul.clean li::before{content:"▸";color:var(--acc);flex:0 0 auto}
+ul.clean li b{color:#fff}
+ul.clean li span{color:var(--dim)}
+
+.pipe{display:flex;align-items:center;gap:.35em;flex-wrap:nowrap;margin:.4em 0 .1em}
+.pip{
+  flex:1 1 0;min-width:0;border:1px solid var(--line2);background:#081118;
+  border-radius:4px;padding:clamp(.4rem,1.1vw,.85rem) .2em;text-align:center;
+  position:relative;
+}
+.pip b{display:block;font-size:var(--micro-size);color:var(--acc);letter-spacing:.1em}
+.pip span{display:block;font-size:var(--small-size);color:#dfeaf1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pipe i{color:var(--line2);font-style:normal;font-size:var(--small-size);flex:0 0 auto}
+
+.flow{
+  display:flex;flex-direction:column;gap:clamp(.25rem,.9vh,.55rem);
+}
+.node{
+  border:1px solid var(--line);border-left:2px solid var(--acc3);
+  background:#081118;border-radius:4px;
+  padding:clamp(.32rem,.9vw,.6rem) clamp(.55rem,1.3vw,.9rem);
+  font-size:var(--small-size);display:flex;justify-content:space-between;gap:.8em;align-items:baseline;
+}
+.node b{color:#fff;font-weight:600}
+.node span{color:var(--dim);font-size:var(--micro-size);text-align:right}
+
+.row{
+  display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+  gap:clamp(.6rem,2vw,1.6rem);align-items:center;
+}
+.two{columns:2;column-gap:clamp(1rem,3vw,2.6rem)}
+.two>*{break-inside:avoid}
+
+table{border-collapse:collapse;width:100%;font-size:var(--small-size)}
+th,td{border-bottom:1px solid var(--line);padding:clamp(.28rem,.9vw,.6rem) .5em;text-align:left;vertical-align:top}
+th{color:var(--acc2);font-weight:600;font-size:var(--micro-size);letter-spacing:.08em;text-transform:uppercase}
+td:first-child{color:#fff;white-space:nowrap}
+td.d{color:var(--dim)}
+tr:last-child td{border-bottom:0}
+
+.tag{
+  display:inline-block;border:1px solid var(--line2);color:var(--dim);
+  font-size:var(--micro-size);padding:.08em .55em;border-radius:2px;letter-spacing:.06em;
+  white-space:nowrap;
+}
+.tag.a{border-color:rgba(95,255,135,.5);color:var(--acc)}
+.tag.b{border-color:rgba(255,215,95,.45);color:var(--acc2)}
+
+.quote{
+  border-left:2px solid var(--acc);padding:.15em 0 .15em .9em;
+  color:#dfeaf1;font-size:clamp(.9rem,2vw,1.35rem);line-height:1.5;max-width:50ch;
+}
+.quote small{display:block;color:var(--dim);font-size:var(--small-size);margin-top:.5em;letter-spacing:.06em}
+
+.hint{
+  position:absolute;left:50%;bottom:calc(clamp(1rem,3vw,2.4rem));transform:translateX(-50%);
+  font-size:var(--micro-size);color:var(--dim);letter-spacing:.14em;
+  display:flex;gap:.7em;align-items:center;white-space:nowrap;
+}
+.hint kbd{
+  border:1px solid var(--line2);border-bottom-width:2px;border-radius:3px;
+  padding:.1em .45em;color:var(--fg);font-family:inherit;font-size:.95em;
+}
+
+.hl{color:var(--acc)}
+.hl2{color:var(--acc2)}
+.mut{color:var(--dim)}
+
+/* ---------------- vocabulary ---------------- */
+.vgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(.4rem,1.2vw,.85rem)}
+.vcard{
+  border:1px solid var(--line);border-left:2px solid var(--acc);
+  background:#081118;border-radius:4px;
+  padding:clamp(.38rem,1vw,.7rem) clamp(.55rem,1.3vw,.9rem);
+  min-width:0;
+}
+.vcard b{color:#fff;font-size:var(--small-size);display:block;line-height:1.3}
+.vcard b i{font-style:normal;color:var(--acc3);font-size:var(--micro-size);margin-left:.45em;letter-spacing:.04em}
+.vcard p{color:var(--dim);font-size:var(--micro-size);margin:.12em 0 .3em;line-height:1.45}
+.vcard code{
+  display:block;font-size:var(--micro-size);background:#04070a;
+  border:1px solid #243a46;color:var(--acc2);
+  padding:.1em .45em;border-radius:2px;
+  white-space:normal;word-break:break-word;
+}
+@media (max-width:640px){
+  .vgrid{grid-template-columns:1fr}
+  .vcard[style*="grid-column"]{grid-column:auto !important}
+}
+
+/* ---------------- responsive ---------------- */
+@media (max-width:900px){
+  .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .row{grid-template-columns:1fr}
+  .rail{display:none}
+}
+@media (max-width:640px){
+  .g3{grid-template-columns:1fr}
+  .two{columns:1}
+  .pipe{flex-wrap:wrap}
+  .pipe i{display:none}
+  .pip{flex:1 1 28%}
+}
+@media (max-height:700px){
+  :root{
+    --slide-padding:clamp(.7rem,3vw,2rem);
+    --content-gap:clamp(.35rem,1.4vw,.9rem);
+    --title-size:clamp(1.3rem,4.4vw,2.6rem);
+    --h2-size:clamp(1rem,2.9vw,1.75rem);
+  }
+}
+@media (max-height:600px){
+  :root{
+    --slide-padding:clamp(.5rem,2.4vw,1.4rem);
+    --body-size:clamp(.7rem,1.2vw,.95rem);
+    --small-size:clamp(.62rem,.98vw,.8rem);
+  }
+  .hint,.rail,.brandmark{display:none}
+}
+@media (max-height:500px){
+  /* landscape phones: keep two-column slides side by side instead of stacking */
+  .row{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:.7rem}
+  .node{padding:.22rem .5rem;font-size:clamp(.6rem,.95vw,.72rem)}
+  .flow{gap:.22rem}
+  pre{font-size:clamp(.54rem,.9vw,.68rem);line-height:1.55;padding:.5rem .6rem}
+  th,td{padding:.16rem .35rem}
+  .card{padding:.4rem .55rem}
+  .hint,.rail,.brandmark{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.15s !important}
+  html{scroll-behavior:auto}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<div class="chrome" aria-hidden="true">
+  <div class="brandmark">pstack<span> /</span> poteto-mode</div>
+  <div class="slide-no"><b id="cur">01</b><span>/ <span id="tot">21</span></span></div>
+  <nav class="rail" id="rail" aria-label="投影片導覽"></nav>
+  <div class="progress"><i id="bar"></i></div>
+</div>
+
+<main id="deck">
+
+  <!-- 01 COVER -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">cursor/plugins · pstack · skills/poteto-mode/SKILL.md</p>
+      <h1 class="reveal">poteto-mode<br><span class="dim">一個任務的「總指揮」</span></h1>
+      <p class="lead reveal">你只講目標，它負責配劇本、派工、驗證，最後給你<span class="hl">證據</span>。</p>
+      <div class="reveal" style="margin-top:1.2em;display:flex;gap:.5em;flex-wrap:wrap">
+        <span class="tag a">教學版</span>
+        <span class="tag">依 SKILL.md 整理</span>
+        <span class="tag">22 playbooks</span>
+        <span class="tag">24 principles</span>
+      </div>
+    </div>
+    <div class="hint"><span><kbd>↑</kbd><kbd>↓</kbd> / 空白</span><span>切換</span></div>
+  </section>
+
+  <!-- 02 GOALS -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">00 · 今天學什麼</p>
+      <h2 class="reveal">上完課你會懂四件事</h2>
+      <div class="grid g4 reveal" style="margin-top:.6em">
+        <div class="card"><div class="n">01</div><h3>它是什麼</h3><p>一份寫給 agent 的工作守則，不是一個程式。</p></div>
+        <div class="card"><div class="n">02</div><h3>它守哪些規矩</h3><p>非談判條件、24 條原則、自主程度。</p></div>
+        <div class="card"><div class="n">03</div><h3>它怎麼派工</h3><p>subagent、模型分級、每次都換新人。</p></div>
+        <div class="card"><div class="n">04</div><h3>你怎麼用</h3><p>配 22 本 playbook，給目標與驗收。</p></div>
+      </div>
+      <p class="sub reveal" style="margin-top:1em">原文：<code>pstack/skills/poteto-mode/SKILL.md</code>。細節以原文為準。</p>
+    </div>
+  </section>
+
+  <!-- 03 WHAT -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">01 · 它是什麼</p>
+      <h2 class="reveal">一句話：<span class="hl">poteto 的做事風格</span>，寫成規則</h2>
+      <p class="lead reveal">原文描述：簡潔詳細的回覆、有意識地使用 subagent、去 AI 味的文字、簡單的程式碼，以及<strong>驗證過的成果</strong>。</p>
+      <div class="flow reveal" style="margin-top:1em">
+        <div class="node"><b>怎麼啟動</b><span>只能手動輸入 /poteto-mode（設定了 disable-model-invocation）</span></div>
+        <div class="node"><b>它讀什麼</b><span>你的任務 → 配對 playbook → 按步驟叫 skill</span></div>
+        <div class="node"><b>它怎麼收尾</b><span>附證據的回報，而不是「我做完了」</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 ANALOGY -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">02 · 比喻</p>
+      <h2 class="reveal">像一位「現場總監」</h2>
+      <table class="reveal">
+        <tr><th>工地</th><th>poteto-mode</th></tr>
+        <tr><td>總監</td><td class="d">主對話（chat），自己照 playbook 走</td></tr>
+        <tr><td>施工 SOP</td><td class="d">22 本 playbook</td></tr>
+        <tr><td>工種專家</td><td class="d">各個 skill（how、why、tdd…）</td></tr>
+        <tr><td>派出去的工人</td><td class="d">subagent（poteto-agent）</td></tr>
+        <tr><td>驗收單</td><td class="d">證據：真實輸出、錄影、數字</td></tr>
+        <tr><td>公司守則</td><td class="d">24 條原則</td></tr>
+      </table>
+      <p class="sub reveal" style="margin-top:.8em">總監不自己亂排流程；工人做完，總監要看過成果才算數。</p>
+    </div>
+  </section>
+
+  <!-- 05 NON-NEGOTIABLES 1 -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">03 · 非談判條件 1／2</p>
+      <h2 class="reveal">開場與派工的三條硬規定</h2>
+      <ul class="clean reveal" style="margin-top:.3em">
+        <li><b>第一則訊息</b> <span>→ 先講出你的目標，和最小可達成的改動，再開始做。</span></li>
+        <li><b>啟動任何 agent</b> <span>→ 第一行必須是「Read &lt;path&gt;/worker.md before anything else.」，因為營運規則只會從斜線指令載入，別的 agent 拿不到。</span></li>
+        <li><b>能靠執行解決的分歧</b> <span>→ 直接做 prototype，不要來問你。</span></li>
+        <li><b>每個回覆</b> <span>→ 點名「哪條原則改變了哪個決定」，且只能引用自己真的讀過的原則。</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 06 NON-NEGOTIABLES 2 -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">04 · 非談判條件 2／2</p>
+      <h2 class="reveal">情境 → 要叫哪個技能</h2>
+      <table class="reveal" style="margin-top:.3em">
+        <tr><th>當你…</th><th>就用</th></tr>
+        <tr><td>寫程式</td><td class="d">先講清楚資料形狀；跨函式邊界 → architect</td></tr>
+        <tr><td>要平行處理</td><td class="d">fan-out → swarm；多方案比賽 → arena</td></tr>
+        <tr><td>設計有爭議</td><td class="d">interrogate</td></tr>
+        <tr><td>寫文字（含回覆）</td><td class="d">unslop；文件／PR／commit → technical-writing</td></tr>
+        <tr><td>commit 前／審查前</td><td class="d">/deslop（cursor-team-kit）／ no-comments</td></tr>
+        <tr><td>量了一個數字</td><td class="d">benchmark-checklist</td></tr>
+        <tr><td>看 PR 狀態／落地</td><td class="d">Babysit playbook／Shipping playbook</td></tr>
+        <tr><td>長時間無人看</td><td class="d">show-me-your-work</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 07 PRINCIPLES OVERVIEW -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">05 · 24 條原則</p>
+      <h2 class="reveal">五組原則，不用背，用名字轉向</h2>
+      <div class="grid g3 reveal" style="margin-top:.3em">
+        <div class="card"><div class="n">10</div><h3>Core 核心</h3><p>Laziness、Foundational、Redesign、Attack the Premise、Subtract…</p></div>
+        <div class="card"><div class="n">6</div><h3>Architecture 架構</h3><p>Model the Domain、Boundary、Type System、Idempotent…</p></div>
+        <div class="card"><div class="n">5</div><h3>Verification 驗證</h3><p>Prove It Works、Fix Root Causes、Explain the Number…</p></div>
+        <div class="card"><div class="n">2</div><h3>Delegation 委派</h3><p>Guard the Context Window、Never Block on the Human。</p></div>
+        <div class="card"><div class="n">1</div><h3>Meta</h3><p>Encode Lessons in Structure。</p></div>
+        <div class="card" style="border-color:rgba(255,215,95,.4)"><div class="n" style="color:var(--acc2)">=</div><h3>24</h3><p>用到某條前，要先把那條原則的 SKILL.md 讀完。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 PRINCIPLES CORE -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">06 · 原則精選 1／2</p>
+      <h2 class="reveal">什麼時候想起哪一條</h2>
+      <table class="reveal" style="margin-top:.3em">
+        <tr><th>原則</th><th>白話</th></tr>
+        <tr><td>Laziness Protocol</td><td class="d">能刪就刪，改動越小越好，別亂加抽象層。</td></tr>
+        <tr><td>Foundational Thinking</td><td class="d">先想核心型別與資料結構，再寫邏輯。</td></tr>
+        <tr><td>Attack the Premise</td><td class="d">兩個修法失敗在同一個前提，先把前提寫下來並直接測它。</td></tr>
+        <tr><td>Subtract Before You Add</td><td class="d">先清掉死重，再往上蓋。</td></tr>
+        <tr><td>Build the Lever</td><td class="d">用工具（codemod、腳本）做，不用手改；工具本身就是可重跑的證據。</td></tr>
+        <tr><td>Exhaust the Design Space</td><td class="d">沒先例的設計，做 2–3 個原型比較再決定。</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 09 PRINCIPLES VERIFY -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">07 · 原則精選 2／2</p>
+      <h2 class="reveal">驗證與委派的原則</h2>
+      <table class="reveal" style="margin-top:.3em">
+        <tr><th>原則</th><th>白話</th></tr>
+        <tr><td>Prove It Works</td><td class="d">拿真實產物驗，不是「它編譯過了」。</td></tr>
+        <tr><td>Fix Root Causes</td><td class="d">追到系統第一次出錯的地方再修，不只加防護。</td></tr>
+        <tr><td>Test Behavior, Not Implementation</td><td class="d">測使用者看得到的行為，內部換了測試也不該壞。</td></tr>
+        <tr><td>Explain the Number</td><td class="d">量到的數字，先找出限制它的東西，並排除量錯了別的。</td></tr>
+        <tr><td>Guard the Context Window</td><td class="d">大量輸出交給 subagent，主對話只留摘要。</td></tr>
+        <tr><td>Never Block on the Human</td><td class="d">可逆的工作別問「要不要做」，做完給你看再調整。</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 10 AUTONOMY -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">08 · 自主程度</p>
+      <h2 class="reveal">能直接做的，和一定要停的</h2>
+      <div class="grid g2 reveal" style="margin-top:.4em">
+        <div class="card" style="border-color:rgba(95,255,135,.45)"><span class="tag a">直接做</span><h3 style="margin-top:.5em">可逆的事</h3><p>用任何 MCP 工具；對外的可逆動作（團隊聊天、更新 ticket、啟動 eval）不用問。</p></div>
+        <div class="card" style="border-color:rgba(255,107,107,.45)"><span class="tag" style="color:var(--bad);border-color:rgba(255,107,107,.5)">一定要停</span><h3 style="margin-top:.5em">不可逆的事</h3><p>對共用分支 force-push、部署、刪資料、發訊息給客戶。</p></div>
+      </div>
+      <ul class="clean reveal" style="margin-top:.9em">
+        <li><b>覆寫條件</b> <span>— 你說「don't stop」「going to bed」「run until done」，就一路跑下去</span></li>
+        <li><b>「不」是合法答案</b> <span>— 被問要不要做、邀你加範圍，要給真實判斷；這件事不值得做就直說</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 11 SUBAGENT BASICS -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">09 · 派工</p>
+      <h2 class="reveal">每次派 subagent 都要帶這四樣</h2>
+      <div class="grid g4 reveal" style="margin-top:.3em">
+        <div class="card"><div class="n">1</div><h3>背景執行</h3><p><code>run_in_background: true</code></p></div>
+        <div class="card"><div class="n">2</div><h3>agent 模式</h3><p>唯讀模式會拿掉 MCP，所以不用。</p></div>
+        <div class="card"><div class="n">3</div><h3>給路徑</h3><p>用檔案路徑指過去，不要貼上整段內容。</p></div>
+        <div class="card"><div class="n">4</div><h3>指定模型</h3><p>每個角色都要明確指定。</p></div>
+      </div>
+      <ul class="clean reveal" style="margin-top:.9em">
+        <li>劇本步驟內直接派的 subagent，用 <code>subagent_type: "poteto-agent"</code></li>
+        <li>interrogate、swarm 這類流程技能自己會設定 type，照它的來</li>
+        <li><b>你要為每個 subagent 的成果負責</b> <span>— 看 diff，自己寫摘要</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 12 MODELS -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">10 · 模型分級</p>
+      <h2 class="reveal">三種工作，三種預設模型</h2>
+      <table class="reveal" style="margin-top:.3em">
+        <tr><th>工作</th><th>預設模型</th></tr>
+        <tr><td>程式、文字、判斷</td><td class="d">claude-opus-5-5-xhigh-fast</td></tr>
+        <tr><td>瑣碎的機械式修改</td><td class="d">claude-opus-5-5-high-fast</td></tr>
+        <tr><td>多元評審／設計小組</td><td class="d">fable-5-2-high、opus-5-5-high-fast、gemini-4-neon-xhigh 各一</td></tr>
+      </table>
+      <ul class="clean reveal" style="margin-top:.8em">
+        <li><code>/setup-pstack</code> 寫出的 <code>pstack-models.mdc</code> 會覆寫這些預設</li>
+        <li><b>Fable 5.2 是例外</b> <span>— 只有你點名，或同一份 brief 兩次 Opus xhigh 都沒過檢查才用，「難」本身不算理由</span></li>
+        <li>任何角色都不會超過 xhigh；Opus 5.5 一律用 <code>-fast</code></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 13 MATCH -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">11 · 配模型</p>
+      <h2 class="reveal">依工作難度，上下調一兩階</h2>
+      <div class="pipe reveal">
+        <div class="pip"><b>↑ +1</b><span>最難、最細膩</span></div><i>›</i>
+        <div class="pip"><b>起點</b><span>角色預設</span></div><i>›</i>
+        <div class="pip"><b>↓ −1</b><span>判斷類</span></div><i>›</i>
+        <div class="pip"><b>↓ −2+</b><span>例行工作</span></div>
+      </div>
+      <ul class="clean reveal" style="margin-top:.9em">
+        <li>起點是該角色的設定行或預設，維持同一家族，再調等級</li>
+        <li>評審小組的座位維持原本等級，不調</li>
+        <li>驗證永遠用 <code>swarm workers</code> 的模型</li>
+        <li>模型代號被工具拒絕，就不要再傳。依序退回：角色設定 → 呼叫端技能的備案 → 同家族最近的代號 → 不指定 <code>model</code>，並說明</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 14 FRESH -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">12 · 預設換新人</p>
+      <h2 class="reveal">修正、追問、重試，都交給「新的」subagent</h2>
+      <div class="row reveal" style="margin-top:.3em">
+        <div class="flow">
+          <div class="node"><b>給新人什麼</b><span>原本的 brief</span></div>
+          <div class="node"><b></b><span>之後所有的指示</span></div>
+          <div class="node"><b></b><span>前一位的報告與 branch</span></div>
+        </div>
+        <div class="card">
+          <h3>什麼時候才續用舊的</h3>
+          <p style="margin:.3em 0">只有狀態「存在它裡面、搬起來很貴」的時候：</p>
+          <p style="margin:.2em 0">· 它的 checkout</p>
+          <p style="margin:.2em 0">· 它未提交的修改</p>
+          <p style="margin:.2em 0">· 它還在跑的程序</p>
+        </div>
+      </div>
+      <p class="sub reveal" style="margin-top:.8em">原因：舊對話會帶著舊的假設；新人從完整 brief 出發，比較不會延續錯誤。</p>
+    </div>
+  </section>
+
+  <!-- 15 WRITING -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">13 · 回覆寫法</p>
+      <h2 class="reveal">短句、先講你關心的、每句有證據</h2>
+      <ul class="clean reveal" style="margin-top:.3em">
+        <li><b>短的陳述句</b> <span>— 不用長破折號，不用冒號當連接詞</span></li>
+        <li><b>先講「對你有什麼改變」</b></li>
+        <li><b>每個主張附證據或標籤</b> <span>— measured（量到的）、inferred（推論）、guess（猜的）</span></li>
+        <li><b>你能自己跑的檢查，不要丟給人</b></li>
+      </ul>
+      <div class="quote reveal" style="margin-top:1em">我量到 p95 從 820ms 降到 390ms（measured）。原因我推論是少了一次 N+1 查詢（inferred）。
+        <small>範例：標籤讓讀的人知道哪些是事實、哪些是推測。</small>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 PLAYBOOKS -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">14 · 22 本 playbook</p>
+      <h2 class="reveal">先配對劇本，再把步驟抄進 todo</h2>
+      <div class="two reveal" style="margin-top:.3em">
+        <table>
+          <tr><th>調查與修復</th></tr>
+          <tr><td>Investigation · Bug fix · Perf issue · Hillclimb · Runtime forensics · Trace forensics</td></tr>
+          <tr><th>建置</th></tr>
+          <tr><td>Feature · Refactoring · Prototype · Visual parity · Authoring a skill · Eval</td></tr>
+        </table>
+        <table>
+          <tr><th>交付與長跑</th></tr>
+          <tr><td>Babysit · Shipping · Autonomous run · Autopilot-full · Autopilot-stack · Opening a PR</td></tr>
+          <tr><th>接手與整理</th></tr>
+          <tr><td>Session pickup · Pause safely · Multi-phase plan · Worktree cleanup</td></tr>
+        </table>
+      </div>
+      <p class="sub reveal" style="margin-top:.8em">大型、跨領域、無人看，或沒有任何劇本合用 → 走 <code>figure-it-out</code> 技能。</p>
+    </div>
+  </section>
+
+  <!-- 17 PIPELINE -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">15 · 完整流程</p>
+      <h2 class="reveal">一個任務從頭到尾會經過這些</h2>
+      <div class="pipe reveal">
+        <div class="pip"><b>1</b><span>復述目標</span></div><i>›</i>
+        <div class="pip"><b>2</b><span>配劇本</span></div><i>›</i>
+        <div class="pip"><b>3</b><span>開 todo</span></div><i>›</i>
+        <div class="pip"><b>4</b><span>派 / 做</span></div><i>›</i>
+        <div class="pip"><b>5</b><span>驗證</span></div><i>›</i>
+        <div class="pip"><b>6</b><span>回報</span></div>
+      </div>
+      <div class="flow reveal" style="margin-top:1em">
+        <div class="node"><b>1–3</b><span>原則：先講清楚目標；劇本步驟原文複製進 todo</span></div>
+        <div class="node"><b>4</b><span>subagent 先讀 worker.md；用對應的技能</span></div>
+        <div class="node"><b>5</b><span>Prove It Works：驗真實產物</span></div>
+        <div class="node"><b>6</b><span>短句、附證據、點名用到的原則</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 PITFALLS -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">16 · 常見誤會</p>
+      <h2 class="reveal">五個最容易搞錯的地方</h2>
+      <table class="reveal">
+        <tr><th>誤會</th><th>實際上</th></tr>
+        <tr><td>「它會自動啟動」</td><td class="d">不會，只能你手動輸入 /poteto-mode。</td></tr>
+        <tr><td>「引用原則就好」</td><td class="d">要讀過那條的 SKILL.md，且說明它改了哪個決定。</td></tr>
+        <tr><td>「Fable 比較強就多用」</td><td class="d">只有點名或兩次 Opus 失敗才用。</td></tr>
+        <tr><td>「同一個 subagent 一直追問」</td><td class="d">預設每輪換新人，附原 brief 與前報告。</td></tr>
+        <tr><td>「PR 狀態用內建 babysit」</td><td class="d">要用 pstack 的 Babysit playbook。</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 19 EXERCISE -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">17 · 課堂練習</p>
+      <h2 class="reveal">四題，邊想邊答</h2>
+      <div class="grid g4 reveal" style="margin-top:.4em">
+        <div class="card"><div class="n">Q1</div><h3>派第一個 agent</h3><p>kickoff 的第一行要寫什麼？</p></div>
+        <div class="card"><div class="n">Q2</div><h3>要不要問</h3><p>想把測試檔移到新資料夾（可逆），要先問使用者嗎？</p></div>
+        <div class="card"><div class="n">Q3</div><h3>用哪個模型</h3><p>瑣碎的機械式修改預設是？</p></div>
+        <div class="card"><div class="n">Q4</div><h3>修 round 2</h3><p>第一位 subagent 修錯了，要續用它嗎？</p></div>
+      </div>
+      <p class="sub reveal" style="margin-top:1em">答案在下一張。</p>
+    </div>
+  </section>
+
+  <!-- 20 ANSWERS -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">18 · 解答</p>
+      <h2 class="reveal">對一下答案</h2>
+      <ul class="clean reveal">
+        <li><b>Q1</b> <span>→ <code>Read &lt;path&gt;/worker.md before anything else.</code>，&lt;path&gt; 是 poteto-mode 資料夾的絕對路徑。</span></li>
+        <li><b>Q2</b> <span>→ 不用。可逆工作直接做，完成後給結果讓人調整（Never Block on the Human）。</span></li>
+        <li><b>Q3</b> <span>→ <code>claude-opus-5-5-high-fast</code>。</span></li>
+        <li><b>Q4</b> <span>→ 預設換新的，附原 brief、之後的指示與前一位的報告和 branch。除非狀態只存在舊的裡面且搬很貴。</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 21 RECAP -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">19 · 小結</p>
+      <h2 class="reveal">記住這三句就夠</h2>
+      <div class="grid g3 reveal" style="margin-top:.4em">
+        <div class="card"><div class="n">1</div><h3>它是什麼</h3><p>一份守則：配劇本、派工、驗證、附證據回報。</p></div>
+        <div class="card"><div class="n">2</div><h3>怎麼守規矩</h3><p>目標先講、原則點名、可逆就做、不可逆就停。</p></div>
+        <div class="card"><div class="n">3</div><h3>怎麼派工</h3><p>四樣必帶、模型分級、預設換新人、你負責成果。</p></div>
+      </div>
+      <p class="sub reveal" style="margin-top:1em">來源：cursor/plugins · pstack/skills/poteto-mode/SKILL.md</p>
+    </div>
+  </section>
+
+</main>
+
+
+<script>
+(() => {
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const rail = document.getElementById('rail');
+  const bar = document.getElementById('bar');
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  const pad = n => String(n).padStart(2, '0');
+  tot.textContent = pad(slides.length);
+
+  let index = 0;
+  let lock = false;
+
+  // build rail
+  slides.forEach((_, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('aria-label', '第 ' + (i + 1) + ' 張');
+    b.addEventListener('click', () => go(i));
+    rail.appendChild(b);
+  });
+  const dots = Array.from(rail.children);
+
+  function setActive(i) {
+    if (i === index && slides[i].classList.contains('active')) return;
+    index = i;
+    slides.forEach((s, n) => s.classList.toggle('active', n === i));
+    dots.forEach((d, n) => d.setAttribute('aria-current', n === i ? 'true' : 'false'));
+    cur.textContent = pad(i + 1);
+    bar.style.width = ((i + 1) / slides.length * 100) + '%';
+    if (history.replaceState) history.replaceState(null, '', '#' + (i + 1));
+  }
+
+  function go(i) {
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    lock = true;
+    clearTimeout(go._t);
+    go._t = setTimeout(() => { lock = false; }, 450);
+    slides[i].scrollIntoView({ behavior: 'instant', block: 'start' });
+    setActive(i);
+  }
+
+  // active state via intersection (source of truth for wheel/scroll)
+  const io = new IntersectionObserver(entries => {
+    if (lock) return;
+    entries.forEach(e => {
+      if (e.isIntersecting && e.intersectionRatio > 0.55) {
+        const i = slides.indexOf(e.target);
+        if (i >= 0) setActive(i);
+      }
+    });
+  }, { threshold: [0.55, 0.9] });
+  slides.forEach(s => io.observe(s));
+
+  // keyboard
+  let locked = false;
+  function next() { go(index + 1); }
+  function prev() { go(index - 1); }
+  addEventListener('keydown', e => {
+    const k = e.key;
+    if (!k || e.repeat) return;
+    if (k === 'ArrowDown' || k === 'ArrowRight' || k === 'PageDown' || k === ' ' || k === 'Spacebar' || k === 'Space' || k === 'Enter') {
+      e.preventDefault(); next();
+    } else if (k === 'ArrowUp' || k === 'ArrowLeft' || k === 'PageUp') {
+      e.preventDefault(); prev();
+    } else if (k === 'Home') { e.preventDefault(); go(0); }
+    else if (k === 'End') { e.preventDefault(); go(slides.length - 1); }
+  });
+
+  // touch swipe
+  let ty = 0, tx = 0;
+  addEventListener('touchstart', e => {
+    ty = e.changedTouches[0].clientY; tx = e.changedTouches[0].clientX;
+  }, { passive: true });
+  addEventListener('touchend', e => {
+    const dy = ty - e.changedTouches[0].clientY;
+    const dx = tx - e.changedTouches[0].clientX;
+    if (Math.abs(dy) > 50 && Math.abs(dy) > Math.abs(dx)) {
+      dy > 0 ? next() : prev();
+    }
+  }, { passive: true });
+
+  // initial
+  const start = parseInt((location.hash || '').replace('#', ''), 10);
+  const s = Number.isFinite(start) && start >= 1 && start <= slides.length ? start - 1 : 0;
+  if (s > 0) go(s);
+  else setActive(0);
+
+  addEventListener('hashchange', () => {
+    const n = parseInt((location.hash || '').replace('#', ''), 10);
+    if (Number.isFinite(n) && n >= 1 && n <= slides.length && n - 1 !== index) go(n - 1);
+  });
+})();
+</script>
+</body>
+</html>

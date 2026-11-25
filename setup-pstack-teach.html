@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>setup-pstack · 白話教學</title>
+<style>
+/* =========================================================
+   VIEWPORT FITTING: MANDATORY BASE
+   ========================================================= */
+html,body{width:100%;margin:0}
+html{height:100%;overflow-x:hidden;scroll-snap-type:y mandatory;scroll-behavior:smooth;scrollbar-width:none}
+html::-webkit-scrollbar{width:0;height:0}
+body{min-height:100%;overflow-x:clip}
+
+:root{
+  --bg:#04070a;
+  --bg2:#070d12;
+  --panel:#0a1218;
+  --line:#1b2a33;
+  --line2:#243a46;
+  --fg:#c9d8e2;
+  --dim:#6d8494;
+  --acc:#5fff87;   /* terminal green */
+  --acc2:#ffd75f;  /* amber */
+  --acc3:#5fd7ff;  /* cyan */
+  --bad:#ff6b6b;
+
+  --title-size:clamp(1.6rem,5vw,4.2rem);
+  --h2-size:clamp(1.2rem,3.3vw,2.4rem);
+  --h3-size:clamp(0.95rem,2vw,1.35rem);
+  --body-size:clamp(0.78rem,1.45vw,1.06rem);
+  --small-size:clamp(0.66rem,1.05vw,0.86rem);
+  --micro-size:clamp(0.58rem,0.9vw,0.75rem);
+
+  --slide-padding:clamp(1.1rem,4.2vw,4.4rem);
+  --content-gap:clamp(0.5rem,1.8vw,1.7rem);
+  --element-gap:clamp(0.25rem,1vw,0.9rem);
+
+  --mono:ui-monospace,"SF Mono","JetBrains Mono","Sarasa Mono TC","Noto Sans Mono CJK TC","PingFang TC",Menlo,Consolas,monospace;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:var(--mono);
+  font-size:var(--body-size);
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(60vw 45vh at 12% -8%, rgba(95,255,135,.10), transparent 62%),
+    radial-gradient(55vw 45vh at 92% 108%, rgba(95,215,255,.09), transparent 60%),
+    radial-gradient(65vw 55vh at 50% 50%, rgba(7,13,18,.0), rgba(4,7,10,.85) 78%);
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.30;
+  background-image:
+    linear-gradient(rgba(27,42,51,.45) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27,42,51,.45) 1px, transparent 1px);
+  background-size:64px 64px,64px 64px;
+  mask-image:radial-gradient(80% 80% at 50% 50%, #000 30%, transparent 100%);
+  -webkit-mask-image:radial-gradient(80% 80% at 50% 50%, #000 30%, transparent 100%);
+}
+
+/* ---------------- slide shell ---------------- */
+main{position:relative;z-index:1}
+.slide{
+  width:100vw;height:100vh;height:100dvh;overflow:hidden;
+  scroll-snap-align:start;
+  display:flex;flex-direction:column;position:relative;
+}
+.slide-content{
+  flex:1;display:flex;flex-direction:column;justify-content:center;
+  max-height:100%;overflow:hidden;
+  padding:var(--slide-padding);
+  padding-top:calc(var(--slide-padding) + 1.2rem);
+  padding-bottom:calc(var(--slide-padding) + 1.4rem);
+  width:100%;
+  max-width:1180px;margin:0 auto;
+}
+.slide.active .reveal{opacity:1;transform:none}
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.2,1)}
+.reveal:nth-child(2){transition-delay:.06s}
+.reveal:nth-child(3){transition-delay:.12s}
+.reveal:nth-child(4){transition-delay:.18s}
+.reveal:nth-child(5){transition-delay:.24s}
+.reveal:nth-child(6){transition-delay:.30s}
+.reveal:nth-child(7){transition-delay:.36s}
+.reveal:nth-child(8){transition-delay:.42s}
+
+/* ---------------- chrome ---------------- */
+.chrome{position:fixed;inset:0;z-index:20;pointer-events:none}
+.slide-no{
+  position:absolute;top:clamp(.7rem,2vw,1.6rem);right:clamp(.8rem,2.2vw,1.8rem);
+  font-size:var(--micro-size);letter-spacing:.14em;color:var(--dim);
+  display:flex;gap:.45em;align-items:baseline;
+}
+.slide-no b{color:var(--acc);font-weight:700;font-size:calc(var(--micro-size)*1.35)}
+.brandmark{
+  position:absolute;top:clamp(.7rem,2vw,1.6rem);left:clamp(.8rem,2.2vw,1.8rem);
+  font-size:var(--micro-size);letter-spacing:.2em;color:var(--dim);text-transform:uppercase;
+}
+.brandmark span{color:var(--acc)}
+.progress{
+  position:absolute;left:0;right:0;bottom:0;height:2px;background:#0d1a21;
+}
+.progress i{
+  display:block;height:100%;width:0;
+  background:linear-gradient(90deg,var(--acc),var(--acc3));
+  box-shadow:0 0 12px rgba(95,255,135,.55);
+  transition:width .45s cubic-bezier(.2,.7,.2,1);
+}
+.rail{
+  position:absolute;right:clamp(.8rem,2.2vw,1.8rem);top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:.42rem;pointer-events:auto;
+}
+.rail button{
+  width:7px;height:7px;padding:0;border:0;border-radius:50%;
+  background:#22363f;cursor:pointer;transition:all .25s;
+}
+.rail button:hover{background:var(--dim);transform:scale(1.25)}
+.rail button[aria-current="true"]{background:var(--acc);box-shadow:0 0 10px rgba(95,255,135,.8);height:18px;border-radius:4px}
+
+/* ---------------- typography ---------------- */
+.kicker{
+  font-size:var(--small-size);letter-spacing:.22em;text-transform:uppercase;
+  color:var(--acc);margin:0 0 .7em;
+}
+h1{font-size:var(--title-size);line-height:1.08;margin:0 0 .35em;color:#fff;font-weight:700;letter-spacing:-.02em}
+h1 .dim{color:var(--dim);font-weight:400}
+h2{font-size:var(--h2-size);line-height:1.2;margin:0 0 .55em;color:#fff;font-weight:700;letter-spacing:-.01em}
+h3{font-size:var(--h3-size);line-height:1.3;margin:0 0 .35em;color:var(--acc3);font-weight:600}
+p{margin:.4em 0}
+.lead{font-size:clamp(.9rem,1.9vw,1.4rem);color:#dfeaf1;line-height:1.55;max-width:52ch}
+.sub{color:var(--dim);font-size:clamp(.8rem,1.5vw,1.05rem)}
+strong{color:#fff;font-weight:700}
+em{font-style:normal;color:var(--acc2)}
+code{
+  background:#0d1a21;border:1px solid #20343e;color:var(--acc2);
+  padding:.06em .38em;border-radius:3px;font-size:.92em;
+}
+pre{
+  margin:.2em 0 0;background:#060d12;border:1px solid var(--line);
+  border-left:2px solid var(--acc);border-radius:4px;
+  padding:clamp(.55rem,1.4vw,1rem) clamp(.7rem,1.7vw,1.2rem);
+  font-size:var(--small-size);line-height:1.7;color:#d6e4ee;
+  overflow:hidden;white-space:pre-wrap;word-break:break-word;
+}
+pre b{color:var(--acc)}
+pre i{font-style:normal;color:var(--dim)}
+
+/* ---------------- components ---------------- */
+.grid{display:grid;gap:clamp(.45rem,1.4vw,1rem)}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{
+  border:1px solid var(--line);background:linear-gradient(180deg,rgba(12,22,29,.92),rgba(7,13,18,.92));
+  border-radius:5px;padding:clamp(.6rem,1.5vw,1.1rem);
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:"";position:absolute;left:0;top:0;width:100%;height:1px;
+  background:linear-gradient(90deg,var(--acc),transparent 65%);opacity:.55;
+}
+.card h3{font-size:clamp(.82rem,1.6vw,1.1rem);margin-bottom:.25em}
+.card p{font-size:var(--small-size);color:var(--dim);line-height:1.5;margin:0}
+.card .n{
+  font-size:clamp(1.1rem,2.6vw,1.9rem);color:var(--acc);opacity:.9;
+  line-height:1;font-weight:700;margin-bottom:.3em;letter-spacing:-.03em;
+}
+
+ul.clean{list-style:none;margin:.2em 0;padding:0;display:flex;flex-direction:column;gap:clamp(.3rem,1.1vh,.75rem)}
+ul.clean li{display:flex;gap:.7em;font-size:var(--body-size);line-height:1.45;color:#d4e2ec}
+ul.clean li::before{content:"▸";color:var(--acc);flex:0 0 auto}
+ul.clean li b{color:#fff}
+ul.clean li span{color:var(--dim)}
+
+.pipe{display:flex;align-items:center;gap:.35em;flex-wrap:nowrap;margin:.4em 0 .1em}
+.pip{
+  flex:1 1 0;min-width:0;border:1px solid var(--line2);background:#081118;
+  border-radius:4px;padding:clamp(.4rem,1.1vw,.85rem) .2em;text-align:center;
+  position:relative;
+}
+.pip b{display:block;font-size:var(--micro-size);color:var(--acc);letter-spacing:.1em}
+.pip span{display:block;font-size:var(--small-size);color:#dfeaf1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pipe i{color:var(--line2);font-style:normal;font-size:var(--small-size);flex:0 0 auto}
+
+.flow{
+  display:flex;flex-direction:column;gap:clamp(.25rem,.9vh,.55rem);
+}
+.node{
+  border:1px solid var(--line);border-left:2px solid var(--acc3);
+  background:#081118;border-radius:4px;
+  padding:clamp(.32rem,.9vw,.6rem) clamp(.55rem,1.3vw,.9rem);
+  font-size:var(--small-size);display:flex;justify-content:space-between;gap:.8em;align-items:baseline;
+}
+.node b{color:#fff;font-weight:600}
+.node span{color:var(--dim);font-size:var(--micro-size);text-align:right}
+
+.row{
+  display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+  gap:clamp(.6rem,2vw,1.6rem);align-items:center;
+}
+.two{columns:2;column-gap:clamp(1rem,3vw,2.6rem)}
+.two>*{break-inside:avoid}
+
+table{border-collapse:collapse;width:100%;font-size:var(--small-size)}
+th,td{border-bottom:1px solid var(--line);padding:clamp(.28rem,.9vw,.6rem) .5em;text-align:left;vertical-align:top}
+th{color:var(--acc2);font-weight:600;font-size:var(--micro-size);letter-spacing:.08em;text-transform:uppercase}
+td:first-child{color:#fff;white-space:nowrap}
+td.d{color:var(--dim)}
+tr:last-child td{border-bottom:0}
+
+.tag{
+  display:inline-block;border:1px solid var(--line2);color:var(--dim);
+  font-size:var(--micro-size);padding:.08em .55em;border-radius:2px;letter-spacing:.06em;
+  white-space:nowrap;
+}
+.tag.a{border-color:rgba(95,255,135,.5);color:var(--acc)}
+.tag.b{border-color:rgba(255,215,95,.45);color:var(--acc2)}
+
+.quote{
+  border-left:2px solid var(--acc);padding:.15em 0 .15em .9em;
+  color:#dfeaf1;font-size:clamp(.9rem,2vw,1.35rem);line-height:1.5;max-width:50ch;
+}
+.quote small{display:block;color:var(--dim);font-size:var(--small-size);margin-top:.5em;letter-spacing:.06em}
+
+.hint{
+  position:absolute;left:50%;bottom:calc(clamp(1rem,3vw,2.4rem));transform:translateX(-50%);
+  font-size:var(--micro-size);color:var(--dim);letter-spacing:.14em;
+  display:flex;gap:.7em;align-items:center;white-space:nowrap;
+}
+.hint kbd{
+  border:1px solid var(--line2);border-bottom-width:2px;border-radius:3px;
+  padding:.1em .45em;color:var(--fg);font-family:inherit;font-size:.95em;
+}
+
+.hl{color:var(--acc)}
+.hl2{color:var(--acc2)}
+.mut{color:var(--dim)}
+
+/* ---------------- vocabulary ---------------- */
+.vgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(.4rem,1.2vw,.85rem)}
+.vcard{
+  border:1px solid var(--line);border-left:2px solid var(--acc);
+  background:#081118;border-radius:4px;
+  padding:clamp(.38rem,1vw,.7rem) clamp(.55rem,1.3vw,.9rem);
+  min-width:0;
+}
+.vcard b{color:#fff;font-size:var(--small-size);display:block;line-height:1.3}
+.vcard b i{font-style:normal;color:var(--acc3);font-size:var(--micro-size);margin-left:.45em;letter-spacing:.04em}
+.vcard p{color:var(--dim);font-size:var(--micro-size);margin:.12em 0 .3em;line-height:1.45}
+.vcard code{
+  display:block;font-size:var(--micro-size);background:#04070a;
+  border:1px solid #243a46;color:var(--acc2);
+  padding:.1em .45em;border-radius:2px;
+  white-space:normal;word-break:break-word;
+}
+@media (max-width:640px){
+  .vgrid{grid-template-columns:1fr}
+  .vcard[style*="grid-column"]{grid-column:auto !important}
+}
+
+/* ---------------- responsive ---------------- */
+@media (max-width:900px){
+  .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .row{grid-template-columns:1fr}
+  .rail{display:none}
+}
+@media (max-width:640px){
+  .g3{grid-template-columns:1fr}
+  .two{columns:1}
+  .pipe{flex-wrap:wrap}
+  .pipe i{display:none}
+  .pip{flex:1 1 28%}
+}
+@media (max-height:700px){
+  :root{
+    --slide-padding:clamp(.7rem,3vw,2rem);
+    --content-gap:clamp(.35rem,1.4vw,.9rem);
+    --title-size:clamp(1.3rem,4.4vw,2.6rem);
+    --h2-size:clamp(1rem,2.9vw,1.75rem);
+  }
+}
+@media (max-height:600px){
+  :root{
+    --slide-padding:clamp(.5rem,2.4vw,1.4rem);
+    --body-size:clamp(.7rem,1.2vw,.95rem);
+    --small-size:clamp(.62rem,.98vw,.8rem);
+  }
+  .hint,.rail,.brandmark{display:none}
+}
+@media (max-height:500px){
+  /* landscape phones: keep two-column slides side by side instead of stacking */
+  .row{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:.7rem}
+  .node{padding:.22rem .5rem;font-size:clamp(.6rem,.95vw,.72rem)}
+  .flow{gap:.22rem}
+  th,td{padding:.16rem .35rem}
+  .card{padding:.4rem .55rem}
+  .hint,.rail,.brandmark{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.15s !important}
+  html{scroll-behavior:auto}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<div class="chrome" aria-hidden="true">
+  <div class="brandmark">pstack<span> /</span> setup-pstack</div>
+  <div class="slide-no"><b id="cur">01</b><span>/ <span id="tot">16</span></span></div>
+  <nav class="rail" id="rail" aria-label="投影片導覽"></nav>
+  <div class="progress"><i id="bar"></i></div>
+</div>
+
+<main id="deck">
+
+  <!-- 01 COVER -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">cursor/plugins · pstack · setup-pstack</p>
+      <h1 class="reveal">setup-pstack<br><span class="dim">用白話教你設定 AI 分工</span></h1>
+      <p class="lead reveal">一張「<span class="hl">誰做什麼工作、想多久</span>」的分工表，寫進一個檔案，之後每次都照表辦事。</p>
+      <div class="reveal" style="margin-top:1.2em;display:flex;gap:.5em;flex-wrap:wrap">
+        <span class="tag a">教學版</span>
+        <span class="tag">約 15 分鐘</span>
+        <span class="tag">不需先會 pstack</span>
+      </div>
+    </div>
+    <div class="hint"><span><kbd>↑</kbd><kbd>↓</kbd> / 空白</span><span>切換</span></div>
+  </section>
+
+  <!-- 02 GOALS -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">00 · 今天學什麼</p>
+      <h2 class="reveal">上完課你會做到三件事</h2>
+      <div class="grid g3 reveal" style="margin-top:.6em">
+        <div class="card"><div class="n">01</div><h3>說得出它是什麼</h3><p>用一句話解釋 setup-pstack 在解決什麼問題。</p></div>
+        <div class="card"><div class="n">02</div><h3>看得懂 8 個步驟</h3><p>偵測模型 → 選預算 → 確認 → 驗證 → 寫檔。</p></div>
+        <div class="card"><div class="n">03</div><h3>自己跑一遍</h3><p>在 Cursor 輸入 <code>/setup-pstack</code>，產出設定檔。</p></div>
+      </div>
+      <p class="sub reveal" style="margin-top:1em">這份投影片依據官方 SKILL.md 整理，細節以原文為準。</p>
+    </div>
+  </section>
+
+  <!-- 03 WHAT -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">01 · 它是什麼</p>
+      <h2 class="reveal">一句話：幫 pstack <span class="hl">選模型、定預算</span></h2>
+      <p class="lead reveal">pstack 做事時會派出不同「角色」（寫功能、修 bug、評審…）。setup-pstack 讓你決定：<strong>每個角色用哪個 AI 模型</strong>，以及<strong>肯花多少腦力</strong>。</p>
+      <div class="flow reveal" style="margin-top:1em">
+        <div class="node"><b>你做的事</b><span>輸入 /setup-pstack，回答 1～2 個問題</span></div>
+        <div class="node"><b>它做的事</b><span>偵測你有哪些模型 → 套用預算 → 列出分工表</span></div>
+        <div class="node"><b>最後產出</b><span>一個檔案 <code>~/.cursor/rules/pstack-models.mdc</code></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 ANALOGY -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">02 · 比喻</p>
+      <h2 class="reveal">像「餐廳廚房的排班表」</h2>
+      <table class="reveal">
+        <tr><th>廚房</th><th>setup-pstack</th></tr>
+        <tr><td>不同的菜</td><td class="d">不同的工作角色（功能、修 bug、評審…）</td></tr>
+        <tr><td>派哪位師傅</td><td class="d">每個角色用哪個模型</td></tr>
+        <tr><td>讓師傅慢慢做多久</td><td class="d">推理力度（reasoning effort）</td></tr>
+        <tr><td>今天的食材預算</td><td class="d">預算 large / medium / small</td></tr>
+        <tr><td>貼在牆上的排班表</td><td class="d">pstack-models.mdc 規則檔</td></tr>
+      </table>
+      <p class="sub reveal" style="margin-top:.8em">貴的師傅想越久越準，但也越花錢。預算一調，整張表一起升降。</p>
+    </div>
+  </section>
+
+  <!-- 05 VOCAB -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">03 · 先認識名詞</p>
+      <h2 class="reveal">六個詞，看懂整份文件</h2>
+      <div class="vgrid reveal">
+        <div class="vcard"><b>角色（role）</b><p>一類工作。例如寫功能、修 bug、評審。</p><code>bug-fix</code></div>
+        <div class="vcard"><b>模型代號（slug）</b><p>模型的完整名稱，含推理力度。</p><code>claude-opus-5-5-xhigh-fast</code></div>
+        <div class="vcard"><b>推理力度（effort）</b><p>想多久。由低到高：low、medium、high、xhigh。</p><code>xhigh &gt; high &gt; medium &gt; low</code></div>
+        <div class="vcard"><b>預算（budget）</b><p>一次調整全部角色的力度。</p><code>large / medium / small</code></div>
+        <div class="vcard"><b>規則檔（.mdc）</b><p><code>alwaysApply: true</code> 代表每個新對話都自動套用。</p><code>~/.cursor/rules/pstack-models.mdc</code></div>
+        <div class="vcard"><b>兩個別名</b><p>不指定模型，直接沿用目前聊天用的那個。</p><code>inherit-parent</code> · <code>auto</code></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 PIPELINE -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">04 · 全貌</p>
+      <h2 class="reveal">八個步驟，前六個必做</h2>
+      <div class="pipe reveal">
+        <div class="pip"><b>1</b><span>偵測</span></div><i>›</i>
+        <div class="pip"><b>2</b><span>讀現況</span></div><i>›</i>
+        <div class="pip"><b>3</b><span>選預算</span></div><i>›</i>
+        <div class="pip"><b>4</b><span>驗證</span></div><i>›</i>
+        <div class="pip"><b>5</b><span>寫檔</span></div><i>›</i>
+        <div class="pip"><b>6</b><span>告知</span></div>
+      </div>
+      <div class="flow reveal" style="margin-top:1em">
+        <div class="node"><b>步驟 7（選配）</b><span>幫專案做一個「驗證技能」，讓 agent 能實際操作 app 證明改動有效</span></div>
+        <div class="node"><b>步驟 8（選配）</b><span>幫專案做一個「形式驗證技能」，用證明工具檢查關鍵性質</span></div>
+      </div>
+      <p class="sub reveal" style="margin-top:.8em">7、8 各只問一次，你說不要就直接跳過。</p>
+    </div>
+  </section>
+
+  <!-- 07 STEP 1-2 -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">05 · 步驟 1–2</p>
+      <h2 class="reveal">先摸清楚「有什麼」和「現在是什麼」</h2>
+      <div class="row reveal">
+        <div>
+          <h3>1 偵測可用模型</h3>
+          <ul class="clean">
+            <li><b>以本次對話能指派的模型為準</b></li>
+            <li>偵測不到 <span>→ 請你貼出你有權限的代號</span></li>
+            <li><b>絕不寫沒確認過的代號</b></li>
+          </ul>
+        </div>
+        <div>
+          <h3>2 讀取現況</h3>
+          <ul class="clean">
+            <li>已有規則檔 <span>→ 讀它當起點</span></li>
+            <li>沒有 <span>→ 用預設值起步</span></li>
+            <li>舊版遺留的角色或舊預設 <span>→ 替換或丟棄，並告訴你換了什麼</span></li>
+          </ul>
+        </div>
+      </div>
+      <p class="sub reveal" style="margin-top:.8em">重點：你自己改過的值會保留；只有「舊預設」才會被換掉。</p>
+    </div>
+  </section>
+
+  <!-- 08 BUDGET -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">06 · 步驟 3a</p>
+      <h2 class="reveal">預算只有三個選項</h2>
+      <table class="reveal">
+        <tr><th>選項</th><th>意思</th><th>白話</th></tr>
+        <tr><td>large</td><td class="d">xhigh 推理</td><td class="d">不省，維持預設，想最久最準</td></tr>
+        <tr><td>medium</td><td class="d">high 推理</td><td class="d">每個角色降一階</td></tr>
+        <tr><td>small</td><td class="d">medium 推理</td><td class="d">每個角色降兩階，最省</td></tr>
+      </table>
+      <ul class="clean reveal" style="margin-top:.9em">
+        <li><b>沒有比 xhigh 更高的</b> <span>— 所以不存在「unlimited」</span></li>
+        <li><b>已在最低階就不再降</b> <span>— 停在 low</span></li>
+        <li>沒有舊規則時，<em>large</em> 就等於預設</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 09 EXAMPLE -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">07 · 步驟 3b · 實例</p>
+      <h2 class="reveal">預算怎麼改模型代號？看最後一個詞</h2>
+      <table class="reveal">
+        <tr><th>原本</th><th>選 medium</th><th>選 small</th></tr>
+        <tr><td>opus-5-5-<span class="hl2">xhigh</span>-fast</td><td class="d">opus-5-5-<span class="hl">high</span>-fast</td><td class="d">opus-5-5-<span class="hl">medium</span>-fast</td></tr>
+        <tr><td>opus-5-5-<span class="hl2">high</span>-fast</td><td class="d">opus-5-5-<span class="hl">medium</span>-fast</td><td class="d">opus-5-5-<span class="hl">low</span>-fast</td></tr>
+      </table>
+      <ul class="clean reveal" style="margin-top:.9em">
+        <li><b>Opus 5.5</b> <span>一律用 <code>-fast</code> 結尾</span></li>
+        <li><b>Fable 5.2、Gemini</b> <span>沒有 fast 版本，絕不加</span></li>
+        <li><b>Gemini 4 Neon</b> <span>只有 low～xhigh；large 寫 xhigh、medium 寫 high、small 寫 medium</span></li>
+        <li>算出來的代號你沒有 <span>→ 改用同家族「不超過目標」的最高階，再不行就請你選</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 10 CONFIRM -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">08 · 步驟 3c</p>
+      <h2 class="reveal">列出分工表，讓你確認</h2>
+      <div class="grid g2 reveal" style="margin-top:.4em">
+        <div class="card"><span class="tag a">單一角色</span><h3 style="margin-top:.5em">一個模型</h3><p>feature、bug-fix、perf-issue、hillclimb、judgment and prose、swarm workers。</p></div>
+        <div class="card"><span class="tag b">面板角色</span><h3 style="margin-top:.5em">一串模型</h3><p>arena runners、interrogate reviewers：清單有幾個，就派幾個 subagent 同時做。</p></div>
+      </div>
+      <ul class="clean reveal" style="margin-top:.9em">
+        <li><b>arena cross-judge pool</b> <span>— 只會挑一位評審，且必須是「不同廠商」，照清單順序試</span></li>
+        <li>Claude 與 Fable 算<em>同一家</em>，別指望它們互評</li>
+        <li><code>inherit-parent</code> / <code>auto</code> 不會當評審</li>
+        <li>你可接受原樣，或點名改某幾個角色</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 11 WRITE -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">09 · 步驟 4–5</p>
+      <h2 class="reveal">驗證，然後整檔覆寫</h2>
+      <div class="row reveal">
+        <ul class="clean">
+          <li><b>驗證</b> <span>每個真實代號必須在偵測清單內，且不高於 xhigh</span></li>
+          <li>有一個不行 <span>→ 停下來重問，不硬寫</span></li>
+          <li><b>覆寫整份檔案</b> <span>重跑也不會越寫越亂（冪等）</span></li>
+          <li>刪掉某一行 <span>→ 該角色回到預設</span></li>
+        </ul>
+<pre><i>---</i>
+description: pstack per-role model choices
+alwaysApply: <b>true</b>
+<i>---</i>
+# defaults: 3
+# budget: <b>large (xhigh)</b>
+bug-fix: claude-opus-5-5-xhigh-fast
+swarm workers: claude-opus-5-5-high-fast
+arena runners: claude-fable-5-2-high,
+  claude-opus-5-5-high-fast,
+  gemini-4-neon-xhigh</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 OPTIONAL -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">10 · 步驟 6–8</p>
+      <h2 class="reveal">收尾：告知，再各問你一次</h2>
+      <div class="grid g3 reveal" style="margin-top:.4em">
+        <div class="card"><div class="n">6</div><h3>告知完成</h3><p>檔案已寫入，只對<strong>新對話</strong>生效；想改就重跑一次。</p></div>
+        <div class="card"><div class="n">7</div><h3>驗證技能</h3><p>專案沒有的話問一次，要的話呼叫 <code>/create-verification-skill</code>。</p></div>
+        <div class="card"><div class="n">8</div><h3>形式驗證技能</h3><p>專案沒有的話問一次，要的話呼叫 <code>/create-formal-verification-skill</code>。</p></div>
+      </div>
+      <p class="sub reveal" style="margin-top:1em">你回答「不要」，它就不再追問。</p>
+    </div>
+  </section>
+
+  <!-- 13 PITFALLS -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">11 · 常見誤會</p>
+      <h2 class="reveal">五個最容易搞錯的地方</h2>
+      <table class="reveal">
+        <tr><th>誤會</th><th>實際上</th></tr>
+        <tr><td>「選 large 就是無上限」</td><td class="d">large 最高就是 xhigh，沒有更高。</td></tr>
+        <tr><td>「改完立刻影響目前對話」</td><td class="d">只套用到新對話。</td></tr>
+        <tr><td>「代號可以隨便猜」</td><td class="d">只能寫偵測到的，否則重問。</td></tr>
+        <tr><td>「我改過的值會被預算洗掉」</td><td class="d">改過家族、清單或別名的角色會保留。</td></tr>
+        <tr><td>「Gemini 也有 fast」</td><td class="d">沒有，不要加。</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 14 EXERCISE -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">12 · 課堂練習</p>
+      <h2 class="reveal">三題，邊想邊回答</h2>
+      <div class="grid g3 reveal" style="margin-top:.4em">
+        <div class="card"><div class="n">Q1</div><h3>換代號</h3><p><code>claude-opus-5-5-high-fast</code> 選 small，結果是？</p></div>
+        <div class="card"><div class="n">Q2</div><h3>派幾個</h3><p>arena runners 清單有 3 個值（其中 1 個是 auto），會派幾個 subagent？</p></div>
+        <div class="card"><div class="n">Q3</div><h3>找評審</h3><p>父模型是 Claude，清單依序為 Opus、Gemini，誰當評審？</p></div>
+      </div>
+      <p class="sub reveal" style="margin-top:1em">答案在下一張。</p>
+    </div>
+  </section>
+
+  <!-- 15 ANSWERS -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">13 · 解答</p>
+      <h2 class="reveal">對一下答案</h2>
+      <ul class="clean reveal">
+        <li><b>Q1</b> <span>→ <code>claude-opus-5-5-low-fast</code>（降兩階，仍保留 -fast）</span></li>
+        <li><b>Q2</b> <span>→ 3 個。別名也算，清單長度就是人數。</span></li>
+        <li><b>Q3</b> <span>→ Gemini。Opus 與父模型同為 Claude，同廠商不能評審。</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 16 RECAP -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">14 · 小結</p>
+      <h2 class="reveal">記住這三句就夠</h2>
+      <div class="grid g3 reveal" style="margin-top:.4em">
+        <div class="card"><div class="n">1</div><h3>是什麼</h3><p>一張「角色 × 模型 × 力度」的分工表。</p></div>
+        <div class="card"><div class="n">2</div><h3>怎麼調</h3><p>三選一預算，整張表一起升降一或兩階。</p></div>
+        <div class="card"><div class="n">3</div><h3>放哪裡</h3><p><code>~/.cursor/rules/pstack-models.mdc</code>，新對話生效，重跑可更新。</p></div>
+      </div>
+      <p class="sub reveal" style="margin-top:1em">來源：cursor/plugins · pstack/skills/setup-pstack/SKILL.md</p>
+    </div>
+  </section>
+
+</main>
+
+
+<script>
+(() => {
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const rail = document.getElementById('rail');
+  const bar = document.getElementById('bar');
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  const pad = n => String(n).padStart(2, '0');
+  tot.textContent = pad(slides.length);
+
+  let index = 0;
+  let lock = false;
+
+  // build rail
+  slides.forEach((_, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('aria-label', '第 ' + (i + 1) + ' 張');
+    b.addEventListener('click', () => go(i));
+    rail.appendChild(b);
+  });
+  const dots = Array.from(rail.children);
+
+  function setActive(i) {
+    if (i === index && slides[i].classList.contains('active')) return;
+    index = i;
+    slides.forEach((s, n) => s.classList.toggle('active', n === i));
+    dots.forEach((d, n) => d.setAttribute('aria-current', n === i ? 'true' : 'false'));
+    cur.textContent = pad(i + 1);
+    bar.style.width = ((i + 1) / slides.length * 100) + '%';
+    if (history.replaceState) history.replaceState(null, '', '#' + (i + 1));
+  }
+
+  function go(i) {
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    lock = true;
+    clearTimeout(go._t);
+    go._t = setTimeout(() => { lock = false; }, 450);
+    slides[i].scrollIntoView({ behavior: 'instant', block: 'start' });
+    setActive(i);
+  }
+
+  // active state via intersection (source of truth for wheel/scroll)
+  const io = new IntersectionObserver(entries => {
+    if (lock) return;
+    entries.forEach(e => {
+      if (e.isIntersecting && e.intersectionRatio > 0.55) {
+        const i = slides.indexOf(e.target);
+        if (i >= 0) setActive(i);
+      }
+    });
+  }, { threshold: [0.55, 0.9] });
+  slides.forEach(s => io.observe(s));
+
+  // keyboard
+  let locked = false;
+  function next() { go(index + 1); }
+  function prev() { go(index - 1); }
+  addEventListener('keydown', e => {
+    const k = e.key;
+    if (!k || e.repeat) return;
+    if (k === 'ArrowDown' || k === 'ArrowRight' || k === 'PageDown' || k === ' ' || k === 'Spacebar' || k === 'Space' || k === 'Enter') {
+      e.preventDefault(); next();
+    } else if (k === 'ArrowUp' || k === 'ArrowLeft' || k === 'PageUp') {
+      e.preventDefault(); prev();
+    } else if (k === 'Home') { e.preventDefault(); go(0); }
+    else if (k === 'End') { e.preventDefault(); go(slides.length - 1); }
+  });
+
+  // touch swipe
+  let ty = 0, tx = 0;
+  addEventListener('touchstart', e => {
+    ty = e.changedTouches[0].clientY; tx = e.changedTouches[0].clientX;
+  }, { passive: true });
+  addEventListener('touchend', e => {
+    const dy = ty - e.changedTouches[0].clientY;
+    const dx = tx - e.changedTouches[0].clientX;
+    if (Math.abs(dy) > 50 && Math.abs(dy) > Math.abs(dx)) {
+      dy > 0 ? next() : prev();
+    }
+  }, { passive: true });
+
+  // initial
+  const start = parseInt((location.hash || '').replace('#', ''), 10);
+  const s = Number.isFinite(start) && start >= 1 && start <= slides.length ? start - 1 : 0;
+  if (s > 0) go(s);
+  else setActive(0);
+
+  addEventListener('hashchange', () => {
+    const n = parseInt((location.hash || '').replace('#', ''), 10);
+    if (Number.isFinite(n) && n >= 1 && n <= slides.length && n - 1 !== index) go(n - 1);
+  });
+})();
+</script>
+</body>
+</html>

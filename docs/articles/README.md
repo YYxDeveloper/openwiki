@@ -35,6 +35,7 @@ OpenWiki 是從專案內的檔案建立 wiki，不會自行抓取網頁。你找
 |---|---|---|---|
 | [herdr-shortcuts.md](./develop/herdr-shortcuts.md) | herdr 快捷鍵與切換 agent | https://herdr.dev/zh-cn/tui/docs/keyboard/ | 2026-11-12 |
 | [multimodal-stt-models-2026-11.md](./develop/multimodal-stt-models-2026-11.md) | 2026-11 可用的多模態與語音轉文字模型清單 | 使用者提供 | 2026-11-16 |
+| [pstack-teaching-decks.md](./develop/pstack-teaching-decks.md) | pstack 教學簡報與心得頁（HTML） | https://github.com/cursor/plugins/tree/main/pstack | 2026-11-25 |
 
 ## 注意事項
 

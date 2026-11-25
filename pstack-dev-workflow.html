@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>pstack 開發流程 · 從一句話需求到有證據的 PR</title>
+<style>
+/* =========================================================
+   VIEWPORT FITTING: MANDATORY BASE
+   ========================================================= */
+html,body{width:100%;margin:0}
+html{height:100%;overflow-x:hidden;scroll-snap-type:y mandatory;scroll-behavior:smooth;scrollbar-width:none}
+html::-webkit-scrollbar{width:0;height:0}
+body{min-height:100%;overflow-x:clip}
+
+:root{
+  --bg:#04070a;
+  --bg2:#070d12;
+  --panel:#0a1218;
+  --line:#1b2a33;
+  --line2:#243a46;
+  --fg:#c9d8e2;
+  --dim:#6d8494;
+  --acc:#5fff87;   /* terminal green */
+  --acc2:#ffd75f;  /* amber */
+  --acc3:#5fd7ff;  /* cyan */
+  --bad:#ff6b6b;
+
+  --title-size:clamp(1.6rem,5vw,4.2rem);
+  --h2-size:clamp(1.2rem,3.3vw,2.4rem);
+  --h3-size:clamp(0.95rem,2vw,1.35rem);
+  --body-size:clamp(0.78rem,1.45vw,1.06rem);
+  --small-size:clamp(0.66rem,1.05vw,0.86rem);
+  --micro-size:clamp(0.58rem,0.9vw,0.75rem);
+
+  --slide-padding:clamp(1.1rem,4.2vw,4.4rem);
+  --content-gap:clamp(0.5rem,1.8vw,1.7rem);
+  --element-gap:clamp(0.25rem,1vw,0.9rem);
+
+  --mono:ui-monospace,"SF Mono","JetBrains Mono","Sarasa Mono TC","Noto Sans Mono CJK TC","PingFang TC",Menlo,Consolas,monospace;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:var(--mono);
+  font-size:var(--body-size);
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(60vw 45vh at 12% -8%, rgba(95,255,135,.10), transparent 62%),
+    radial-gradient(55vw 45vh at 92% 108%, rgba(95,215,255,.09), transparent 60%),
+    radial-gradient(65vw 55vh at 50% 50%, rgba(7,13,18,.0), rgba(4,7,10,.85) 78%);
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.30;
+  background-image:
+    linear-gradient(rgba(27,42,51,.45) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27,42,51,.45) 1px, transparent 1px);
+  background-size:64px 64px,64px 64px;
+  mask-image:radial-gradient(80% 80% at 50% 50%, #000 30%, transparent 100%);
+  -webkit-mask-image:radial-gradient(80% 80% at 50% 50%, #000 30%, transparent 100%);
+}
+
+/* ---------------- slide shell ---------------- */
+main{position:relative;z-index:1}
+.slide{
+  width:100vw;height:100vh;height:100dvh;overflow:hidden;
+  scroll-snap-align:start;
+  display:flex;flex-direction:column;position:relative;
+}
+.slide-content{
+  flex:1;display:flex;flex-direction:column;justify-content:center;
+  max-height:100%;overflow:hidden;
+  padding:var(--slide-padding);
+  padding-top:calc(var(--slide-padding) + 1.2rem);
+  padding-bottom:calc(var(--slide-padding) + 1.4rem);
+  width:100%;
+  max-width:1180px;margin:0 auto;
+}
+.slide.active .reveal{opacity:1;transform:none}
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.2,1)}
+.reveal:nth-child(2){transition-delay:.06s}
+.reveal:nth-child(3){transition-delay:.12s}
+.reveal:nth-child(4){transition-delay:.18s}
+.reveal:nth-child(5){transition-delay:.24s}
+.reveal:nth-child(6){transition-delay:.30s}
+.reveal:nth-child(7){transition-delay:.36s}
+.reveal:nth-child(8){transition-delay:.42s}
+
+/* ---------------- chrome ---------------- */
+.chrome{position:fixed;inset:0;z-index:20;pointer-events:none}
+.slide-no{
+  position:absolute;top:clamp(.7rem,2vw,1.6rem);right:clamp(.8rem,2.2vw,1.8rem);
+  font-size:var(--micro-size);letter-spacing:.14em;color:var(--dim);
+  display:flex;gap:.45em;align-items:baseline;
+}
+.slide-no b{color:var(--acc);font-weight:700;font-size:calc(var(--micro-size)*1.35)}
+.brandmark{
+  position:absolute;top:clamp(.7rem,2vw,1.6rem);left:clamp(.8rem,2.2vw,1.8rem);
+  font-size:var(--micro-size);letter-spacing:.2em;color:var(--dim);text-transform:uppercase;
+}
+.brandmark span{color:var(--acc)}
+.progress{
+  position:absolute;left:0;right:0;bottom:0;height:2px;background:#0d1a21;
+}
+.progress i{
+  display:block;height:100%;width:0;
+  background:linear-gradient(90deg,var(--acc),var(--acc3));
+  box-shadow:0 0 12px rgba(95,255,135,.55);
+  transition:width .45s cubic-bezier(.2,.7,.2,1);
+}
+.rail{
+  position:absolute;right:clamp(.8rem,2.2vw,1.8rem);top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:.42rem;pointer-events:auto;
+}
+.rail button{
+  width:7px;height:7px;padding:0;border:0;border-radius:50%;
+  background:#22363f;cursor:pointer;transition:all .25s;
+}
+.rail button:hover{background:var(--dim);transform:scale(1.25)}
+.rail button[aria-current="true"]{background:var(--acc);box-shadow:0 0 10px rgba(95,255,135,.8);height:18px;border-radius:4px}
+
+/* ---------------- typography ---------------- */
+.kicker{
+  font-size:var(--small-size);letter-spacing:.22em;text-transform:uppercase;
+  color:var(--acc);margin:0 0 .7em;
+}
+h1{font-size:var(--title-size);line-height:1.08;margin:0 0 .35em;color:#fff;font-weight:700;letter-spacing:-.02em}
+h1 .dim{color:var(--dim);font-weight:400}
+h2{font-size:var(--h2-size);line-height:1.2;margin:0 0 .55em;color:#fff;font-weight:700;letter-spacing:-.01em}
+h3{font-size:var(--h3-size);line-height:1.3;margin:0 0 .35em;color:var(--acc3);font-weight:600}
+p{margin:.4em 0}
+.lead{font-size:clamp(.9rem,1.9vw,1.4rem);color:#dfeaf1;line-height:1.55;max-width:52ch}
+.sub{color:var(--dim);font-size:clamp(.8rem,1.5vw,1.05rem)}
+strong{color:#fff;font-weight:700}
+em{font-style:normal;color:var(--acc2)}
+code{
+  background:#0d1a21;border:1px solid #20343e;color:var(--acc2);
+  padding:.06em .38em;border-radius:3px;font-size:.92em;
+}
+pre{
+  margin:.2em 0 0;background:#060d12;border:1px solid var(--line);
+  border-left:2px solid var(--acc);border-radius:4px;
+  padding:clamp(.55rem,1.4vw,1rem) clamp(.7rem,1.7vw,1.2rem);
+  font-size:var(--small-size);line-height:1.7;color:#d6e4ee;
+  overflow:hidden;white-space:pre-wrap;word-break:break-word;
+}
+pre b{color:var(--acc)}
+pre i{font-style:normal;color:var(--dim)}
+
+/* ---------------- components ---------------- */
+.grid{display:grid;gap:clamp(.45rem,1.4vw,1rem)}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{
+  border:1px solid var(--line);background:linear-gradient(180deg,rgba(12,22,29,.92),rgba(7,13,18,.92));
+  border-radius:5px;padding:clamp(.6rem,1.5vw,1.1rem);
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:"";position:absolute;left:0;top:0;width:100%;height:1px;
+  background:linear-gradient(90deg,var(--acc),transparent 65%);opacity:.55;
+}
+.card h3{font-size:clamp(.82rem,1.6vw,1.1rem);margin-bottom:.25em}
+.card p{font-size:var(--small-size);color:var(--dim);line-height:1.5;margin:0}
+.card .n{
+  font-size:clamp(1.1rem,2.6vw,1.9rem);color:var(--acc);opacity:.9;
+  line-height:1;font-weight:700;margin-bottom:.3em;letter-spacing:-.03em;
+}
+
+ul.clean{list-style:none;margin:.2em 0;padding:0;display:flex;flex-direction:column;gap:clamp(.3rem,1.1vh,.75rem)}
+ul.clean li{display:flex;gap:.7em;font-size:var(--body-size);line-height:1.45;color:#d4e2ec}
+ul.clean li::before{content:"▸";color:var(--acc);flex:0 0 auto}
+ul.clean li b{color:#fff}
+ul.clean li span{color:var(--dim)}
+
+.pipe{display:flex;align-items:center;gap:.35em;flex-wrap:nowrap;margin:.4em 0 .1em}
+.pip{
+  flex:1 1 0;min-width:0;border:1px solid var(--line2);background:#081118;
+  border-radius:4px;padding:clamp(.4rem,1.1vw,.85rem) .2em;text-align:center;
+  position:relative;
+}
+.pip b{display:block;font-size:var(--micro-size);color:var(--acc);letter-spacing:.1em}
+.pip span{display:block;font-size:var(--small-size);color:#dfeaf1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pipe i{color:var(--line2);font-style:normal;font-size:var(--small-size);flex:0 0 auto}
+
+.flow{
+  display:flex;flex-direction:column;gap:clamp(.25rem,.9vh,.55rem);
+}
+.node{
+  border:1px solid var(--line);border-left:2px solid var(--acc3);
+  background:#081118;border-radius:4px;
+  padding:clamp(.32rem,.9vw,.6rem) clamp(.55rem,1.3vw,.9rem);
+  font-size:var(--small-size);display:flex;justify-content:space-between;gap:.8em;align-items:baseline;
+}
+.node b{color:#fff;font-weight:600}
+.node span{color:var(--dim);font-size:var(--micro-size);text-align:right}
+
+.row{
+  display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+  gap:clamp(.6rem,2vw,1.6rem);align-items:center;
+}
+.two{columns:2;column-gap:clamp(1rem,3vw,2.6rem)}
+.two>*{break-inside:avoid}
+
+table{border-collapse:collapse;width:100%;font-size:var(--small-size)}
+th,td{border-bottom:1px solid var(--line);padding:clamp(.28rem,.9vw,.6rem) .5em;text-align:left;vertical-align:top}
+th{color:var(--acc2);font-weight:600;font-size:var(--micro-size);letter-spacing:.08em;text-transform:uppercase}
+td:first-child{color:#fff;white-space:nowrap}
+td.d{color:var(--dim)}
+tr:last-child td{border-bottom:0}
+
+.tag{
+  display:inline-block;border:1px solid var(--line2);color:var(--dim);
+  font-size:var(--micro-size);padding:.08em .55em;border-radius:2px;letter-spacing:.06em;
+  white-space:nowrap;
+}
+.tag.a{border-color:rgba(95,255,135,.5);color:var(--acc)}
+.tag.b{border-color:rgba(255,215,95,.45);color:var(--acc2)}
+
+.quote{
+  border-left:2px solid var(--acc);padding:.15em 0 .15em .9em;
+  color:#dfeaf1;font-size:clamp(.9rem,2vw,1.35rem);line-height:1.5;max-width:50ch;
+}
+.quote small{display:block;color:var(--dim);font-size:var(--small-size);margin-top:.5em;letter-spacing:.06em}
+
+.hint{
+  position:absolute;left:50%;bottom:calc(clamp(1rem,3vw,2.4rem));transform:translateX(-50%);
+  font-size:var(--micro-size);color:var(--dim);letter-spacing:.14em;
+  display:flex;gap:.7em;align-items:center;white-space:nowrap;
+}
+.hint kbd{
+  border:1px solid var(--line2);border-bottom-width:2px;border-radius:3px;
+  padding:.1em .45em;color:var(--fg);font-family:inherit;font-size:.95em;
+}
+
+.hl{color:var(--acc)}
+.hl2{color:var(--acc2)}
+.mut{color:var(--dim)}
+
+/* ---------------- vocabulary ---------------- */
+.vgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(.4rem,1.2vw,.85rem)}
+.vcard{
+  border:1px solid var(--line);border-left:2px solid var(--acc);
+  background:#081118;border-radius:4px;
+  padding:clamp(.38rem,1vw,.7rem) clamp(.55rem,1.3vw,.9rem);
+  min-width:0;
+}
+.vcard b{color:#fff;font-size:var(--small-size);display:block;line-height:1.3}
+.vcard b i{font-style:normal;color:var(--acc3);font-size:var(--micro-size);margin-left:.45em;letter-spacing:.04em}
+.vcard p{color:var(--dim);font-size:var(--micro-size);margin:.12em 0 .3em;line-height:1.45}
+.vcard code{
+  display:block;font-size:var(--micro-size);background:#04070a;
+  border:1px solid #243a46;color:var(--acc2);
+  padding:.1em .45em;border-radius:2px;
+  white-space:normal;word-break:break-word;
+}
+@media (max-width:640px){
+  .vgrid{grid-template-columns:1fr}
+  .vcard[style*="grid-column"]{grid-column:auto !important}
+}
+
+/* ---------------- responsive ---------------- */
+@media (max-width:900px){
+  .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .row{grid-template-columns:1fr}
+  .rail{display:none}
+}
+@media (max-width:640px){
+  .g3{grid-template-columns:1fr}
+  .two{columns:1}
+  .pipe{flex-wrap:wrap}
+  .pipe i{display:none}
+  .pip{flex:1 1 28%}
+}
+@media (max-height:700px){
+  :root{
+    --slide-padding:clamp(.7rem,3vw,2rem);
+    --content-gap:clamp(.35rem,1.4vw,.9rem);
+    --title-size:clamp(1.3rem,4.4vw,2.6rem);
+    --h2-size:clamp(1rem,2.9vw,1.75rem);
+  }
+}
+@media (max-height:600px){
+  :root{
+    --slide-padding:clamp(.5rem,2.4vw,1.4rem);
+    --body-size:clamp(.7rem,1.2vw,.95rem);
+    --small-size:clamp(.62rem,.98vw,.8rem);
+  }
+  .hint,.rail,.brandmark{display:none}
+}
+@media (max-height:500px){
+  /* landscape phones: keep two-column slides side by side instead of stacking */
+  .row{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:.7rem}
+  .node{padding:.22rem .5rem;font-size:clamp(.6rem,.95vw,.72rem)}
+  .flow{gap:.22rem}
+  pre{font-size:clamp(.54rem,.9vw,.68rem);line-height:1.55;padding:.5rem .6rem}
+  th,td{padding:.16rem .35rem}
+  .card{padding:.4rem .55rem}
+  .hint,.rail,.brandmark{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.15s !important}
+  html{scroll-behavior:auto}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<div class="chrome" aria-hidden="true">
+  <div class="brandmark">pstack<span> /</span> dev workflow</div>
+  <div class="slide-no"><b id="cur">01</b><span>/ <span id="tot">19</span></span></div>
+  <nav class="rail" id="rail" aria-label="投影片導覽"></nav>
+  <div class="progress"><i id="bar"></i></div>
+</div>
+
+<main id="deck">
+
+  <!-- 01 COVER -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">cursor/plugins · pstack · MIT</p>
+      <h1 class="reveal">pstack 開發流程</h1>
+      <p class="lead reveal">從一句話需求，到<span class="hl">有證據</span>的 merged PR。</p>
+      <p class="sub reveal" style="margin-top:.6em">目標 → 驗收 → 證據。少寫，寫對。</p>
+      <div class="reveal" style="margin-top:1.2em;display:flex;gap:.5em;flex-wrap:wrap">
+        <span class="tag a">22 playbooks</span>
+        <span class="tag a">24 principles</span>
+        <span class="tag">30+ skills</span>
+        <span class="tag">1 entry</span>
+      </div>
+    </div>
+    <div class="hint"><span><kbd>↑</kbd><kbd>↓</kbd> / 空白</span><span>切換</span></div>
+  </section>
+
+  <!-- 02 WHY -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">00 · 問題</p>
+      <h2 class="reveal">AI 不是寫太少，是<span class="hl">寫太多又驗不到</span></h2>
+      <div class="grid g3 reveal" style="margin-top:.6em">
+        <div class="card"><div class="n">01</div><h3>吞吐 ≠ 品質</h3><p>LOC 暴增，但沒人敢 merge。速度不是目標，深度才是。</p></div>
+        <div class="card"><div class="n">02</div><h3>綠燈 ≠ 正確</h3><p>build 過了、測試過了，真實行為仍可能是錯的。</p></div>
+        <div class="card"><div class="n">03</div><h3>沒有驗證迴路</h3><p>每個結果都回到人手上手驗，agent 無法自己收斂。</p></div>
+      </div>
+      <div class="quote reveal" style="margin-top:.9em">if you want to go fast, go deep first.
+        <small>— poteto（Lauren Tan），React Compiler 維護者</small>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 ARCHITECTURE -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">01 · 心智模型</p>
+      <h2 class="reveal">只有三層，而且你只用第一層</h2>
+      <div class="grid g3 reveal" style="margin-top:.4em">
+        <div class="card"><span class="tag a">入口</span><h3 style="margin-top:.5em">poteto-mode</h3><p>每個非小任務的唯一入口。讀需求、配 playbook、開 todo。</p></div>
+        <div class="card"><span class="tag">Playbook ×22</span><h3 style="margin-top:.5em">步驟清單</h3><p>沒有 slash command。描述任務就會自動配對，步驟原文複製進 todo。</p></div>
+        <div class="card"><span class="tag">Skill ×30+</span><h3 style="margin-top:.5em">實際幹活</h3><p>情境技能 + 24 條 principle。由 playbook 按步驟叫用。</p></div>
+      </div>
+      <ul class="clean reveal" style="margin-top:.9em">
+        <li><b>不要自己排技能順序</b> <span>— 手排的流程會漏掉 playbook 本來會保留的步驟</span></li>
+        <li><b>22 個 playbook 才是骨幹</b> <span>— 技能只是它在某一步叫來的工具</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 04 PIPELINE -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">02 · 全貌</p>
+      <h2 class="reveal">七個階段，一條證據鏈</h2>
+      <div class="pipe reveal">
+        <div class="pip"><b>0</b><span>Setup</span></div><i>›</i>
+        <div class="pip"><b>1</b><span>Route</span></div><i>›</i>
+        <div class="pip"><b>2</b><span>Understand</span></div><i>›</i>
+        <div class="pip"><b>3</b><span>Design</span></div><i>›</i>
+        <div class="pip"><b>4</b><span>Build</span></div><i>›</i>
+        <div class="pip"><b>5</b><span>Verify</span></div><i>›</i>
+        <div class="pip"><b>6</b><span>Ship</span></div>
+      </div>
+      <div class="flow reveal" style="margin-top:1em">
+        <div class="node"><b>輸入</b><span>目標 + 可 pass/fail 的驗收 + 你已知的線索</span></div>
+        <div class="node"><b>過程</b><span>playbook 決定順序；skill 負責每一步</span></div>
+        <div class="node"><b>輸出</b><span>真指令輸出 / 錄影 / 寫入值 / before-after 數字 → PR</span></div>
+      </div>
+      <p class="sub reveal" style="margin-top:.8em">階段 0 只做一次；1–6 每個任務都跑一遍，小任務可以只跑 1、4、5。</p>
+    </div>
+  </section>
+
+  <!-- 05 SETUP -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">階段 0 · 只做一次</p>
+      <h2 class="reveal">Setup：先給 agent 一雙<span class="hl">能自己驗證的眼睛</span></h2>
+      <div class="grid g2 reveal" style="margin-top:.5em">
+        <div>
+          <ul class="clean">
+            <li><b>setup-pstack</b> <span>— 設定 role × model × reasoning budget</span></li>
+            <li><b>large / medium / small</b> <span>— 三個預算等級，決定 token 花費</span></li>
+            <li><b>verify-&lt;app&gt; skill</b> <span>— 讓 agent 像使用者一樣操作你的 app</span></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>最高 ROI 的一步</h3>
+          <p style="margin-bottom:.5em">setup 問你要不要產生驗證技能時，<span class="hl">說好</span>。</p>
+          <p>能自我驗證的 agent 會一路跑到通過；不能的，每個結果都得你手驗。</p>
+        </div>
+      </div>
+      <pre class="reveal" style="margin-top:.9em"><b>/setup-pstack</b>
+  → 選 budget：large / medium / small
+  → 逐角色確認模型（可設 inherit-parent / auto）
+  → 產生 <b>verify-&lt;app&gt;</b>
+  → 有併發 / 重試 / 狀態機 / parser → 再加 <b>formal verification</b></pre>
+    </div>
+  </section>
+
+  <!-- 06 ROUTE -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">階段 1 · Route</p>
+      <h2 class="reveal">你給目標，poteto-mode 負責配對</h2>
+      <div class="row reveal" style="margin-top:.3em">
+        <div class="flow">
+          <div class="node"><b>你的 prompt</b><span>目標 + 驗收</span></div>
+          <div class="node"><b>讀 Principles</b><span>決定要套哪條原則</span></div>
+          <div class="node"><b>配對 playbook</b><span>22 選 1</span></div>
+          <div class="node"><b>步驟複製進 todo</b><span>原文照抄，不重排</span></div>
+          <div class="node"><b>按步驟叫 skill</b><span>需要時才叫</span></div>
+          <div class="node"><b>驗證 → 回報</b><span>附證據</span></div>
+        </div>
+        <div>
+          <table>
+            <tr><th>任務性質</th><th>Playbook</th></tr>
+            <tr><td>只讀提問</td><td class="d">Investigation</td></tr>
+            <tr><td>有缺陷</td><td class="d">Bug fix</td></tr>
+            <tr><td>新／改行為</td><td class="d">Feature</td></tr>
+            <tr><td>只改結構</td><td class="d">Refactoring</td></tr>
+            <tr><td>量到的慢</td><td class="d">Perf</td></tr>
+            <tr><td>配不上</td><td class="d">figure-it-out</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 PROMPT -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">階段 1 · 關鍵技能</p>
+      <h2 class="reveal">好 prompt 只有五件事</h2>
+      <div class="grid g3 reveal" style="margin-top:.3em">
+        <div class="card"><div class="n">1</div><h3>目標</h3><p>哪裡壞了 / 你要什麼</p></div>
+        <div class="card"><div class="n">2</div><h3>完成判準</h3><p>必須能 pass / fail</p></div>
+        <div class="card"><div class="n">3</div><h3>要看的證據</h3><p>輸出、錄影、寫入值、數字</p></div>
+        <div class="card"><div class="n">4</div><h3>已知線索</h3><p>症狀、repro、log、job id</p></div>
+        <div class="card"><div class="n">5</div><h3>真限制</h3><p>repro first / 先別改 / 讓我審</p></div>
+        <div class="card" style="border-color:rgba(255,107,107,.4)"><div class="n" style="color:var(--bad)">✕</div><h3>不要寫</h3><p>怎麼做、你猜的原因</p></div>
+      </div>
+      <pre class="reveal" style="margin-top:.8em"><b>pstack-poteto-mode</b> csv 匯出從昨天 deploy 後會掉最後一列，job id 4812。
+先 repro 再修。done 是 6 萬列 fixture 每列都匯出。給我看修前後列數。</pre>
+    </div>
+  </section>
+
+  <!-- 08 UNDERSTAND -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">階段 2 · Understand</p>
+      <h2 class="reveal">改 code 之前，先確認<span class="hl">你懂的是對的</span></h2>
+      <div class="grid g2 reveal" style="margin-top:.4em">
+        <div>
+          <ul class="clean">
+            <li><b>pstack-how</b> <span>— 現在怎麼運作、新 code 該放哪</span></li>
+            <li><b>pstack-why</b> <span>— 為什麼長這樣、數字哪來</span></li>
+            <li><b>pstack-teach</b> <span>— 白話講懂一個子系統</span></li>
+            <li><b>pstack-recall</b> <span>— 跨對話撈回你最近做過什麼</span></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>兩個前置動作</h3>
+          <p style="margin:.35em 0"><span class="hl2">in-your-own-words</span>：讓 agent 重述你的目標與問題，錯在這裡改，只花一句話。</p>
+          <p style="margin:.35em 0"><span class="hl2">sharpen</span>：把 prompt 改得更深（不是更大），回傳給你，不執行。</p>
+        </div>
+      </div>
+      <div class="quote reveal" style="margin-top:.9em">先讓它用自己的話重述問題，再讓它動手。
+        <small>重述錯了，成本是一則訊息；動手錯了，成本是一個 PR。</small>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 DESIGN -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">階段 3 · Design</p>
+      <h2 class="reveal">別讓第一版 code 鎖死形狀</h2>
+      <table class="reveal" style="margin-top:.4em">
+        <tr><th>情況</th><th>用什麼</th><th>它做什麼</th></tr>
+        <tr><td>跨函式邊界</td><td class="d">pstack-architect</td><td class="d">先定型別與模組形狀，再填實作</td></tr>
+        <tr><td>有便宜的實驗可定</td><td class="d">prototype</td><td class="d">做 2–3 個能跑的草稿，用看的選</td></tr>
+        <tr><td>同一份 brief 多候選</td><td class="d">pstack-arena</td><td class="d">並行產出，融合最強的部分</td></tr>
+        <tr><td>可切片的 fan-out</td><td class="d">pstack-swarm</td><td class="d">一 worker 一片，回一份報告</td></tr>
+        <tr><td>設計有爭議</td><td class="d">pstack-interrogate</td><td class="d">多模型審，主動想辦法弄壞它</td></tr>
+        <tr><td>怕弄壞 diff 之外</td><td class="d">pstack-blast-radius</td><td class="d">找出外部破壞面，並證明那條安全前提</td></tr>
+      </table>
+      <p class="sub reveal" style="margin-top:.7em">判準：能靠跑一次解決的分歧，就不要用問的。</p>
+    </div>
+  </section>
+
+  <!-- 10 BLAST RADIUS -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">階段 3 · Design 補充</p>
+      <h2 class="reveal">blast-radius：這個 diff 會弄壞什麼</h2>
+      <div class="row reveal" style="margin-top:.3em;align-items:start">
+        <div class="flow">
+          <div class="node"><b>輸入</b><span>一個你不放心的小 diff／模組</span></div>
+          <div class="node"><b>找 diff 之外</b><span>呼叫點、消費者、共用狀態</span></div>
+          <div class="node"><b>證一條安全前提</b><span>用真實執行，不是寫報告</span></div>
+          <div class="node"><b>輸出</b><span>影響清單 + 可重跑的驗證指令</span></div>
+        </div>
+        <div class="card">
+          <h3>跟 interrogate 差在哪</h3>
+          <p style="margin:.25em 0"><span class="hl2">interrogate</span>：審 <b>diff 本身</b>，找實作漏洞與回歸。</p>
+          <p style="margin:.25em 0"><span class="hl2">blast-radius</span>：找 <b>diff 之外</b>，找連鎖破壞面。</p>
+          <p style="margin:.5em 0 0;color:var(--dim)">判準：只列「可能受影響」卻沒有證明 → 不算完成。</p>
+        </div>
+      </div>
+      <pre class="reveal" style="margin-top:.8em"><b>pstack-blast-radius</b> 這 12 行改動在 repo 內可能弄壞什麼？先不要改。
+給我能重跑的驗證指令，並指出哪個共用假設被它依賴。</pre>
+    </div>
+  </section>
+
+  <!-- 11 BLAST RADIUS OUTPUT -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">階段 3 · Design 補充</p>
+      <h2 class="reveal">blast-radius 的合格產出</h2>
+      <div class="row reveal" style="margin-top:.3em;align-items:start">
+        <pre style="margin:0"><i># 影響面</i>
+api/serializers.py:41  user_name → username
+web/api/user.ts:12 · mobile/user.dart:88 · etl/sync.py:57
+
+<i># 安全前提</i>
+「所有 consumer 都經同一支 mapper」
+→ grep 證實無直接字串取值
+
+<i># 證明</i>
+$ pytest tests/api/test_user_contract.py -q  → 14 passed
+$ curl /api/users/1 | jq .username           → "alice"
+<i>可重跑：make verify-user-contract</i></pre>
+        <div class="flow">
+          <div class="card" style="border-left:2px solid var(--acc)">
+            <h3 style="color:var(--acc)">合格</h3>
+            <p style="margin:.2em 0">① 影響清單有 <b>檔案:行號</b></p>
+            <p style="margin:.2em 0">② 至少一條前提被<b>真實執行</b>證明</p>
+            <p style="margin:.2em 0">③ 留下<b>可重跑</b>的指令</p>
+          </div>
+          <div class="card" style="border-left:2px solid var(--bad)">
+            <h3 style="color:var(--bad)">不合格</h3>
+            <p style="margin:.2em 0">「可能影響付款流程，建議測試一下。」</p>
+            <p style="margin:.35em 0 0;color:var(--dim)">沒有清單、沒有證明、不能重跑 —— 等於沒做。</p>
+          </div>
+        </div>
+      </div>
+      <p class="sub reveal" style="margin-top:.75em">它只保證<b>它證明的那一條</b>；其他面用測試或 <span class="hl2">swarm</span> 補。</p>
+    </div>
+  </section>
+
+  <!-- 12 BUILD -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">階段 4 · Build</p>
+      <h2 class="reveal">Build：小步、可驗、先減後加</h2>
+      <div class="grid g3 reveal" style="margin-top:.3em">
+        <div class="card"><h3>Feature</h3><p>先講清楚 data shape，再往上長行為。</p></div>
+        <div class="card"><h3>Bug fix</h3><p>repro → 根因 → 修 → 用執行時證據收尾。</p></div>
+        <div class="card"><h3>Refactoring</h3><p>行為不變，只動結構；每一步都要能驗。</p></div>
+      </div>
+      <ul class="clean reveal" style="margin-top:.85em">
+        <li><b>pstack-tdd</b> <span>— 只在那條測試便宜又真實時用；硬套 mock 證明力更低</span></li>
+        <li><b>no-comments</b> <span>— 審查前拔掉註解，讓審的人不是寫的人</span></li>
+        <li><b>unslop</b> <span>— 清掉文字裡的 AI 味，回覆也算</span></li>
+        <li><b>原則</b> <span>— Subtract Before You Add、Fix Root Causes</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 11 VERIFY -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">階段 5 · Verify</p>
+      <h2 class="reveal">什麼才算「證明」</h2>
+      <div class="row reveal" style="margin-top:.3em">
+        <div>
+          <ul class="clean">
+            <li><b>prove it works</b> <span>— 驗真的產物，不是 proxy、不是「它編譯過了」</span></li>
+            <li><b>verify-&lt;app&gt;</b> <span>— 腳本化驅動 app，跑完整流程並錄影</span></li>
+            <li><b>benchmark-checklist</b> <span>— 七個問題檢驗你量到的數字</span></li>
+            <li><b>formal verification</b> <span>— 測資碰不到的性質（併發、不變式）</span></li>
+          </ul>
+        </div>
+        <div class="flow">
+          <div class="node"><b>✕ build 綠燈</b><span>proxy</span></div>
+          <div class="node"><b>✕ 它說完成了</b><span>自我回報</span></div>
+          <div class="node" style="border-left-color:var(--acc)"><b>✓ 真指令輸出</b><span>artifact</span></div>
+          <div class="node" style="border-left-color:var(--acc)"><b>✓ 流程錄影 / 寫入值</b><span>artifact</span></div>
+        </div>
+      </div>
+      <p class="sub reveal" style="margin-top:.8em">回覆只說「測試通過」時，追一句：<span class="hl2">跑給我看，貼真實輸出。</span></p>
+    </div>
+  </section>
+
+  <!-- 12 SHIP -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">階段 6 · Ship</p>
+      <h2 class="reveal">交付：小而有序，然後推到 merged</h2>
+      <div class="pipe reveal" style="margin-top:.5em">
+        <div class="pip"><b>1</b><span>Opening a PR</span></div><i>›</i>
+        <div class="pip"><b>2</b><span>Babysit</span></div><i>›</i>
+        <div class="pip"><b>3</b><span>Shipping</span></div>
+      </div>
+      <div class="grid g3 reveal" style="margin-top:.9em">
+        <div class="card"><h3>Opening a PR</h3><p>小而有順序的 commit；conventional commit 標題；body 用 briefing 格式。</p></div>
+        <div class="card"><h3>Babysit</h3><p>解衝突、回 review thread、修 CI。推到 merge-ready 就停，<span class="hl">不會自己 merge</span>。</p></div>
+        <div class="card"><h3>Shipping</h3><p>獨立驗證整條綠的 stack，再由下往上落地。</p></div>
+      </div>
+      <p class="sub reveal" style="margin-top:.8em">「babysit this pr」→ 只推到可 merge；要真的合併，得說「land / ship」。</p>
+    </div>
+  </section>
+
+  <!-- 13 PLAYBOOK TABLE -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">速查</p>
+      <h2 class="reveal">這個情況 → 那個 playbook</h2>
+      <div class="two reveal" style="margin-top:.4em">
+        <table>
+          <tr><th>情況</th><th>Playbook</th></tr>
+          <tr><td>只讀搞清楚</td><td class="d">Investigation</td></tr>
+          <tr><td>重現→根因→修</td><td class="d">Bug fix</td></tr>
+          <tr><td>量到的慢</td><td class="d">Perf</td></tr>
+          <tr><td>同一指標持續推進</td><td class="d">Hillclimb</td></tr>
+          <tr><td>新行為</td><td class="d">Feature</td></tr>
+          <tr><td>只改結構</td><td class="d">Refactoring</td></tr>
+          <tr><td>丟棄式草稿</td><td class="d">Prototype</td></tr>
+          <tr><td>像素級一致</td><td class="d">Visual parity</td></tr>
+        </table>
+        <table>
+          <tr><th>情況</th><th>Playbook</th></tr>
+          <tr><td>推到可 merge</td><td class="d">Babysit</td></tr>
+          <tr><td>驗過的 stack 落地</td><td class="d">Shipping</td></tr>
+          <tr><td>長跑到完成</td><td class="d">Autonomous run</td></tr>
+          <tr><td>PR 佇列全自動</td><td class="d">Autopilot-full</td></tr>
+          <tr><td>接手別人半成品</td><td class="d">Session pickup</td></tr>
+          <tr><td>乾淨暫停</td><td class="d">Pause safely</td></tr>
+          <tr><td>跨階段 / stacked</td><td class="d">Multi-phase plan</td></tr>
+          <tr><td>清 worktree / 磁碟</td><td class="d">Worktree cleanup</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 PRINCIPLES -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">進階</p>
+      <h2 class="reveal">用<span class="hl">原則名</span>轉向，比寫一段話更準</h2>
+      <p class="sub reveal">24 條不用背。對話中講出名字，agent 已讀過完整規則，一句話就能改方向。</p>
+      <pre class="reveal" style="margin-top:.6em">用 <b>subtract before you add</b>。先刪過時 adapter，再設計剩下的。
+
+apply <b>prove it works</b>。跑真的 import 流程，把寫入的紀錄給我看。
+
+<b>separate before serializing shared state</b>。每個嘗試一個 worktree，不要鎖。</pre>
+      <div class="card reveal" style="margin-top:.8em">
+        <h3>判準</h3>
+        <p>回覆必須說明「哪個決定被這條原則改掉」。只報名字、沒講決定 = 沒真的套用。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 WORDS CORE 1 -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">單字表 · 必用 1／2</p>
+      <h2 class="reveal">五個字，決定它會不會做對</h2>
+      <div class="vgrid reveal" style="margin-top:.35em">
+        <div class="vcard"><b>目標<i>goal</i></b><p>你要的結果，一句話。不是手法。</p><code>修掉重試造成的重複寫入</code></div>
+        <div class="vcard"><b>完成判準<i>done</i></b><p>能 pass 或 fail 的檢查，整份 prompt 最重要。</p><code>done 是重跑三次只留一筆</code></div>
+        <div class="vcard"><b>證據<i>evidence</i></b><p>真產物：輸出、錄影、寫入值、數字。</p><code>給我看三次的 DB 查詢結果</code></div>
+        <div class="vcard"><b>重現<i>repro</i></b><p>先做出失敗，再動手修。</p><code>repro first，紅燈後再改</code></div>
+        <div class="vcard" style="grid-column:1/-1"><b>Playbook<i>流程腳本</i></b><p>22 條內建步驟清單，自動配對。<span class="hl">不要自己列技能順序。</span></p><code>這是 bug，不是重構：照 Bug fix 的步驟走</code></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 WORDS CORE 2 -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">單字表 · 必用 2／2</p>
+      <h2 class="reveal">四個字，控制它什麼時候停</h2>
+      <div class="vgrid reveal" style="margin-top:.35em">
+        <div class="vcard"><b>原則<i>principle</i></b><p>不是叫它，是用名字在對話中轉向。</p><code>apply prove it works</code></div>
+        <div class="vcard"><b>new task<i>換題目</i></b><p>沒說，它會把你當成上一個任務的下一步。</p><code>new task。為什麼登出後 cache 還在</code></div>
+        <div class="vcard"><b>verify-&lt;app&gt;<i>驗證技能</i></b><p>專案內「像使用者一樣操作」的技能。</p><code>用 verify-export-app 跑完整流程</code></div>
+        <div class="vcard"><b>babysit / land<i>交付</i></b><p>babysit 只推到可 merge；land 才真的合併。</p><code>babysit this pr → land the stack</code></div>
+      </div>
+      <p class="sub reveal" style="margin-top:.8em">這九個字之外都是選用。<span class="hl2">先背這九個，再學其他的。</span></p>
+    </div>
+  </section>
+
+  <!-- 17 WORDS OPTIONAL 1 -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">單字表 · 選用（理解／設計）</p>
+      <h2 class="reveal">需要更多或更少的時候才點名</h2>
+      <div class="two reveal" style="margin-top:.35em">
+        <table>
+          <tr><th>詞</th><th>用途</th><th>範例</th></tr>
+          <tr><td>how</td><td class="d">現在怎麼跑</td><td class="d">pstack-how 匯出流程</td></tr>
+          <tr><td>why</td><td class="d">為何長這樣</td><td class="d">pstack-why 這個閾值</td></tr>
+          <tr><td>teach</td><td class="d">白話講懂</td><td class="d">pstack-teach 排程器</td></tr>
+          <tr><td>recall</td><td class="d">撈回上下文</td><td class="d">pstack-recall auth 改到哪</td></tr>
+          <tr><td>sharpen</td><td class="d">銳化 prompt</td><td class="d">pstack-sharpen 遷移指南</td></tr>
+          <tr><td>prototype</td><td class="d">能跑就選</td><td class="d">prototype 三種版面</td></tr>
+        </table>
+        <table>
+          <tr><th>詞</th><th>用途</th><th>範例</th></tr>
+          <tr><td>architect</td><td class="d">先定型別介面</td><td class="d">architect parser 型別</td></tr>
+          <tr><td>arena</td><td class="d">多候選融合</td><td class="d">arena 第二意見</td></tr>
+          <tr><td>swarm</td><td class="d">平行切片</td><td class="d">swarm 每 package 一 worker</td></tr>
+          <tr><td>interrogate</td><td class="d">多模型審</td><td class="d">interrogate 整個 branch</td></tr>
+          <tr><td>blast-radius</td><td class="d">爆炸半徑</td><td class="d">blast-radius 這個 diff</td></tr>
+          <tr><td>in-your-own-words</td><td class="d">重述確認</td><td class="d">…這段 thread</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 WORDS OPTIONAL 2 -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">單字表 · 選用（建置／交付）</p>
+      <h2 class="reveal">把 rigor 放在錯的地方會很貴</h2>
+      <div class="two reveal" style="margin-top:.35em">
+        <table>
+          <tr><th>詞</th><th>用途</th><th>範例</th></tr>
+          <tr><td>tdd</td><td class="d">測試先行</td><td class="d">先 /tdd 這條再修</td></tr>
+          <tr><td>unslop</td><td class="d">去 AI 味</td><td class="d">pstack-unslop PR 說明</td></tr>
+          <tr><td>no-comments</td><td class="d">拔註解再審</td><td class="d">no-comments 這個 branch</td></tr>
+          <tr><td>figure-it-out</td><td class="d">大任務流程</td><td class="d">figure-it-out 這次遷移</td></tr>
+          <tr><td>show-me-your-work</td><td class="d">決策日誌</td><td class="d">長跑全程記決策</td></tr>
+          <tr><td>benchmark-checklist</td><td class="d">數字七問</td><td class="d">報 before/after 前先跑</td></tr>
+        </table>
+        <table>
+          <tr><th>詞</th><th>用途</th><th>範例</th></tr>
+          <tr><td>opening a pr</td><td class="d">開 PR</td><td class="d">open a PR，附 before/after</td></tr>
+          <tr><td>session pickup</td><td class="d">接手</td><td class="d">take over this branch</td></tr>
+          <tr><td>pause safely</td><td class="d">乾淨暫停</td><td class="d">pause safely 留續跑</td></tr>
+          <tr><td>autonomous run</td><td class="d">自主長跑</td><td class="d">跑到完成不要停</td></tr>
+          <tr><td>autopilot-full</td><td class="d">自動 PR 佇列</td><td class="d">full autopilot on this queue</td></tr>
+          <tr><td>worktree cleanup</td><td class="d">清環境</td><td class="d">worktree cleanup</td></tr>
+        </table>
+      </div>
+      <p class="sub reveal" style="margin-top:.7em">設定類另計：<span class="hl2">setup</span>、<span class="hl2">budget</span>、<span class="hl2">inherit-parent</span>、<span class="hl2">correct</span>、<span class="hl2">reflect</span>。</p>
+    </div>
+  </section>
+
+  <!-- 19 MINIMAL SENTENCE -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">背這一句就夠</p>
+      <h2 class="reveal">最小可用句</h2>
+      <pre class="reveal" style="margin-top:.2em;font-size:clamp(.78rem,1.5vw,1.05rem)"><b>pstack-poteto-mode</b> &lt;目標&gt;。&lt;真限制&gt;。done 是 &lt;可 pass/fail 的檢查&gt;。給我 &lt;證據&gt;。</pre>
+      <pre class="reveal" style="margin-top:.7em"><i># 填起來長這樣</i>
+<b>pstack-poteto-mode</b> 修掉重試造成的重複寫入。repro first。
+done 是同一 job 重跑三次只留一筆。給我三次執行的 DB 查詢結果。</pre>
+      <table class="reveal" style="margin-top:.8em">
+        <tr><th>不要說</th><th>為什麼</th><th>改成</th></tr>
+        <tr><td>優化一下</td><td class="d">無法 pass／fail</td><td class="d">p95 降到 400ms 以下</td></tr>
+        <tr><td>看起來有問題</td><td class="d">沒有觀測</td><td class="d">job 4812 實際輸出 59,999 列</td></tr>
+        <tr><td>應該可以了</td><td class="d">自我回報不是證據</td><td class="d">跑給我看，貼真實輸出</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 20 ABBREVIATIONS -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">單字表 · 附錄</p>
+      <h2 class="reveal">縮寫速記</h2>
+      <div class="row reveal" style="margin-top:.25em;align-items:start">
+        <table>
+          <tr><th>全名</th><th>自用縮寫</th><th>最短可打</th></tr>
+          <tr><td>goal 目標</td><td class="d">G</td><td class="d">goal：…</td></tr>
+          <tr><td>done 完成判準</td><td class="d">D</td><td class="d">done 是 …</td></tr>
+          <tr><td>evidence 證據</td><td class="d">E</td><td class="d">給我看 …</td></tr>
+          <tr><td>repro 重現</td><td class="d">R</td><td class="d">repro first</td></tr>
+          <tr><td>playbook 流程腳本</td><td class="d">Pb</td><td class="d">這是 bug</td></tr>
+          <tr><td>principle 原則</td><td class="d">Pr</td><td class="d">apply prove it works</td></tr>
+          <tr><td>new task 換題目</td><td class="d">NT</td><td class="d">new task</td></tr>
+          <tr><td>verify-&lt;app&gt; 驗證技能</td><td class="d">V</td><td class="d">verify-export-app</td></tr>
+          <tr><td>babysit / land 交付</td><td class="d">B / L</td><td class="d">babysit this pr</td></tr>
+        </table>
+        <div class="flow" style="justify-content:flex-start">
+          <div class="node"><b>記法</b><span>G · D · E · R → Pb · Pr → NT → V → B/L</span></div>
+          <div class="card" style="border-color:rgba(255,215,95,.35)">
+            <h3 style="color:var(--acc2)">先講清楚</h3>
+            <p style="margin:.2em 0">這些不是 pstack 官方語法，它沒有內建縮寫。<code>G</code>／<code>D</code>／<code>E</code> 只用在你的筆記與口頭。</p>
+            <p style="margin:.45em 0 0">送進 prompt 時仍寫完整詞（或直接貼範例），因為 agent 讀的是語意，不是代碼。<span class="hl2">Pr ≠ PR（pull request）。</span></p>
+          </div>
+          <div class="node"><b>文件常客</b><span>PR · CI · LoC · xhigh · worktree · spec</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 21 OPENCODE -->
+
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">實況 · opencode</p>
+      <h2 class="reveal">文件寫的是 Cursor，你要調整四件事</h2>
+      <table class="reveal" style="margin-top:.4em">
+        <tr><th>文件（Cursor）</th><th>你在 opencode</th></tr>
+        <tr><td>Option+Enter → Custom Mode</td><td class="d">沒有。<b>每個新任務重叫 poteto-mode</b></td></tr>
+        <tr><td>/loop 整夜跑</td><td class="d">Cursor 內建，沒有對應</td></tr>
+        <tr><td>setup 寫 ~/.cursor/rules</td><td class="d">opencode 不讀 → 自己在 prompt 指定模型</td></tr>
+        <tr><td>subagent_type: poteto-agent</td><td class="d">有同名 agent，可用</td></tr>
+      </table>
+      <ul class="clean reveal" style="margin-top:.85em">
+        <li><b>換題目時說「new task」</b> <span>— 否則 mode 會把你當成上一個任務的下一步</span></li>
+        <li><b>不知道用哪個</b> <span>— 先問 pstack-poteto-help，它只給 prompt，不動手</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 16 COST -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">成本</p>
+      <h2 class="reveal">嚴謹是要付錢的，但可以調</h2>
+      <div class="grid g4 reveal" style="margin-top:.4em">
+        <div class="card"><div class="n">01</div><h3>降預算</h3><p>重跑 setup，選 medium / small。</p></div>
+        <div class="card"><div class="n">02</div><h3>用 auto</h3><p>不重要的 role 設 inherit-parent，跟主對話同模型。</p></div>
+        <div class="card"><div class="n">03</div><h3>縮 panel</h3><p>panel 清單一個 entry = 一個 subagent。</p></div>
+        <div class="card"><div class="n">04</div><h3>選任務</h3><p>小又明顯的改動，不要用 poteto-mode。</p></div>
+      </div>
+      <div class="quote reveal" style="margin-top:1em">把 rigor 留給「錯了會很貴」的地方。
+        <small>設計、併發、資料、對外 API — 這裡省下來的錢，之後會用修的工時還。</small>
+      </div>
+    </div>
+  </section>
+
+  <!-- COST DEEP 1 -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">成本 · 1／3</p>
+      <h2 class="reveal">貴的不是推理，是<span class="hl">這三個乘數</span></h2>
+      <div class="grid g3 reveal" style="margin-top:.25em">
+        <div class="card"><div class="n">×N</div><h3>平行度</h3><p>panel 一個 entry = 一個 subagent；swarm 切片數就是倍數。</p></div>
+        <div class="card"><div class="n">×L</div><h3>驗證層數</h3><p>budget 一次搬動所有 role：medium 降一級、small 降兩級。</p></div>
+        <div class="card"><div class="n">×R</div><h3>重跑次數</h3><p>done 沒寫清楚，同一 brief 就反覆來回。</p></div>
+      </div>
+      <table class="reveal" style="margin-top:.7em">
+        <tr><th>級別</th><th>Playbook</th><th>為什麼</th></tr>
+        <tr><td>便宜</td><td class="d">Investigation · how · why · teach · unslop</td><td class="d">純讀，subagent 少</td></tr>
+        <tr><td>中</td><td class="d">Feature · Bug fix · Refactoring · tdd</td><td class="d">單線，一輪可收斂</td></tr>
+        <tr><td>貴</td><td class="d">arena · interrogate · swarm · hillclimb</td><td class="d">多模型／多 worker／多輪量測</td></tr>
+        <tr><td>最貴</td><td class="d">autonomous run · autopilot-full／stack</td><td class="d">長時間 + 每個 PR 重新驗證</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- COST DEEP 2 -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">成本 · 2／3</p>
+      <h2 class="reveal">三個 profile，照抄就好</h2>
+      <div class="grid g3 reveal" style="margin-top:.3em">
+        <div class="card">
+          <h3>省錢 · side project</h3>
+          <p style="margin:.2em 0"><span class="hl2">budget</span> small</p>
+          <p style="margin:.2em 0"><span class="hl2">code</span> 次強 / inherit-parent</p>
+          <p style="margin:.2em 0"><span class="hl2">panel</span> 1（或不用）</p>
+          <p style="margin:.4em 0 0;color:var(--dim)">只在 bug 與設計才叫 mode</p>
+        </div>
+        <div class="card" style="border-color:rgba(95,255,135,.5)">
+          <h3>平衡 · 常用建議</h3>
+          <p style="margin:.2em 0"><span class="hl2">budget</span> medium</p>
+          <p style="margin:.2em 0"><span class="hl2">code</span> 最強 high</p>
+          <p style="margin:.2em 0"><span class="hl2">panel</span> 2，跨廠商</p>
+          <p style="margin:.4em 0 0;color:var(--dim)">日常任務都走 mode</p>
+        </div>
+        <div class="card">
+          <h3>攻堅 · 錯了很貴</h3>
+          <p style="margin:.2em 0"><span class="hl2">budget</span> large</p>
+          <p style="margin:.2em 0"><span class="hl2">code</span> 最強 xhigh</p>
+          <p style="margin:.2em 0"><span class="hl2">panel</span> 3 + formal verification</p>
+          <p style="margin:.4em 0 0;color:var(--dim)">設計／併發／資料／對外 API 才開</p>
+        </div>
+      </div>
+      <ul class="clean reveal" style="margin-top:.85em">
+        <li><b>看 subagent 數</b> <span>— panel 長度、swarm 切片，是最直接的成本係數</span></li>
+        <li><b>降一級重跑同一任務</b> <span>— small 也能過同一組 done，就不需要 large</span></li>
+        <li><b>先修 done，再升模型</b> <span>— 反覆失敗通常是判準寫不清，不是模型不夠強</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- COST DEEP 3 -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">成本 · 3／3</p>
+      <h2 class="reveal">六個最常見的浪費</h2>
+      <table class="reveal" style="margin-top:.35em">
+        <tr><th>反模式</th><th>省法</th></tr>
+        <tr><td>用 large 改文案</td><td class="d">直接叫模型改，不進 poteto-mode</td></tr>
+        <tr><td>4 個 panel 審 10 行 diff</td><td class="d">縮到 1–2，或改用 blast-radius</td></tr>
+        <tr><td>done 沒寫，來回五次</td><td class="d">花 30 秒寫可 pass／fail 的檢查</td></tr>
+        <tr><td>整包 repo 貼進 context</td><td class="d">給路徑，讓 how 自己找</td></tr>
+        <tr><td>autopilot 跑整夜但沒檢查</td><td class="d">沒有 done 的長跑＝燒錢繞圈</td></tr>
+        <tr><td>平行 agent 共用工作區</td><td class="d">各自 worktree，或 cloud subagent</td></tr>
+      </table>
+      <div class="quote reveal" style="margin-top:.8em">成本 ≈ 平行度 × 驗證層數 × 重跑次數
+        <small>調整順序：降平行度 → 降層數 → 降重跑。模型換便宜，是最後一步。</small>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 7 DAYS -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">上手路徑</p>
+      <h2 class="reveal">你的前七天</h2>
+      <div class="two reveal" style="margin-top:.4em">
+        <table>
+          <tr><th>Day</th><th>做什麼</th></tr>
+          <tr><td>1</td><td class="d">setup + 產生 verify-&lt;app&gt;</td></tr>
+          <tr><td>2</td><td class="d">一個小任務走完 Route → Build → Verify</td></tr>
+          <tr><td>3</td><td class="d">只做 how / why，不動 code</td></tr>
+          <tr><td>4</td><td class="d">architect + prototype 選一個設計</td></tr>
+        </table>
+        <table>
+          <tr><th>Day</th><th>做什麼</th></tr>
+          <tr><td>5</td><td class="d">bug fix 走完整證據鏈</td></tr>
+          <tr><td>6</td><td class="d">開 PR → babysit → 說 land</td></tr>
+          <tr><td>7</td><td class="d">挑 3 條原則名，實戰中轉向一次</td></tr>
+          <tr><td>—</td><td class="d">之後：reflect 把學到的固化成 skill</td></tr>
+        </table>
+      </div>
+      <p class="sub reveal" style="margin-top:.9em">讀官方 guide 的順序：setup → poteto-mode → understand → design → build → verify/ship → overnight → principles。</p>
+    </div>
+  </section>
+
+  <!-- 18 STARTERS -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">現在就能貼</p>
+      <h2 class="reveal">三個起手式</h2>
+      <div class="grid reveal" style="gap:.7em;margin-top:.4em">
+        <pre><i># 先看懂，不動手</i>
+<b>pstack-poteto-mode</b> new task。先別改 code。用 /how 說明啟動流程，
+再用 /why 說明最近為什麼改動頻繁。</pre>
+        <pre><i># 修 bug，要證據</i>
+<b>pstack-poteto-mode</b> &lt;症狀&gt;。repro first，然後修。
+done 是 &lt;可 pass/fail 的檢查&gt;。給我看修前修後的輸出。</pre>
+        <pre><i># 設計先落地</i>
+<b>pstack-poteto-mode</b> 我要動 &lt;模組&gt;。先 architect 定型別與介面，
+有分歧就 prototype 兩三個方案給我選，再進實作。</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- 19 END -->
+  <section class="slide">
+    <div class="slide-content" style="align-items:flex-start">
+      <p class="kicker reveal">一句話</p>
+      <h1 class="reveal" style="max-width:18ch">給目標與驗收，<br>其餘交給 playbook。</h1>
+      <p class="lead reveal" style="margin-top:.5em">你不需要管它叫了哪些技能，<br>你只需要能判斷：<span class="hl">它給的證據，夠不夠證明做完了。</span></p>
+      <p class="sub reveal" style="margin-top:1.2em">sources：github.com/cursor/plugins/tree/main/pstack · docs/guide · MIT</p>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(() => {
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const rail = document.getElementById('rail');
+  const bar = document.getElementById('bar');
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  const pad = n => String(n).padStart(2, '0');
+  tot.textContent = pad(slides.length);
+
+  let index = 0;
+  let lock = false;
+
+  // build rail
+  slides.forEach((_, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('aria-label', '第 ' + (i + 1) + ' 張');
+    b.addEventListener('click', () => go(i));
+    rail.appendChild(b);
+  });
+  const dots = Array.from(rail.children);
+
+  function setActive(i) {
+    if (i === index && slides[i].classList.contains('active')) return;
+    index = i;
+    slides.forEach((s, n) => s.classList.toggle('active', n === i));
+    dots.forEach((d, n) => d.setAttribute('aria-current', n === i ? 'true' : 'false'));
+    cur.textContent = pad(i + 1);
+    bar.style.width = ((i + 1) / slides.length * 100) + '%';
+    if (history.replaceState) history.replaceState(null, '', '#' + (i + 1));
+  }
+
+  function go(i) {
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    lock = true;
+    clearTimeout(go._t);
+    go._t = setTimeout(() => { lock = false; }, 450);
+    slides[i].scrollIntoView({ behavior: 'instant', block: 'start' });
+    setActive(i);
+  }
+
+  // active state via intersection (source of truth for wheel/scroll)
+  const io = new IntersectionObserver(entries => {
+    if (lock) return;
+    entries.forEach(e => {
+      if (e.isIntersecting && e.intersectionRatio > 0.55) {
+        const i = slides.indexOf(e.target);
+        if (i >= 0) setActive(i);
+      }
+    });
+  }, { threshold: [0.55, 0.9] });
+  slides.forEach(s => io.observe(s));
+
+  // keyboard
+  let locked = false;
+  function next() { go(index + 1); }
+  function prev() { go(index - 1); }
+  addEventListener('keydown', e => {
+    const k = e.key;
+    if (!k || e.repeat) return;
+    if (k === 'ArrowDown' || k === 'ArrowRight' || k === 'PageDown' || k === ' ' || k === 'Spacebar' || k === 'Space' || k === 'Enter') {
+      e.preventDefault(); next();
+    } else if (k === 'ArrowUp' || k === 'ArrowLeft' || k === 'PageUp') {
+      e.preventDefault(); prev();
+    } else if (k === 'Home') { e.preventDefault(); go(0); }
+    else if (k === 'End') { e.preventDefault(); go(slides.length - 1); }
+  });
+
+  // touch swipe
+  let ty = 0, tx = 0;
+  addEventListener('touchstart', e => {
+    ty = e.changedTouches[0].clientY; tx = e.changedTouches[0].clientX;
+  }, { passive: true });
+  addEventListener('touchend', e => {
+    const dy = ty - e.changedTouches[0].clientY;
+    const dx = tx - e.changedTouches[0].clientX;
+    if (Math.abs(dy) > 50 && Math.abs(dy) > Math.abs(dx)) {
+      dy > 0 ? next() : prev();
+    }
+  }, { passive: true });
+
+  // initial
+  const start = parseInt((location.hash || '').replace('#', ''), 10);
+  const s = Number.isFinite(start) && start >= 1 && start <= slides.length ? start - 1 : 0;
+  if (s > 0) go(s);
+  else setActive(0);
+
+  addEventListener('hashchange', () => {
+    const n = parseInt((location.hash || '').replace('#', ''), 10);
+    if (Number.isFinite(n) && n >= 1 && n <= slides.length && n - 1 !== index) go(n - 1);
+  });
+})();
+</script>
+</body>
+</html>
