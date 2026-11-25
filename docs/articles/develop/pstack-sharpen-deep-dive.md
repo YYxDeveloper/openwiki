@@ -92,6 +92,7 @@ flowchart LR
 
 - 官方原始碼：https://github.com/cursor/plugins/blob/main/pstack/skills/sharpen/SKILL.md
 - 本 repo 相關筆記：
+  - [pstack-core-skills-deep-dive.md](./pstack-core-skills-deep-dive.md) — `/architect`、`/arena`、`/interrogate`、`/swarm`、`/correct`、`/show-me-your-work` 官方原始碼拆解與七大 skill 總覽表
   - [pstack-video-deep-dive.md](./pstack-video-deep-dive.md) — pstack 完整工作流影片拆解（含 `05:52` 段落）
   - [pstack-opencode-install.md](./pstack-opencode-install.md) — pstack 在 opencode CLI 上的安裝與限制
   - [pstack-teaching-decks.md](./pstack-teaching-decks.md) — pstack 教學簡報與心得頁索引

@@ -139,6 +139,7 @@
   - 講者 Skool 社群（含 Matt／Lauren 混搭指南與六步自評提示詞）：https://www.skool.com/gary-chen
 - **本 repo 相關筆記**：
   - [pstack-sharpen-deep-dive.md](./pstack-sharpen-deep-dive.md) — `/sharpen` 官方 16 行原始碼逐段拆解與影片口述差異對照
+  - [pstack-core-skills-deep-dive.md](./pstack-core-skills-deep-dive.md) — `/architect`、`/arena`、`/interrogate`、`/swarm`、`/correct`、`/show-me-your-work` 官方原始碼拆解與七大 skill 總覽表
   - [pstack-opencode-install.md](./pstack-opencode-install.md) — pstack 在 opencode CLI 的實際安裝、ID 衝突解法與 Cursor 專屬限制實測（58 skills / 22 playbooks 快照）
   - [pstack-teaching-decks.md](./pstack-teaching-decks.md) — pstack 官方文件與指南的離線教學簡報索引（59 子目錄快照）
 - **核心關鍵字**：Agentic Coding、Verification、Multi-Model Review（跨模型審查）、Model Routing（模型路由）、Test-Driven Development（TDD）、Blast Radius（爆炸半徑）、Context Engineering、AI Software Factory（AI 軟體工廠）、Trust Curve（信任曲線）。
