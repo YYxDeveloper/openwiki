@@ -16,15 +16,15 @@ repo 根目錄下的單檔 HTML，雙擊即可開啟，不需要伺服器或外�
 | `ppt-poteto-mode.html` | 簡報 | `poteto-mode` SKILL.md 教學：非談判條件、24 條原則、派工與模型分級 |
 | `ppt-pstack-guide.html` | 簡報 | pstack 使用指南十章學習地圖，每章附原文連結 |
 | `ptt-pstack-58-skills.html` | PTT 風格心得頁 | 依影片整理的 pstack 技能心得 |
-| `ptt-pstack-repo.html` | PTT 風格心得頁 | 依 repo README 與目錄整理的安裝、用法與風險心得 |
+| `ppt-pstack-repo.html` | 簡報 | pstack 外掛導讀：安裝、用法、成本與風險（原為 PTT 風格頁，已改為簡報） |
 
 ## 使用方式
 
 - 簡報：`↑` `↓` 或空白鍵翻頁，`Home` / `End` 跳頭尾，網址加 `#N` 可直接跳到第 N 張。
-- PTT 風格頁：純捲動閱讀，作者 ID 與時間為待補欄位。
+- PTT 風格頁（`ptt-pstack-58-skills.html`）：純捲動閱讀。
 
 ## 注意事項
 
 - 簡報標示的數量（技能數、playbook 數）取自撰寫當時的來源，會隨上游改變。舊的 PTT 頁寫 58 個技能，2026-11-24 的 `skills/` 目錄有 59 個子目錄。
 - 簡報沒有逐章讀完 pstack 指南內文，只依 README 的章節說明與連結整理。
-- 兩個 PTT 風格頁是版面風格，不含任何真實發文或推文。
+- `ptt-pstack-58-skills.html` 是 PTT 風格版面，不含任何真實發文或推文。
