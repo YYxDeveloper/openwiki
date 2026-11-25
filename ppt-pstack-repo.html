@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>pstack 外掛導讀 · 白話教學</title>
+<style>
+/* =========================================================
+   VIEWPORT FITTING: MANDATORY BASE
+   ========================================================= */
+html,body{width:100%;margin:0}
+html{height:100%;overflow-x:hidden;scroll-snap-type:y mandatory;scroll-behavior:smooth;scrollbar-width:none}
+html::-webkit-scrollbar{width:0;height:0}
+body{min-height:100%;overflow-x:clip}
+
+:root{
+  --bg:#04070a;
+  --bg2:#070d12;
+  --panel:#0a1218;
+  --line:#1b2a33;
+  --line2:#243a46;
+  --fg:#c9d8e2;
+  --dim:#6d8494;
+  --acc:#5fff87;   /* terminal green */
+  --acc2:#ffd75f;  /* amber */
+  --acc3:#5fd7ff;  /* cyan */
+  --bad:#ff6b6b;
+
+  --title-size:clamp(1.6rem,5vw,4.2rem);
+  --h2-size:clamp(1.2rem,3.3vw,2.4rem);
+  --h3-size:clamp(0.95rem,2vw,1.35rem);
+  --body-size:clamp(0.78rem,1.45vw,1.06rem);
+  --small-size:clamp(0.66rem,1.05vw,0.86rem);
+  --micro-size:clamp(0.58rem,0.9vw,0.75rem);
+
+  --slide-padding:clamp(1.1rem,4.2vw,4.4rem);
+  --content-gap:clamp(0.5rem,1.8vw,1.7rem);
+  --element-gap:clamp(0.25rem,1vw,0.9rem);
+
+  --mono:ui-monospace,"SF Mono","JetBrains Mono","Sarasa Mono TC","Noto Sans Mono CJK TC","PingFang TC",Menlo,Consolas,monospace;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:var(--mono);
+  font-size:var(--body-size);
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(60vw 45vh at 12% -8%, rgba(95,255,135,.10), transparent 62%),
+    radial-gradient(55vw 45vh at 92% 108%, rgba(95,215,255,.09), transparent 60%),
+    radial-gradient(65vw 55vh at 50% 50%, rgba(7,13,18,.0), rgba(4,7,10,.85) 78%);
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.30;
+  background-image:
+    linear-gradient(rgba(27,42,51,.45) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27,42,51,.45) 1px, transparent 1px);
+  background-size:64px 64px,64px 64px;
+  mask-image:radial-gradient(80% 80% at 50% 50%, #000 30%, transparent 100%);
+  -webkit-mask-image:radial-gradient(80% 80% at 50% 50%, #000 30%, transparent 100%);
+}
+
+/* ---------------- slide shell ---------------- */
+main{position:relative;z-index:1}
+.slide{
+  width:100vw;height:100vh;height:100dvh;overflow:hidden;
+  scroll-snap-align:start;
+  display:flex;flex-direction:column;position:relative;
+}
+.slide-content{
+  flex:1;display:flex;flex-direction:column;justify-content:center;
+  max-height:100%;overflow:hidden;
+  padding:var(--slide-padding);
+  padding-top:calc(var(--slide-padding) + 1.2rem);
+  padding-bottom:calc(var(--slide-padding) + 1.4rem);
+  width:100%;
+  max-width:1180px;margin:0 auto;
+}
+.slide.active .reveal{opacity:1;transform:none}
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.2,1)}
+.reveal:nth-child(2){transition-delay:.06s}
+.reveal:nth-child(3){transition-delay:.12s}
+.reveal:nth-child(4){transition-delay:.18s}
+.reveal:nth-child(5){transition-delay:.24s}
+.reveal:nth-child(6){transition-delay:.30s}
+.reveal:nth-child(7){transition-delay:.36s}
+.reveal:nth-child(8){transition-delay:.42s}
+
+/* ---------------- chrome ---------------- */
+.chrome{position:fixed;inset:0;z-index:20;pointer-events:none}
+.slide-no{
+  position:absolute;top:clamp(.7rem,2vw,1.6rem);right:clamp(.8rem,2.2vw,1.8rem);
+  font-size:var(--micro-size);letter-spacing:.14em;color:var(--dim);
+  display:flex;gap:.45em;align-items:baseline;
+}
+.slide-no b{color:var(--acc);font-weight:700;font-size:calc(var(--micro-size)*1.35)}
+.brandmark{
+  position:absolute;top:clamp(.7rem,2vw,1.6rem);left:clamp(.8rem,2.2vw,1.8rem);
+  font-size:var(--micro-size);letter-spacing:.2em;color:var(--dim);text-transform:uppercase;
+}
+.brandmark span{color:var(--acc)}
+.progress{
+  position:absolute;left:0;right:0;bottom:0;height:2px;background:#0d1a21;
+}
+.progress i{
+  display:block;height:100%;width:0;
+  background:linear-gradient(90deg,var(--acc),var(--acc3));
+  box-shadow:0 0 12px rgba(95,255,135,.55);
+  transition:width .45s cubic-bezier(.2,.7,.2,1);
+}
+.rail{
+  position:absolute;right:clamp(.8rem,2.2vw,1.8rem);top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:.42rem;pointer-events:auto;
+}
+.rail button{
+  width:7px;height:7px;padding:0;border:0;border-radius:50%;
+  background:#22363f;cursor:pointer;transition:all .25s;
+}
+.rail button:hover{background:var(--dim);transform:scale(1.25)}
+.rail button[aria-current="true"]{background:var(--acc);box-shadow:0 0 10px rgba(95,255,135,.8);height:18px;border-radius:4px}
+
+/* ---------------- typography ---------------- */
+.kicker{
+  font-size:var(--small-size);letter-spacing:.22em;text-transform:uppercase;
+  color:var(--acc);margin:0 0 .7em;
+}
+h1{font-size:var(--title-size);line-height:1.08;margin:0 0 .35em;color:#fff;font-weight:700;letter-spacing:-.02em}
+h1 .dim{color:var(--dim);font-weight:400}
+h2{font-size:var(--h2-size);line-height:1.2;margin:0 0 .55em;color:#fff;font-weight:700;letter-spacing:-.01em}
+h3{font-size:var(--h3-size);line-height:1.3;margin:0 0 .35em;color:var(--acc3);font-weight:600}
+p{margin:.4em 0}
+.lead{font-size:clamp(.9rem,1.9vw,1.4rem);color:#dfeaf1;line-height:1.55;max-width:52ch}
+.sub{color:var(--dim);font-size:clamp(.8rem,1.5vw,1.05rem)}
+strong{color:#fff;font-weight:700}
+em{font-style:normal;color:var(--acc2)}
+code{
+  background:#0d1a21;border:1px solid #20343e;color:var(--acc2);
+  padding:.06em .38em;border-radius:3px;font-size:.92em;
+}
+pre{
+  margin:.2em 0 0;background:#060d12;border:1px solid var(--line);
+  border-left:2px solid var(--acc);border-radius:4px;
+  padding:clamp(.55rem,1.4vw,1rem) clamp(.7rem,1.7vw,1.2rem);
+  font-size:var(--small-size);line-height:1.7;color:#d6e4ee;
+  overflow:hidden;white-space:pre-wrap;word-break:break-word;
+}
+pre b{color:var(--acc)}
+pre i{font-style:normal;color:var(--dim)}
+
+/* ---------------- components ---------------- */
+.grid{display:grid;gap:clamp(.45rem,1.4vw,1rem)}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{
+  border:1px solid var(--line);background:linear-gradient(180deg,rgba(12,22,29,.92),rgba(7,13,18,.92));
+  border-radius:5px;padding:clamp(.6rem,1.5vw,1.1rem);
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:"";position:absolute;left:0;top:0;width:100%;height:1px;
+  background:linear-gradient(90deg,var(--acc),transparent 65%);opacity:.55;
+}
+.card h3{font-size:clamp(.82rem,1.6vw,1.1rem);margin-bottom:.25em}
+.card p{font-size:var(--small-size);color:var(--dim);line-height:1.5;margin:0}
+.card .n{
+  font-size:clamp(1.1rem,2.6vw,1.9rem);color:var(--acc);opacity:.9;
+  line-height:1;font-weight:700;margin-bottom:.3em;letter-spacing:-.03em;
+}
+
+ul.clean{list-style:none;margin:.2em 0;padding:0;display:flex;flex-direction:column;gap:clamp(.3rem,1.1vh,.75rem)}
+ul.clean li{display:flex;gap:.7em;font-size:var(--body-size);line-height:1.45;color:#d4e2ec}
+ul.clean li::before{content:"▸";color:var(--acc);flex:0 0 auto}
+ul.clean li b{color:#fff}
+ul.clean li span{color:var(--dim)}
+
+.pipe{display:flex;align-items:center;gap:.35em;flex-wrap:nowrap;margin:.4em 0 .1em}
+.pip{
+  flex:1 1 0;min-width:0;border:1px solid var(--line2);background:#081118;
+  border-radius:4px;padding:clamp(.4rem,1.1vw,.85rem) .2em;text-align:center;
+  position:relative;
+}
+.pip b{display:block;font-size:var(--micro-size);color:var(--acc);letter-spacing:.1em}
+.pip span{display:block;font-size:var(--small-size);color:#dfeaf1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pipe i{color:var(--line2);font-style:normal;font-size:var(--small-size);flex:0 0 auto}
+
+.flow{
+  display:flex;flex-direction:column;gap:clamp(.25rem,.9vh,.55rem);
+}
+.node{
+  border:1px solid var(--line);border-left:2px solid var(--acc3);
+  background:#081118;border-radius:4px;
+  padding:clamp(.32rem,.9vw,.6rem) clamp(.55rem,1.3vw,.9rem);
+  font-size:var(--small-size);display:flex;justify-content:space-between;gap:.8em;align-items:baseline;
+}
+.node b{color:#fff;font-weight:600}
+.node span{color:var(--dim);font-size:var(--micro-size);text-align:right}
+
+.row{
+  display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+  gap:clamp(.6rem,2vw,1.6rem);align-items:center;
+}
+.two{columns:2;column-gap:clamp(1rem,3vw,2.6rem)}
+.two>*{break-inside:avoid}
+
+table{border-collapse:collapse;width:100%;font-size:var(--small-size)}
+th,td{border-bottom:1px solid var(--line);padding:clamp(.28rem,.9vw,.6rem) .5em;text-align:left;vertical-align:top}
+th{color:var(--acc2);font-weight:600;font-size:var(--micro-size);letter-spacing:.08em;text-transform:uppercase}
+td:first-child{color:#fff;white-space:nowrap}
+td.d{color:var(--dim)}
+tr:last-child td{border-bottom:0}
+
+.tag{
+  display:inline-block;border:1px solid var(--line2);color:var(--dim);
+  font-size:var(--micro-size);padding:.08em .55em;border-radius:2px;letter-spacing:.06em;
+  white-space:nowrap;
+}
+.tag.a{border-color:rgba(95,255,135,.5);color:var(--acc)}
+.tag.b{border-color:rgba(255,215,95,.45);color:var(--acc2)}
+
+.quote{
+  border-left:2px solid var(--acc);padding:.15em 0 .15em .9em;
+  color:#dfeaf1;font-size:clamp(.9rem,2vw,1.35rem);line-height:1.5;max-width:50ch;
+}
+.quote small{display:block;color:var(--dim);font-size:var(--small-size);margin-top:.5em;letter-spacing:.06em}
+
+.hint{
+  position:absolute;left:50%;bottom:calc(clamp(1rem,3vw,2.4rem));transform:translateX(-50%);
+  font-size:var(--micro-size);color:var(--dim);letter-spacing:.14em;
+  display:flex;gap:.7em;align-items:center;white-space:nowrap;
+}
+.hint kbd{
+  border:1px solid var(--line2);border-bottom-width:2px;border-radius:3px;
+  padding:.1em .45em;color:var(--fg);font-family:inherit;font-size:.95em;
+}
+
+.hl{color:var(--acc)}
+.hl2{color:var(--acc2)}
+.mut{color:var(--dim)}
+
+/* ---------------- vocabulary ---------------- */
+.vgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(.4rem,1.2vw,.85rem)}
+.vcard{
+  border:1px solid var(--line);border-left:2px solid var(--acc);
+  background:#081118;border-radius:4px;
+  padding:clamp(.38rem,1vw,.7rem) clamp(.55rem,1.3vw,.9rem);
+  min-width:0;
+}
+.vcard b{color:#fff;font-size:var(--small-size);display:block;line-height:1.3}
+.vcard b i{font-style:normal;color:var(--acc3);font-size:var(--micro-size);margin-left:.45em;letter-spacing:.04em}
+.vcard p{color:var(--dim);font-size:var(--micro-size);margin:.12em 0 .3em;line-height:1.45}
+.vcard code{
+  display:block;font-size:var(--micro-size);background:#04070a;
+  border:1px solid #243a46;color:var(--acc2);
+  padding:.1em .45em;border-radius:2px;
+  white-space:normal;word-break:break-word;
+}
+@media (max-width:640px){
+  .vgrid{grid-template-columns:1fr}
+  .vcard[style*="grid-column"]{grid-column:auto !important}
+}
+
+/* ---------------- responsive ---------------- */
+@media (max-width:900px){
+  .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .row{grid-template-columns:1fr}
+  .rail{display:none}
+}
+@media (max-width:640px){
+  .g3{grid-template-columns:1fr}
+  .two{columns:1}
+  .pipe{flex-wrap:wrap}
+  .pipe i{display:none}
+  .pip{flex:1 1 28%}
+}
+@media (max-height:700px){
+  :root{
+    --slide-padding:clamp(.7rem,3vw,2rem);
+    --content-gap:clamp(.35rem,1.4vw,.9rem);
+    --title-size:clamp(1.3rem,4.4vw,2.6rem);
+    --h2-size:clamp(1rem,2.9vw,1.75rem);
+  }
+}
+@media (max-height:600px){
+  :root{
+    --slide-padding:clamp(.5rem,2.4vw,1.4rem);
+    --body-size:clamp(.7rem,1.2vw,.95rem);
+    --small-size:clamp(.62rem,.98vw,.8rem);
+  }
+  .hint,.rail,.brandmark{display:none}
+}
+@media (max-height:500px){
+  /* landscape phones: keep two-column slides side by side instead of stacking */
+  .row{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:.7rem}
+  .node{padding:.22rem .5rem;font-size:clamp(.6rem,.95vw,.72rem)}
+  .flow{gap:.22rem}
+  pre{font-size:clamp(.54rem,.9vw,.68rem);line-height:1.55;padding:.5rem .6rem}
+  th,td{padding:.16rem .35rem}
+  .card{padding:.4rem .55rem}
+  .hint,.rail,.brandmark{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.15s !important}
+  html{scroll-behavior:auto}
+  .reveal{opacity:1;transform:none}
+}
+a{color:var(--acc3);text-decoration:none;border-bottom:1px dashed rgba(95,215,255,.5);pointer-events:auto}
+a:hover{color:var(--acc);border-bottom-color:var(--acc)}
+</style>
+</head>
+<body>
+
+<div class="chrome" aria-hidden="true">
+  <div class="brandmark">pstack<span> /</span> repo</div>
+  <div class="slide-no"><b id="cur">01</b><span>/ <span id="tot">15</span></span></div>
+  <nav class="rail" id="rail" aria-label="投影片導覽"></nav>
+  <div class="progress"><i id="bar"></i></div>
+</div>
+
+<main id="deck">
+
+  <!-- 01 COVER -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">cursor/plugins · pstack</p>
+      <h1 class="reveal">pstack 外掛導讀<br><span class="dim">裝什麼、怎麼用、要注意什麼</span></h1>
+      <p class="lead reveal">一組讓 AI「<span class="hl">少寫、寫對、拿證據</span>」的 agent 工作流技能。</p>
+      <div class="reveal" style="margin-top:1.2em;display:flex;gap:.5em;flex-wrap:wrap">
+        <span class="tag a">教學版</span>
+        <span class="tag">依 repo 內容整理</span>
+        <span class="tag">未在本機實測</span>
+      </div>
+    </div>
+    <div class="hint"><span><kbd>↑</kbd><kbd>↓</kbd> / 空白</span><span>切換</span></div>
+  </section>
+
+  <!-- 02 WHAT -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">01 · 它是什麼</p>
+      <h2 class="reveal">一句話：Cursor 官方 repo 裡的<span class="hl">工作流外掛</span></h2>
+      <p class="lead reveal">核心是入口 <code>/poteto-mode</code>：依任務挑一本 playbook，再按步驟叫用其他技能，最後用可驗證的證據收尾。</p>
+      <div class="grid g3 reveal" style="margin-top:.8em">
+        <div class="card"><h3>作者</h3><p>Lauren Tan（poteto），Cursor 工程師。</p></div>
+        <div class="card"><h3>目標</h3><p>寫少一點、寫對一點，不追求程式碼行數。</p></div>
+        <div class="card"><h3>授權</h3><p>pstack 子目錄為 MIT。</p></div>
+      </div>
+      <p class="sub reveal" style="margin-top:.8em">來源：<a href="https://github.com/cursor/plugins/tree/main/pstack" target="_blank" rel="noopener">github.com/cursor/plugins/tree/main/pstack</a>（版本 0.15.48，最後 commit 2026-11-24）</p>
+    </div>
+  </section>
+
+  <!-- 03 STRUCTURE -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">02 · 裡面有什麼</p>
+      <h2 class="reveal">四種東西，數字取自 2026-11-24 的 main</h2>
+      <div class="grid g4 reveal" style="margin-top:.4em">
+        <div class="card"><div class="n">1</div><h3>入口</h3><p><code>/poteto-mode</code>，任務的總入口。</p></div>
+        <div class="card"><div class="n">22</div><h3>Playbook</h3><p>步驟清單，描述任務就會自動配對。</p></div>
+        <div class="card"><div class="n">59</div><h3>Skill 目錄</h3><p><code>skills/</code> 底下的子目錄數。</p></div>
+        <div class="card"><div class="n">24</div><h3>原則</h3><p><code>principle-*</code>，講名字就能轉向。</p></div>
+      </div>
+      <p class="sub reveal" style="margin-top:1em">另有 2 個 subagent：<code>poteto-agent</code>、<code>comment-sicko</code>。技能數會隨 commit 變動，舊文章寫 58 個。</p>
+    </div>
+  </section>
+
+  <!-- 04 INSTALL -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">03 · 安裝</p>
+      <h2 class="reveal">兩種環境，兩組指令</h2>
+      <div class="grid g2 reveal" style="margin-top:.4em">
+        <div>
+          <h3>Cursor</h3>
+<pre><b>/add-plugin</b> pstack</pre>
+        </div>
+        <div>
+          <h3>Claude Code</h3>
+<pre><b>/plugin marketplace add</b> cursor/plugins
+<b>/plugin install</b> pstack@cursor-plugins</pre>
+        </div>
+      </div>
+      <p class="sub reveal" style="margin-top:.8em">在 Claude Code，指令要加前綴：<code>/poteto-mode</code> 變成 <code>/pstack:poteto-mode</code>。</p>
+    </div>
+  </section>
+
+  <!-- 05 CLAUDE CODE NOTES -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">04 · Claude Code 版的注意事項</p>
+      <h2 class="reveal">更新、功能、副本，各有一個坑</h2>
+      <ul class="clean reveal" style="margin-top:.3em">
+        <li><b>預設不自動更新</b> <span>— 第三方 marketplace 預設關閉。要開：<code>/plugin</code> → marketplaces → <code>cursor-plugins</code> → enable auto-update；手動更新用 <code>claude plugin update pstack@cursor-plugins</code></span></li>
+        <li><b>Cursor 專屬功能會被跳過</b> <span>— 例如 Bugbot、Automations，並印一行說明</span></li>
+        <li><b>安裝的是生成副本</b> <span>— 來自 <code>harness/pstack/</code>；改完 pstack 要跑 <code>node scripts/generate-pstack-harness-trees.mjs</code> 並 commit，CI 會檢查是否過期</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 06 TWO STEPS -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">05 · 兩步開始</p>
+      <h2 class="reveal">先設定，再開工</h2>
+      <div class="pipe reveal" style="margin-top:.4em">
+        <div class="pip"><b>1</b><span>/setup-pstack</span></div><i>›</i>
+        <div class="pip"><b>2</b><span>/poteto-mode</span></div>
+      </div>
+      <ul class="clean reveal" style="margin-top:1em">
+        <li><b>/setup-pstack</b> <span>— 選推理預算（large／medium／small），並選每個角色用哪個模型</span></li>
+        <li><b>/poteto-mode</b> <span>— 任務開始時用，把需求和驗收條件一起丟進去</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 07 DEFAULT MODELS -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">06 · README 的預設模型</p>
+      <h2 class="reveal">不設定也能跑，預設長這樣</h2>
+      <table class="reveal" style="margin-top:.3em">
+        <tr><th>工作</th><th>預設</th></tr>
+        <tr><td>寫程式、修 bug、perf、hillclimb、文字與判斷</td><td class="d">Opus 5.5 xhigh</td></tr>
+        <tr><td>Fable 5.2</td><td class="d">只在你點名，或同一份 brief 兩次 Opus 都失敗時才用</td></tr>
+        <tr><td>評審小組（panel）</td><td class="d">Fable 5.2 ／ Opus 5.5 ／ Gemini 4 Neon</td></tr>
+      </table>
+      <p class="sub reveal" style="margin-top:.8em">任何角色都不會超過 xhigh；<code>/setup-pstack</code> 可以改掉以上全部。</p>
+    </div>
+  </section>
+
+  <!-- 08 PROMPT -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">07 · 提示詞怎麼寫</p>
+      <h2 class="reveal">目標、完成判準、證據形式</h2>
+<pre class="reveal" style="margin-top:.3em"><b>/poteto-mode</b> 這個 PR 有個細微 bug：閒置時捲動每 750ms 會漂移。
+先 repro，再修，並驗證。</pre>
+      <ul class="clean reveal" style="margin-top:.8em">
+        <li><b>目標</b> <span>— 哪裡壞了／你要什麼</span></li>
+        <li><b>完成判準</b> <span>— 必須能 pass／fail</span></li>
+        <li><b>證據形式</b> <span>— 要看到什麼輸出</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 09 PLAYBOOKS -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">08 · Playbook 速覽（節選）</p>
+      <h2 class="reveal">情境 → 劇本</h2>
+      <div class="two reveal" style="margin-top:.3em">
+        <table>
+          <tr><th>情境</th><th>Playbook</th></tr>
+          <tr><td>只想弄懂一個問題</td><td class="d">investigation</td></tr>
+          <tr><td>有 bug，要重現與根因</td><td class="d">bug fix</td></tr>
+          <tr><td>量到慢，要 before/after</td><td class="d">perf</td></tr>
+          <tr><td>新行為</td><td class="d">feature</td></tr>
+        </table>
+        <table>
+          <tr><th>情境</th><th>Playbook</th></tr>
+          <tr><td>只改結構、行為不變</td><td class="d">refactoring</td></tr>
+          <tr><td>PR 推到可 merge</td><td class="d">babysit</td></tr>
+          <tr><td>驗過的 stack 落地</td><td class="d">shipping</td></tr>
+          <tr><td>長時間跑到完成</td><td class="d">autonomous run</td></tr>
+        </table>
+      </div>
+      <p class="sub reveal" style="margin-top:.8em">完整 22 本見 <code>skills/poteto-mode/playbooks/</code>。</p>
+    </div>
+  </section>
+
+  <!-- 10 SKILLS -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">09 · 技能分類</p>
+      <h2 class="reveal">七類，代表技能各舉幾個</h2>
+      <table class="reveal" style="margin-top:.3em">
+        <tr><th>類別</th><th>代表技能</th></tr>
+        <tr><td>入口與求助</td><td class="d">poteto-mode、poteto-help、sharpen</td></tr>
+        <tr><td>動手前理解</td><td class="d">how、why、recall、teach</td></tr>
+        <tr><td>設計</td><td class="d">architect、prototype、arena、swarm、blast-radius</td></tr>
+        <tr><td>審查</td><td class="d">interrogate、no-comments</td></tr>
+        <tr><td>寫完之後</td><td class="d">tdd、unslop、benchmark-checklist、technical-writing</td></tr>
+        <tr><td>驗證</td><td class="d">create-verification-skill、create-formal-verification-skill、statechart</td></tr>
+        <tr><td>成本與自我改進</td><td class="d">setup-pstack、reflect、correct、show-me-your-work</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 11 COST -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">10 · 成本提醒</p>
+      <h2 class="reveal">嚴謹要花錢，花在三個地方</h2>
+      <div class="grid g3 reveal" style="margin-top:.4em">
+        <div class="card"><div class="n">×N</div><h3>panel 長度</h3><p>清單每個 entry 就是一個 subagent。</p></div>
+        <div class="card"><div class="n">×N</div><h3>swarm 切片</h3><p>切片數就是倍數。</p></div>
+        <div class="card"><div class="n">⏱</div><h3>長跑</h3><p>autonomous run、autopilot 這類是最貴的部分。</p></div>
+      </div>
+      <p class="sub reveal" style="margin-top:1em">README 建議：小而明顯的改動不要套 poteto-mode；把嚴謹留給「錯了很貴」的地方（設計、併發、資料、對外 API）。</p>
+    </div>
+  </section>
+
+  <!-- 12 RISKS -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">11 · 風險與限制</p>
+      <h2 class="reveal">安裝前請知道這四件事</h2>
+      <table class="reveal" style="margin-top:.3em">
+        <tr><th>項目</th><th>我看到的</th></tr>
+        <tr><td>安全公告</td><td class="d">repo 的 security advisories 是空的；只代表沒有公開公告，不代表沒有問題。</td></tr>
+        <tr><td>腳本</td><td class="d">有 <code>worktree-audit.sh</code>、<code>log.sh</code> 與兩個 <code>package.json</code>，我沒有逐行讀，建議安裝前自己看。</td></tr>
+        <tr><td>效果</td><td class="d">「每天用、做出高品質程式」是作者自己的說法；找不到獨立實測比較。</td></tr>
+        <tr><td>Claude Code 版</td><td class="d">部分功能被跳過，Cursor 專屬功能不能用。</td></tr>
+      </table>
+      <p class="sub reveal" style="margin-top:.7em">補充：搜尋到的 Cursor CVE（如 CVE-2025-54135、CVE-2025-54136）是 Cursor 本身的問題，與 pstack 無直接關係。</p>
+    </div>
+  </section>
+
+  <!-- 13 FIT -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">12 · 適不適合你</p>
+      <h2 class="reveal">看你的任務，不是看工具</h2>
+      <div class="grid g2 reveal" style="margin-top:.4em">
+        <div class="card" style="border-color:rgba(95,255,135,.45)"><span class="tag a">適合</span><h3 style="margin-top:.5em">有驗收條件、要留證據</h3><p>先定 done 判準、先 repro、要真實輸出當證據。這套想法即使不裝外掛也值得借來用。</p></div>
+        <div class="card" style="border-color:rgba(255,107,107,.45)"><span class="tag" style="color:var(--bad);border-color:rgba(255,107,107,.5)">不適合</span><h3 style="margin-top:.5em">小改動</h3><p>套整套流程只會增加成本。</p></div>
+      </div>
+      <p class="sub reveal" style="margin-top:1em">安裝前：先看過 scripts，並決定要不要開自動更新。</p>
+    </div>
+  </section>
+
+  <!-- 14 LINKS -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">13 · 參考連結</p>
+      <h2 class="reveal">延伸閱讀</h2>
+      <ul class="clean reveal" style="margin-top:.3em">
+        <li><a href="https://github.com/cursor/plugins/tree/main/pstack" target="_blank" rel="noopener">pstack 官方 repo 子目錄</a> <span>— README、plugin.json、目錄結構</span></li>
+        <li><a href="https://flaviocopes.com/pstack" target="_blank" rel="noopener">A deep dive into pstack</a> <span>— Flavio Copes（第三方）</span></li>
+        <li><a href="https://flaviocopes.com/poteto-mode/" target="_blank" rel="noopener">What is poteto-mode in pstack?</a> <span>— Flavio Copes（第三方）</span></li>
+        <li><a href="https://cursor.com/cn/lp-team/lauren" target="_blank" rel="noopener">pstack: the skills behind 10,000 agent runs</a> <span>— Cursor 官方頁，作者宣傳用</span></li>
+        <li><a href="https://raw.githubusercontent.com/michael-denyer/pstack-claude/main/README.md" target="_blank" rel="noopener">michael-denyer/pstack-claude</a> <span>— 社群移植版，非官方</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 15 RECAP -->
+  <section class="slide">
+    <div class="slide-content">
+      <p class="kicker reveal">14 · 小結</p>
+      <h2 class="reveal">記住這三句就夠</h2>
+      <div class="grid g3 reveal" style="margin-top:.4em">
+        <div class="card"><div class="n">1</div><h3>是什麼</h3><p>Cursor 官方 repo 的工作流外掛，入口是 /poteto-mode。</p></div>
+        <div class="card"><div class="n">2</div><h3>怎麼用</h3><p>先 /setup-pstack，再把「目標＋怎麼檢查」交給 /poteto-mode。</p></div>
+        <div class="card"><div class="n">3</div><h3>要小心</h3><p>成本、腳本與無獨立評測；小改動別套整套流程。</p></div>
+      </div>
+      <p class="sub reveal" style="margin-top:1em">本頁依 repo 的 README、plugin.json 與目錄整理，未在本機實測。</p>
+    </div>
+  </section>
+
+</main>
+
+
+
+<script>
+(() => {
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const rail = document.getElementById('rail');
+  const bar = document.getElementById('bar');
+  const cur = document.getElementById('cur');
+  const tot = document.getElementById('tot');
+  const pad = n => String(n).padStart(2, '0');
+  tot.textContent = pad(slides.length);
+
+  let index = 0;
+  let lock = false;
+
+  // build rail
+  slides.forEach((_, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('aria-label', '第 ' + (i + 1) + ' 張');
+    b.addEventListener('click', () => go(i));
+    rail.appendChild(b);
+  });
+  const dots = Array.from(rail.children);
+
+  function setActive(i) {
+    if (i === index && slides[i].classList.contains('active')) return;
+    index = i;
+    slides.forEach((s, n) => s.classList.toggle('active', n === i));
+    dots.forEach((d, n) => d.setAttribute('aria-current', n === i ? 'true' : 'false'));
+    cur.textContent = pad(i + 1);
+    bar.style.width = ((i + 1) / slides.length * 100) + '%';
+    if (history.replaceState) history.replaceState(null, '', '#' + (i + 1));
+  }
+
+  function go(i) {
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    lock = true;
+    clearTimeout(go._t);
+    go._t = setTimeout(() => { lock = false; }, 450);
+    slides[i].scrollIntoView({ behavior: 'instant', block: 'start' });
+    setActive(i);
+  }
+
+  // active state via intersection (source of truth for wheel/scroll)
+  const io = new IntersectionObserver(entries => {
+    if (lock) return;
+    entries.forEach(e => {
+      if (e.isIntersecting && e.intersectionRatio > 0.55) {
+        const i = slides.indexOf(e.target);
+        if (i >= 0) setActive(i);
+      }
+    });
+  }, { threshold: [0.55, 0.9] });
+  slides.forEach(s => io.observe(s));
+
+  // keyboard
+  let locked = false;
+  function next() { go(index + 1); }
+  function prev() { go(index - 1); }
+  addEventListener('keydown', e => {
+    const k = e.key;
+    if (!k || e.repeat) return;
+    if (k === 'ArrowDown' || k === 'ArrowRight' || k === 'PageDown' || k === ' ' || k === 'Spacebar' || k === 'Space' || k === 'Enter') {
+      e.preventDefault(); next();
+    } else if (k === 'ArrowUp' || k === 'ArrowLeft' || k === 'PageUp') {
+      e.preventDefault(); prev();
+    } else if (k === 'Home') { e.preventDefault(); go(0); }
+    else if (k === 'End') { e.preventDefault(); go(slides.length - 1); }
+  });
+
+  // touch swipe
+  let ty = 0, tx = 0;
+  addEventListener('touchstart', e => {
+    ty = e.changedTouches[0].clientY; tx = e.changedTouches[0].clientX;
+  }, { passive: true });
+  addEventListener('touchend', e => {
+    const dy = ty - e.changedTouches[0].clientY;
+    const dx = tx - e.changedTouches[0].clientX;
+    if (Math.abs(dy) > 50 && Math.abs(dy) > Math.abs(dx)) {
+      dy > 0 ? next() : prev();
+    }
+  }, { passive: true });
+
+  // initial
+  const start = parseInt((location.hash || '').replace('#', ''), 10);
+  const s = Number.isFinite(start) && start >= 1 && start <= slides.length ? start - 1 : 0;
+  if (s > 0) go(s);
+  else setActive(0);
+
+  addEventListener('hashchange', () => {
+    const n = parseInt((location.hash || '').replace('#', ''), 10);
+    if (Number.isFinite(n) && n >= 1 && n <= slides.length && n - 1 !== index) go(n - 1);
+  });
+})();
+</script>
+</body>
+</html>
