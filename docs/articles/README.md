@@ -38,6 +38,8 @@ OpenWiki 是從專案內的檔案建立 wiki，不會自行抓取網頁。你找
 | [opencode-shortcuts.md](./develop/opencode-shortcuts.md) | OpenCode 快捷鍵與斜線指令 | 使用者提供 | 2026-11-16 |
 | [pstack-opencode-install.md](./develop/pstack-opencode-install.md) | pstack 在 opencode CLI 上的安裝與限制 | https://github.com/cursor/plugins/tree/main/pstack | 2026-11-20 |
 | [pstack-teaching-decks.md](./develop/pstack-teaching-decks.md) | pstack 教學簡報與心得頁（HTML） | https://github.com/cursor/plugins/tree/main/pstack | 2026-11-25 |
+| [pstack-video-deep-dive.md](./develop/pstack-video-deep-dive.md) | pstack 深度拆解！怎麼讓 AI 全自動完成你的工作？（影片筆記） | https://www.youtube.com/watch?v=l_xDqUm0MDQ | 2026-11-25 |
+| [pstack-sharpen-deep-dive.md](./develop/pstack-sharpen-deep-dive.md) | pstack `/sharpen` 原始碼深度拆解：把任務做深、不做大 | https://github.com/cursor/plugins/blob/main/pstack/skills/sharpen/SKILL.md | 2026-11-25 |
 
 ## 注意事項
 
