@@ -12,5 +12,8 @@
   "type": "commonjs",
   "dependencies": {
     "openwiki": "^0.7.2"
+  },
+  "devDependencies": {
+    "marked": "^18.1.2"
   }
 }
