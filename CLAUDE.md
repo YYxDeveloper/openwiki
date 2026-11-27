@@ -1,3 +1,7 @@
+## HTML 產出規範
+
+- 製作任何 HTML 時，不要設定淡出特效（fade-out effect / fade out animation）。
+
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
