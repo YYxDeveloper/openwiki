@@ -55,6 +55,10 @@ code{font-size:.92em}
 table{border-collapse:collapse;display:block;overflow:auto}
 th,td{border:1px solid var(--border);padding:6px 10px}
 nav{color:var(--muted);font-size:14px;margin-bottom:16px}
+ul.tree{list-style:none;padding-left:18px;margin:4px 0}
+ul.tree li{margin:4px 0}
+details>summary{cursor:pointer;font-weight:600;margin:6px 0}
+a.asset{color:var(--muted);font-size:14px}
 </style>
 </head>
 <body>
@@ -79,15 +83,42 @@ async function htmlTitle(source, fallback) {
   return (source.match(/<title>([^<]+)<\/title>/i)?.[1] ?? fallback).trim();
 }
 
+// Builds a folder tree from entry hrefs (posix paths relative to docs/), so the
+// index mirrors the real directory layout instead of a flat list.
+function buildTree(entries) {
+  const root = { name: "", dirs: new Map(), files: [] };
+  for (const entry of entries) {
+    const parts = entry.href.split("/");
+    const fileName = parts.pop();
+    let node = root;
+    for (const dir of parts) {
+      if (!node.dirs.has(dir)) node.dirs.set(dir, { name: dir, dirs: new Map(), files: [] });
+      node = node.dirs.get(dir);
+    }
+    node.files.push({ ...entry, label: entry.asset ? fileName : entry.title });
+  }
+  return root;
+}
+
+function renderTree(node) {
+  const folders = [...node.dirs.values()]
+    .sort((a, b) => a.name.localeCompare(b.name, "zh-Hant"))
+    .map(
+      (dir) => `<li><details open><summary>📁 ${escapeHtml(dir.name)}/</summary>${renderTree(dir)}</details></li>`,
+    );
+  const files = [...node.files]
+    .sort((a, b) => a.label.localeCompare(b.label, "zh-Hant"))
+    .map((f) => {
+      const cls = f.asset ? ' class="asset"' : "";
+      return `<li><a${cls} href="${escapeHtml(f.href)}">${escapeHtml(f.label)}</a></li>`;
+    });
+  return `<ul class="tree">${[...folders, ...files].join("\n")}</ul>`;
+}
+
 function indexPage(entries) {
-  const items = entries
-    .map((e) => `<li><a href="${e.href}">${escapeHtml(e.title)}</a></li>`)
-    .join("\n");
   const body = `<h1>文件索引</h1>
-<p>來源：repo 內的 <code>docs/</code> 資料夾。</p>
-<ul>
-${items}
-</ul>`;
+<p>依照 repo 內 <code>docs/</code> 的資料夾結構排列；資料夾可點擊展開或收合。</p>
+${renderTree(buildTree(entries))}`;
   return pageShell({ title: "文件索引", body, backHref: "../index.html" });
 }
 
@@ -113,6 +144,7 @@ async function main() {
       entries.push({ href: posixRel, title });
     } else {
       await cp(absPath, destPath); // images and other assets referenced by pages
+      entries.push({ href: posixRel, title: path.basename(relPath), asset: true });
     }
   }
 
