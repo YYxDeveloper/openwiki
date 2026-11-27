@@ -13,18 +13,45 @@ const DOCS_SRC = path.join(ROOT, "docs");
 const OUT = path.join(ROOT, "_site");
 const OUT_DOCS = path.join(OUT, "docs");
 
+// Only these file types are published from docs/. Anything else fails the build,
+// so a stray file (keys, exports, OS junk) cannot reach the public site unnoticed.
+const PAGE_EXTENSIONS = new Set([".md", ".html"]);
+const ASSET_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"]);
+
 const escapeHtml = (text) =>
   text.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+const NAMED_ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
+
+// Turns source text such as `A &amp; B` into `A & B` so escapeHtml does not escape it twice.
+function decodeEntities(text) {
+  return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (match, body) => {
+    if (body[0] === "#") {
+      const code = body[1].toLowerCase() === "x" ? parseInt(body.slice(2), 16) : parseInt(body.slice(1), 10);
+      return Number.isFinite(code) ? String.fromCodePoint(code) : match;
+    }
+    return NAMED_ENTITIES[body.toLowerCase()] ?? match;
+  });
+}
 
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
   const nested = await Promise.all(
-    entries.map((entry) => {
-      const full = path.join(dir, entry.name);
-      return entry.isDirectory() ? walk(full) : [full];
-    }),
+    entries
+      .filter((entry) => !entry.name.startsWith(".")) // skip .DS_Store, dotfiles and dot-folders
+      .map((entry) => {
+        const full = path.join(dir, entry.name);
+        return entry.isDirectory() ? walk(full) : [full];
+      }),
   );
   return nested.flat();
+}
+
+function assertPublishable(relPath) {
+  const ext = path.extname(relPath).toLowerCase();
+  if (!PAGE_EXTENSIONS.has(ext) && !ASSET_EXTENSIONS.has(ext)) {
+    throw new Error(`Refusing to publish unsupported file from docs/: ${relPath}`);
+  }
 }
 
 // Relative links written as `foo.md` must point at the rendered `foo.html`.
@@ -72,7 +99,7 @@ ${body}
 }
 
 async function renderMarkdown(relPath, source) {
-  const title = (source.match(/^#\s+(.+)$/m)?.[1] ?? relPath).trim();
+  const title = decodeEntities((source.match(/^#\s+(.+)$/m)?.[1] ?? relPath).trim());
   const depth = relPath.split(path.sep).length - 1;
   const backHref = `${"../".repeat(depth)}index.html`;
   const html = rewriteMarkdownLinks(marked.parse(source));
@@ -80,7 +107,8 @@ async function renderMarkdown(relPath, source) {
 }
 
 async function htmlTitle(source, fallback) {
-  return (source.match(/<title>([^<]+)<\/title>/i)?.[1] ?? fallback).trim();
+  const raw = source.match(/<title>([^<]+)<\/title>/i)?.[1] ?? fallback;
+  return decodeEntities(raw).trim();
 }
 
 // Builds a folder tree from entry hrefs (posix paths relative to docs/), so the
@@ -132,6 +160,7 @@ async function main() {
     const destPath = path.join(OUT_DOCS, relPath);
     await mkdir(path.dirname(destPath), { recursive: true });
     const posixRel = relPath.split(path.sep).join("/");
+    assertPublishable(relPath);
 
     if (relPath.endsWith(".md")) {
       const { title, html } = await renderMarkdown(relPath, await readFile(absPath, "utf8"));
