@@ -82,15 +82,7 @@ main{position:relative;z-index:1}
   width:100%;
   max-width:1180px;margin:0 auto;
 }
-.slide.active .reveal{opacity:1;transform:none}
-.reveal{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.2,1)}
-.reveal:nth-child(2){transition-delay:.06s}
-.reveal:nth-child(3){transition-delay:.12s}
-.reveal:nth-child(4){transition-delay:.18s}
-.reveal:nth-child(5){transition-delay:.24s}
-.reveal:nth-child(6){transition-delay:.30s}
-.reveal:nth-child(7){transition-delay:.36s}
-.reveal:nth-child(8){transition-delay:.42s}
+/* reveal 動畫已移除：內容一律直接顯示，不做淡入／淡出 */
 
 /* ---------------- chrome ---------------- */
 .chrome{position:fixed;inset:0;z-index:20;pointer-events:none}
@@ -308,7 +300,6 @@ tr:last-child td{border-bottom:0}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.15s !important}
   html{scroll-behavior:auto}
-  .reveal{opacity:1;transform:none}
 }
 a{color:var(--acc3);text-decoration:none;border-bottom:1px dashed rgba(95,215,255,.5);pointer-events:auto}
 a:hover{color:var(--acc);border-bottom-color:var(--acc)}
