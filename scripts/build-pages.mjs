@@ -16,7 +16,10 @@ const OUT_DOCS = path.join(OUT, "docs");
 // Only these file types are published from docs/. Anything else fails the build,
 // so a stray file (keys, exports, OS junk) cannot reach the public site unnoticed.
 const PAGE_EXTENSIONS = new Set([".md", ".html"]);
-const ASSET_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"]);
+// .svg is deliberately excluded: an SVG can embed <script>, and Pages serves it from the
+// github.io origin, so opening it directly would run that script there.
+const ASSET_EXTENSIONS = new Set([".png", ".jpg", ".jpeg", ".gif", ".webp"]);
+const MAX_CODE_POINT = 0x10ffff;
 
 const escapeHtml = (text) =>
   text.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -28,7 +31,8 @@ function decodeEntities(text) {
   return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (match, body) => {
     if (body[0] === "#") {
       const code = body[1].toLowerCase() === "x" ? parseInt(body.slice(2), 16) : parseInt(body.slice(1), 10);
-      return Number.isFinite(code) ? String.fromCodePoint(code) : match;
+      // Out-of-range values would make String.fromCodePoint throw and fail the whole build.
+      return Number.isFinite(code) && code <= MAX_CODE_POINT ? String.fromCodePoint(code) : match;
     }
     return NAMED_ENTITIES[body.toLowerCase()] ?? match;
   });
@@ -157,17 +161,18 @@ async function main() {
   const entries = [];
   for (const absPath of await walk(DOCS_SRC)) {
     const relPath = path.relative(DOCS_SRC, absPath);
+    assertPublishable(relPath); // check before creating any output directory
     const destPath = path.join(OUT_DOCS, relPath);
     await mkdir(path.dirname(destPath), { recursive: true });
     const posixRel = relPath.split(path.sep).join("/");
-    assertPublishable(relPath);
+    const ext = path.extname(relPath).toLowerCase(); // same case rule as assertPublishable
 
-    if (relPath.endsWith(".md")) {
+    if (ext === ".md") {
       const { title, html } = await renderMarkdown(relPath, await readFile(absPath, "utf8"));
-      const outRel = posixRel.replace(/\.md$/, ".html");
+      const outRel = posixRel.replace(/\.md$/i, ".html");
       await writeFile(path.join(OUT_DOCS, outRel), html);
       entries.push({ href: outRel, title });
-    } else if (relPath.endsWith(".html")) {
+    } else if (ext === ".html") {
       const title = await htmlTitle(await readFile(absPath, "utf8"), posixRel);
       await cp(absPath, destPath);
       entries.push({ href: posixRel, title });
